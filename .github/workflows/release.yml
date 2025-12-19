@@ -1,0 +1,116 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    name: Build Windows
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    
+    defaults:
+      run:
+        shell: pwsh
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+          check-latest: true
+          cache: true
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'frontend/package-lock.json'
+
+      - name: Cache Go Tools
+        id: cache-tools
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/go/bin/wails.exe
+            ~/go/bin/garble.exe
+          key: ${{ runner.os }}-go-tools-v1
+
+      - name: Install Tools
+        if: steps.cache-tools.outputs.cache-hit != 'true'
+        run: |
+          Write-Host "Installing Wails..."
+          go install github.com/wailsapp/wails/v2/cmd/wails@latest
+          Write-Host "Installing Garble..."
+          go install mvdan.cc/garble@latest
+
+      - name: Install Frontend Dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+
+      - name: Build
+        run: |
+          # 获取 lib 绝对路径
+          $LibPath = "${{ github.workspace }}\lib"
+          Write-Host "📂 Lib Path config: $LibPath"
+
+
+          $env:Path += ";$LibPath"
+          Write-Host "👉 Updated Environment Path with Lib"
+
+          # 设置 CGO 变量
+          $env:CGO_ENABLED = "1"
+          $env:CGO_CFLAGS = "-I$LibPath"
+          $env:CGO_LDFLAGS = "-L$LibPath -lsherpa-onnx-c-api"          
+          Write-Host "🔨 Starting Wails Build..."
+          wails build  -ldflags "-s -w" -tags prod
+
+
+      - name: Package Application
+        run: |
+          $BinPath = "build\bin"
+          $LibPath = "lib"
+          $ZipName = "Q-Solver-Windows-amd64.zip"
+          
+          # A. 检查并复制 DLL 到输出目录 (给用户运行时用)
+          if (Test-Path $LibPath) {
+              Write-Host "📦 Copying DLLs from $LibPath to $BinPath..."
+              Copy-Item -Path "$LibPath\*.dll" -Destination $BinPath -Force
+          } else {
+              Write-Error "❌ Lib directory not found!"
+              exit 1
+          }
+
+          # B. 压缩 build/bin 目录下的所有内容 (EXE + DLL)
+          if (Test-Path "$BinPath\Q-Solver.exe") {
+              Write-Host "🗜️ Compressing artifacts..."
+              Compress-Archive -Path "$BinPath\*" -DestinationPath $ZipName
+              Write-Host "✅ Created package: $ZipName"
+          } else {
+              Write-Error "❌ Executable not found! Build failed?"
+              exit 1
+          }
+
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Q-Solver-Release
+          path: Q-Solver-Windows-amd64.zip
+          if-no-files-found: error
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: Q-Solver-Windows-amd64.zip
+          generate_release_notes: true
