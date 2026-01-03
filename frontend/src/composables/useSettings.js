@@ -41,9 +41,12 @@ export function useSettings(shortcuts, tempShortcuts, uiState, callbacks) {
   // 监听透明度变化（仅更新 UI，不通知后端）
   watch(() => tempSettings.transparency, (newVal) => {
     const opacity = 1.0 - newVal
-    // 只更新 UI 样式，不调用后端
+    // 使用与设计系统搭配的深色调
     const app = document.getElementById('app')
-    if (app) app.style.backgroundColor = `rgba(0, 0, 0, ${opacity * 0.8})`
+    if (app) {
+      // 基础色使用设计系统的 bg-base 颜色 (rgb(17, 24, 39))
+      app.style.backgroundColor = `rgba(17, 24, 39, ${0.85 + opacity * 0.15})`
+    }
   })
 
   // 监听 API Key 变化（只有真正变化时才重置状态）
@@ -108,7 +111,10 @@ export function useSettings(shortcuts, tempShortcuts, uiState, callbacks) {
     if (config.opacity !== undefined) {
       settings.transparency = 1.0 - config.opacity
       const app = document.getElementById('app')
-      if (app) app.style.backgroundColor = `rgba(0,0,0,${config.opacity * 0.8})`
+      if (app) {
+        // 基础色使用设计系统的 bg-base 颜色 (rgb(17, 24, 39))
+        app.style.backgroundColor = `rgba(17, 24, 39, ${0.85 + config.opacity * 0.15})`
+      }
     }
 
     // 同步到 tempSettings，确保设置面板显示正确的值

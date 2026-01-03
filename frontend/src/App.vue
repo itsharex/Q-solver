@@ -79,7 +79,7 @@
                 </button>
                 <button class="btn-icon" @click="testConnection"
                   :disabled="uiState.isTestingConnection || !tempSettings.model" title="测试模型连通性">
-                  <span :class="{ spin: uiState.isTestingConnection }">{{ uiState.isTestingConnection ? '⏳' : '🔗'
+                  <span :class="{ spin: uiState.isTestingConnection }">{{ uiState.isTestingConnection ? '⏳' : '▶️'
                   }}</span>
                 </button>
               </div>
@@ -93,7 +93,7 @@
               <span class="status-text">{{ uiState.connectionStatus.message }}</span>
             </div>
 
-            <p v-if="!tempSettings.apiKey" class="hint-text" style="color: #ff9800; margin-top: 8px;">
+            <p v-if="!tempSettings.apiKey" class="hint-text warning-hint">
               ⚠️ 请先填写 API Key
             </p>
           </div>

@@ -113,21 +113,21 @@ onUnmounted(() => {
 
 .model-select {
     position: relative;
-    background: rgba(30, 30, 36, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all var(--transition-fast);
 }
 
 .model-select:hover {
-    border-color: rgba(255, 255, 255, 0.2);
-    background: rgba(40, 40, 48, 0.95);
+    border-color: var(--border-default);
+    background: var(--bg-card-hover);
 }
 
 .model-select.open {
-    border-color: #4CAF50;
-    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-focus);
 }
 
 .model-select.disabled {
@@ -138,8 +138,8 @@ onUnmounted(() => {
 .selected-item {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 12px 16px;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
 }
 
 .provider-logo {
@@ -149,11 +149,17 @@ onUnmounted(() => {
     display: flex;
     align-items: center;
     justify-content: center;
+    color: var(--text-primary);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
 }
 
 .provider-logo :deep(svg) {
     width: 100%;
     height: 100%;
+    display: block;
+    max-width: 28px;
+    max-height: 28px;
 }
 
 .model-info {
@@ -165,46 +171,46 @@ onUnmounted(() => {
 }
 
 .model-name {
-    font-size: 14px;
+    font-size: var(--text-sm);
     font-weight: 500;
-    color: #fff;
+    color: var(--text-primary);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
 .provider-name {
-    font-size: 11px;
-    color: rgba(255, 255, 255, 0.5);
+    font-size: var(--text-xs);
+    color: var(--text-tertiary);
 }
 
 .capability-tags {
     display: flex;
-    gap: 4px;
+    gap: var(--space-1);
     flex-shrink: 0;
 }
 
 .cap-tag {
     font-size: 10px;
     padding: 2px 6px;
-    border-radius: 10px;
-    background: rgba(76, 175, 80, 0.2);
-    color: #4CAF50;
+    border-radius: var(--radius-full);
+    background: var(--color-primary-light);
+    color: var(--color-primary);
     font-weight: 500;
     white-space: nowrap;
 }
 
 .placeholder {
-    color: rgba(255, 255, 255, 0.4);
-    font-size: 14px;
+    color: var(--text-tertiary);
+    font-size: var(--text-sm);
 }
 
 .arrow {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: rgba(255, 255, 255, 0.5);
-    transition: transform 0.2s ease;
+    color: var(--text-tertiary);
+    transition: transform var(--transition-fast);
     margin-left: auto;
 }
 
@@ -220,10 +226,10 @@ onUnmounted(() => {
     right: 0;
     max-height: 320px;
     overflow-y: auto;
-    background: rgba(28, 28, 34, 0.98);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-xl);
     z-index: 100;
     backdrop-filter: blur(20px);
 }
@@ -237,18 +243,18 @@ onUnmounted(() => {
 }
 
 .dropdown-list::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--scrollbar-thumb);
     border-radius: 3px;
 }
 
 .dropdown-item {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 10px 16px;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
     cursor: pointer;
-    transition: background 0.15s ease;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    transition: background var(--transition-fast);
+    border-bottom: 1px solid var(--border-subtle);
 }
 
 .dropdown-item:last-child {
@@ -256,11 +262,11 @@ onUnmounted(() => {
 }
 
 .dropdown-item:hover {
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--bg-card-hover);
 }
 
 .dropdown-item.selected {
-    background: rgba(76, 175, 80, 0.15);
+    background: var(--color-primary-light);
 }
 
 .dropdown-item .provider-logo {
@@ -269,7 +275,7 @@ onUnmounted(() => {
 }
 
 .dropdown-item .model-name {
-    font-size: 13px;
+    font-size: var(--text-sm);
 }
 
 .dropdown-item .provider-name {
@@ -277,7 +283,7 @@ onUnmounted(() => {
 }
 
 .check-icon {
-    color: #4CAF50;
+    color: var(--color-primary);
     font-weight: bold;
     margin-left: auto;
 }
@@ -286,29 +292,24 @@ onUnmounted(() => {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    padding: 20px;
-    color: rgba(255, 255, 255, 0.5);
+    gap: var(--space-2);
+    padding: var(--space-5);
+    color: var(--text-tertiary);
 }
 
 .loading-icon {
-    animation: spin 1s linear infinite;
+    animation: selectSpin 1s linear infinite;
 }
 
-@keyframes spin {
-    from {
-        transform: rotate(0deg);
-    }
-
-    to {
-        transform: rotate(360deg);
-    }
+@keyframes selectSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
 
 /* 下拉动画 */
 .dropdown-enter-active,
 .dropdown-leave-active {
-    transition: all 0.2s ease;
+    transition: all var(--transition-fast);
 }
 
 .dropdown-enter-from,

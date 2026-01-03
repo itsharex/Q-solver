@@ -13,8 +13,8 @@
                     <defs>
                         <linearGradient id="header-gradient" x1="2" y1="2" x2="22" y2="22"
                             gradientUnits="userSpaceOnUse">
-                            <stop stop-color="#4CAF50" />
-                            <stop offset="1" stop-color="#2196F3" />
+                            <stop stop-color="#10b981" />
+                            <stop offset="1" stop-color="#0ea5e9" />
                         </linearGradient>
                     </defs>
                 </svg>
@@ -105,81 +105,81 @@ watch(() => props.provider, (newProvider) => {
 
 <style scoped>
 .modern-panel {
-    background: linear-gradient(165deg, rgba(32, 32, 36, 0.8) 0%, rgba(20, 20, 25, 0.95) 100%);
-    border-radius: 16px;
-    padding: 24px 28px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+    background: linear-gradient(165deg, var(--bg-elevated) 0%, var(--bg-base) 100%);
+    border-radius: var(--radius-xl);
+    padding: var(--space-6);
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-lg);
     backdrop-filter: blur(12px);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: all var(--transition-base);
 }
 
 .modern-panel:hover {
     box-shadow: 0 15px 50px rgba(0, 0, 0, 0.35);
-    border-color: rgba(255, 255, 255, 0.12);
+    border-color: var(--border-default);
 }
 
 .panel-header {
     display: flex;
     align-items: center;
-    gap: 16px;
-    margin-bottom: 28px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+    padding-bottom: var(--space-5);
+    border-bottom: 1px solid var(--border-subtle);
 }
 
 .header-icon-box {
     width: 48px;
     height: 48px;
-    background: rgba(255, 255, 255, 0.03);
-    border-radius: 14px;
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
     display: flex;
     align-items: center;
     justify-content: center;
     box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-subtle);
 }
 
 .header-content h3 {
-    font-size: 18px;
+    font-size: var(--text-lg);
     font-weight: 700;
-    color: #ffffff;
+    color: var(--text-primary);
     margin: 0 0 6px 0;
     letter-spacing: 0.5px;
 }
 
 .header-content p {
-    font-size: 13px;
-    color: rgba(255, 255, 255, 0.45);
+    font-size: var(--text-sm);
+    color: var(--text-tertiary);
     margin: 0;
 }
 
 .config-form {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: var(--space-5);
 }
 
 .form-item {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: var(--space-3);
 }
 
 .item-label {
-    font-size: 14px;
+    font-size: var(--text-sm);
     font-weight: 600;
-    color: rgba(255, 255, 255, 0.85);
+    color: var(--text-secondary);
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
 .sub-label {
-    font-size: 12px;
-    color: rgba(255, 255, 255, 0.35);
+    font-size: var(--text-xs);
+    color: var(--text-tertiary);
     font-weight: 400;
-    font-family: 'Consolas', monospace;
+    font-family: var(--font-mono);
 }
 
 .control-wrapper {
@@ -191,30 +191,30 @@ watch(() => props.provider, (newProvider) => {
     position: relative;
     display: flex;
     align-items: center;
-    background: rgba(0, 0, 0, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 12px;
+    background: var(--bg-inset);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all var(--transition-base);
 }
 
 .input-wrapper:focus-within {
-    background: rgba(0, 0, 0, 0.3);
-    border-color: #4CAF50;
-    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.15);
+    background: var(--bg-card);
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-focus);
 }
 
 .input-icon {
-    padding: 0 16px;
-    color: rgba(255, 255, 255, 0.3);
+    padding: 0 var(--space-4);
+    color: var(--text-tertiary);
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: color 0.2s;
+    transition: color var(--transition-fast);
 }
 
 .input-wrapper:focus-within .input-icon {
-    color: #4CAF50;
+    color: var(--color-primary);
 }
 
 .modern-input {
@@ -222,27 +222,27 @@ watch(() => props.provider, (newProvider) => {
     background: transparent;
     border: none;
     outline: none;
-    color: #fff;
-    font-size: 14px;
-    padding: 14px 16px 14px 0;
-    font-family: 'Inter', system-ui, sans-serif;
+    color: var(--text-primary);
+    font-size: var(--text-sm);
+    padding: 14px var(--space-4) 14px 0;
+    font-family: var(--font-family);
     letter-spacing: 0.5px;
     width: 100%;
 }
 
 .modern-input::placeholder {
-    color: rgba(255, 255, 255, 0.2);
+    color: var(--text-disabled);
 }
 
 /* Panel Footer */
 .panel-footer {
-    margin-top: 32px;
+    margin-top: var(--space-8);
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: var(--space-2);
     opacity: 0.6;
-    transition: opacity 0.2s;
+    transition: opacity var(--transition-fast);
 }
 
 .panel-footer:hover {
@@ -252,19 +252,19 @@ watch(() => props.provider, (newProvider) => {
 .status-dot {
     width: 8px;
     height: 8px;
-    background: #ff5252;
-    border-radius: 50%;
-    box-shadow: 0 0 8px rgba(255, 82, 82, 0.5);
-    transition: all 0.3s;
+    background: var(--color-error);
+    border-radius: var(--radius-full);
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+    transition: all var(--transition-base);
 }
 
 .status-dot.active {
-    background: #4CAF50;
-    box-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
+    background: var(--color-primary);
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
 }
 
 .footer-text {
-    font-size: 12px;
-    color: rgba(255, 255, 255, 0.5);
+    font-size: var(--text-xs);
+    color: var(--text-tertiary);
 }
 </style>

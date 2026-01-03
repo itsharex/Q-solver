@@ -109,22 +109,21 @@ onUnmounted(() => {
 
 .model-select {
     position: relative;
-    background: rgba(30, 30, 36, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    /* Slightly reduced radius for compact feel */
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all var(--transition-fast);
 }
 
 .model-select:hover {
-    border-color: rgba(255, 255, 255, 0.2);
-    background: rgba(40, 40, 48, 0.95);
+    border-color: var(--border-default);
+    background: var(--bg-card-hover);
 }
 
 .model-select.open {
-    border-color: #4CAF50;
-    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-focus);
 }
 
 .model-select.disabled {
@@ -135,27 +134,25 @@ onUnmounted(() => {
 .selected-item {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 8px 12px;
-    /* Reduced padding */
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-3);
     height: 40px;
-    /* Reduced height from 52px */
 }
 
 .provider-logo {
     width: 20px;
-    /* Reduced size */
     height: 20px;
     flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #fff;
+    color: var(--text-primary);
 }
 
 .provider-logo :deep(svg) {
     width: 100%;
     height: 100%;
+    display: block;
 }
 
 .model-info {
@@ -167,24 +164,23 @@ onUnmounted(() => {
 }
 
 .model-name {
-    font-size: 14px;
-    /* Slightly adjusted font */
+    font-size: var(--text-sm);
     font-weight: 500;
-    color: #fff;
+    color: var(--text-primary);
     white-space: nowrap;
 }
 
 .placeholder {
-    color: rgba(255, 255, 255, 0.4);
-    font-size: 13px;
+    color: var(--text-tertiary);
+    font-size: var(--text-sm);
 }
 
 .arrow {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: rgba(255, 255, 255, 0.5);
-    transition: transform 0.2s ease;
+    color: var(--text-tertiary);
+    transition: transform var(--transition-fast);
     margin-left: auto;
 }
 
@@ -200,10 +196,10 @@ onUnmounted(() => {
     right: 0;
     max-height: 280px;
     overflow-y: auto;
-    background: rgba(28, 28, 34, 0.98);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-xl);
     z-index: 100;
     backdrop-filter: blur(20px);
 }
@@ -211,12 +207,11 @@ onUnmounted(() => {
 .dropdown-item {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 8px 12px;
-    /* Reduced padding */
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-3);
     cursor: pointer;
-    transition: background 0.15s ease;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    transition: background var(--transition-fast);
+    border-bottom: 1px solid var(--border-subtle);
 }
 
 .dropdown-item:last-child {
@@ -224,11 +219,11 @@ onUnmounted(() => {
 }
 
 .dropdown-item:hover {
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--bg-card-hover);
 }
 
 .dropdown-item.selected {
-    background: rgba(76, 175, 80, 0.15);
+    background: var(--color-primary-light);
 }
 
 .dropdown-item .provider-logo {
@@ -237,13 +232,13 @@ onUnmounted(() => {
 }
 
 .dropdown-item .model-name {
-    font-size: 13px;
+    font-size: var(--text-sm);
 }
 
 .check-icon {
-    color: #4CAF50;
+    color: var(--color-primary);
     font-weight: bold;
     margin-left: auto;
-    font-size: 12px;
+    font-size: var(--text-xs);
 }
 </style>

@@ -40,6 +40,10 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+/* ========================================
+   Loading Container
+   ======================================== */
+
 .loading-container {
   display: flex;
   flex-direction: column;
@@ -48,32 +52,37 @@ onUnmounted(() => {
   height: 100%;
   width: 100%;
   background: transparent;
-  animation: fadeIn 0.5s ease-out;
+  animation: containerFadeIn 0.5s ease-out;
 }
 
 .loader-content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 24px;
+  gap: var(--space-6);
 }
+
+/* ========================================
+   Orb Animation
+   ======================================== */
 
 .orb-container {
   position: relative;
-  width: 80px;
-  height: 80px;
+  width: 90px;
+  height: 90px;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
 .orb {
-  width: 40px;
-  height: 40px;
-  background: radial-gradient(circle at 30% 30%, #e0f7fa, #4dd0e1);
+  width: 36px;
+  height: 36px;
+  background: radial-gradient(circle at 30% 30%, #a7f3d0, var(--color-primary));
   border-radius: 50%;
-  box-shadow: 0 0 25px rgba(77, 208, 225, 0.8);
-  animation: breathe 4s ease-in-out infinite;
+  box-shadow: 0 0 30px rgba(16, 185, 129, 0.6), 
+              0 0 60px rgba(16, 185, 129, 0.3);
+  animation: orbBreathe 3s ease-in-out infinite;
   z-index: 2;
 }
 
@@ -81,52 +90,82 @@ onUnmounted(() => {
   position: absolute;
   border-radius: 50%;
   border: 2px solid transparent;
-  border-top-color: rgba(77, 208, 225, 0.6);
-  border-right-color: rgba(77, 208, 225, 0.3);
+  border-top-color: rgba(16, 185, 129, 0.5);
+  border-right-color: rgba(16, 185, 129, 0.2);
 }
 
 .ring-1 {
   width: 60px;
   height: 60px;
-  animation: spin 3s cubic-bezier(0.55, 0.055, 0.675, 0.19) infinite;
+  animation: ringSpin 2.5s linear infinite;
 }
 
 .ring-2 {
-  width: 80px;
-  height: 80px;
-  border-top-color: rgba(77, 208, 225, 0.3);
-  border-left-color: rgba(77, 208, 225, 0.6);
-  animation: spin 4s cubic-bezier(0.55, 0.055, 0.675, 0.19) infinite reverse;
+  width: 84px;
+  height: 84px;
+  border-top-color: rgba(16, 185, 129, 0.3);
+  border-left-color: rgba(16, 185, 129, 0.5);
+  animation: ringSpin 3.5s linear infinite reverse;
 }
+
+/* ========================================
+   Loading Text
+   ======================================== */
 
 .loading-text {
   display: flex;
   align-items: center;
-  gap: 12px;
-  font-family: 'Segoe UI', sans-serif;
-  font-size: 15px;
-  color: rgba(224, 247, 250, 0.9);
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  text-shadow: 0 0 15px rgba(77, 208, 225, 0.5);
+  gap: var(--space-3);
+  font-family: var(--font-sans);
+}
+
+.text {
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: 0.5px;
 }
 
 .timer {
-  font-family: 'Consolas', monospace;
-  font-weight: bold;
-  color: #80deea;
-  background: rgba(0, 188, 212, 0.1);
-  padding: 2px 8px;
-  border-radius: 4px;
-  border: 1px solid rgba(0, 188, 212, 0.3);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-primary);
+  background: var(--color-primary-light);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(16, 185, 129, 0.25);
 }
 
-@keyframes breathe {
-  0%, 100% { transform: scale(0.95); opacity: 0.8; box-shadow: 0 0 20px rgba(77, 208, 225, 0.5); }
-  50% { transform: scale(1.05); opacity: 1; box-shadow: 0 0 40px rgba(77, 208, 225, 0.9); }
+/* ========================================
+   Animations
+   ======================================== */
+
+@keyframes containerFadeIn {
+  from { 
+    opacity: 0; 
+    transform: translateY(10px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
 }
 
-@keyframes spin {
+@keyframes orbBreathe {
+  0%, 100% { 
+    transform: scale(0.92); 
+    box-shadow: 0 0 25px rgba(16, 185, 129, 0.5), 
+                0 0 50px rgba(16, 185, 129, 0.2);
+  }
+  50% { 
+    transform: scale(1.08); 
+    box-shadow: 0 0 40px rgba(16, 185, 129, 0.7), 
+                0 0 80px rgba(16, 185, 129, 0.35);
+  }
+}
+
+@keyframes ringSpin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }

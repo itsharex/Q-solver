@@ -4,35 +4,37 @@
             <span class="history-tag">{{ isFirst ? '当前问题' : '历史问题' }}</span>
             <div class="menu-trigger" @click.stop="toggleMenu" ref="menuTriggerRef">
                 <span class="dots">⋮</span>
-
-                <!-- 下拉菜单 -->
-                <Transition name="menu-fade">
-                    <div v-if="menuOpen" class="history-menu" @click.stop>
-                        <div class="menu-item" @click="handleExportMarkdown">
-                            <span class="menu-icon">📋</span>
-                            <span>导出 Markdown</span>
-                        </div>
-                        <div class="menu-item" @click="handleExportImage">
-                            <span class="menu-icon">🖼️</span>
-                            <span>导出为图片</span>
-                        </div>
-                        <div class="menu-divider"></div>
-                        <div class="menu-item danger" @click="handleDelete">
-                            <span class="menu-icon">🗑️</span>
-                            <span>删除此会话</span>
-                        </div>
-                    </div>
-                </Transition>
             </div>
         </div>
 
         <div class="history-preview" v-html="previewHtml"></div>
         <div class="history-time">{{ time }}</div>
     </div>
+
+    <!-- 使用 Teleport 将菜单渲染到 body，避免被父容器裁剪 -->
+    <Teleport to="body">
+        <Transition name="menu-fade">
+            <div v-if="menuOpen" class="history-menu" :style="menuStyle" @click.stop>
+                <div class="menu-item" @click="handleExportMarkdown">
+                    <span class="menu-icon">📋</span>
+                    <span>导出 Markdown</span>
+                </div>
+                <div class="menu-item" @click="handleExportImage">
+                    <span class="menu-icon">🖼️</span>
+                    <span>导出为图片</span>
+                </div>
+                <div class="menu-divider"></div>
+                <div class="menu-item danger" @click="handleDelete">
+                    <span class="menu-icon">🗑️</span>
+                    <span>删除此会话</span>
+                </div>
+            </div>
+        </Transition>
+    </Teleport>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, onMounted, onUnmounted, nextTick } from 'vue'
 
 const props = defineProps({
     summary: { type: String, default: '' },
@@ -46,8 +48,15 @@ const emit = defineEmits(['select', 'delete', 'export-markdown', 'export-image']
 
 const menuOpen = ref(false)
 const menuTriggerRef = ref(null)
+const menuStyle = reactive({ top: '0px', left: '0px' })
 
 function toggleMenu() {
+    if (!menuOpen.value && menuTriggerRef.value) {
+        // 计算菜单位置
+        const rect = menuTriggerRef.value.getBoundingClientRect()
+        menuStyle.top = `${rect.top}px`
+        menuStyle.left = `${rect.right + 8}px`
+    }
     menuOpen.value = !menuOpen.value
 }
 
@@ -87,142 +96,187 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+/* ========================================
+   History Item Card
+   ======================================== */
+
 .history-item {
-    background: rgba(255, 255, 255, 0.08);
-    border-radius: 8px;
-    padding: 10px;
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    padding: var(--space-3);
     cursor: pointer;
-    transition: transform 0.2s, background 0.2s;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all var(--transition-fast);
+    border: 1px solid var(--border-subtle);
+    position: relative;
+    overflow: visible;
+    max-height: 120px;
+}
+
+/* Left accent bar */
+.history-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 0;
+    background: var(--color-primary);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    transition: height var(--transition-fast);
 }
 
 .history-item:hover {
-    transform: translateY(-1px);
-    background: rgba(255, 255, 255, 0.12);
+    background: var(--bg-card-hover);
+    border-color: var(--border-default);
+    transform: translateX(2px);
+}
+
+.history-item:hover::before {
+    height: 40%;
 }
 
 .history-item.active {
-    border-color: rgba(76, 175, 80, 0.6);
-    background: rgba(76, 175, 80, 0.1);
+    background: var(--color-primary-light);
+    border-color: var(--color-primary);
 }
 
+.history-item.active::before {
+    height: 60%;
+}
+
+/* Header Row */
 .history-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 6px;
+    margin-bottom: var(--space-2);
 }
 
 .history-tag {
-    font-size: 9px;
-    padding: 1px 5px;
-    border-radius: 3px;
-    background: rgba(255, 255, 255, 0.15);
-    color: rgba(255, 255, 255, 0.7);
-    font-weight: 500;
+    font-size: var(--text-xs);
+    padding: 2px var(--space-2);
+    border-radius: var(--radius-sm);
+    background: var(--bg-card-hover);
+    color: var(--text-muted);
+    font-weight: 600;
+    letter-spacing: 0.3px;
 }
 
 .history-item.active .history-tag {
-    background: rgba(76, 175, 80, 0.3);
-    color: #4CAF50;
+    background: rgba(16, 185, 129, 0.2);
+    color: var(--color-primary);
 }
 
+/* Content Preview */
 .history-preview {
-    font-size: 11px;
-    color: #fff;
-    line-height: 1.4;
+    font-size: var(--text-sm);
+    color: var(--text-primary);
+    line-height: 1.5;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+    font-weight: 400;
 }
 
+/* Timestamp */
 .history-time {
-    font-size: 9px;
-    color: rgba(255, 255, 255, 0.4);
-    margin-top: 6px;
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    margin-top: var(--space-2);
     text-align: right;
+    font-family: var(--font-mono);
 }
 
-/* 三点菜单 */
+/* ========================================
+   Menu Trigger & Dropdown
+   ======================================== */
+
 .menu-trigger {
     position: relative;
 }
 
 .dots {
     font-size: 14px;
-    color: rgba(255, 255, 255, 0.4);
+    color: var(--text-muted);
     cursor: pointer;
-    padding: 2px 4px;
-    border-radius: 4px;
-    transition: all 0.2s;
+    padding: var(--space-1);
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-fast);
     line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
 }
 
 .dots:hover {
-    background: rgba(255, 255, 255, 0.15);
-    color: #fff;
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--text-primary);
 }
 
-/* 下拉菜单 */
+/* Dropdown Menu */
 .history-menu {
-    position: absolute;
-    top: calc(100% + 4px);
-    right: 0;
-    background: rgba(35, 35, 40, 0.98);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
-    z-index: 200;
-    min-width: 150px;
-    padding: 4px 0;
-    backdrop-filter: blur(10px);
+    position: fixed;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    z-index: 9999;
+    min-width: 160px;
+    padding: var(--space-1);
+    backdrop-filter: blur(16px);
 }
 
 .menu-item {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 8px 12px;
-    font-size: 12px;
-    color: rgba(255, 255, 255, 0.85);
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
     cursor: pointer;
-    transition: background 0.15s;
+    transition: all var(--transition-fast);
+    border-radius: var(--radius-sm);
 }
 
 .menu-item:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-primary);
 }
 
 .menu-item.danger {
-    color: #ff6b6b;
+    color: var(--color-error);
 }
 
 .menu-item.danger:hover {
-    background: rgba(255, 100, 100, 0.15);
+    background: rgba(239, 68, 68, 0.12);
 }
 
 .menu-icon {
     font-size: 14px;
+    width: 18px;
+    text-align: center;
 }
 
 .menu-divider {
     height: 1px;
-    background: rgba(255, 255, 255, 0.1);
-    margin: 4px 0;
+    background: var(--border-subtle);
+    margin: var(--space-1) 0;
 }
 
-/* 菜单动画 */
+/* Menu Animation */
 .menu-fade-enter-active,
 .menu-fade-leave-active {
-    transition: all 0.15s ease;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .menu-fade-enter-from,
 .menu-fade-leave-to {
     opacity: 0;
-    transform: translateY(-4px);
+    transform: translateY(-6px) scale(0.95);
 }
 </style>

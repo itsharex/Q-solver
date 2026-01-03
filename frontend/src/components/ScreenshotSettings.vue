@@ -329,12 +329,12 @@ onMounted(() => {
 }
 
 .size-badge {
-    background: rgba(76, 175, 80, 0.2);
-    color: #4CAF50;
+    background: var(--color-primary-light);
+    color: var(--color-primary);
     padding: 2px 8px;
-    border-radius: 12px;
+    border-radius: var(--radius-full);
     font-size: 11px;
-    border: 1px solid rgba(76, 175, 80, 0.3);
+    border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
 /* --- Lightbox 样式 --- */

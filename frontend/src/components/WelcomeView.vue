@@ -97,8 +97,8 @@ watch(() => props.initStatus, (newVal, oldVal) => {
   top: 0;
   left: 0;
   z-index: 10;
-  color: #fff;
-  font-family: 'Segoe UI', sans-serif;
+  color: var(--text-primary);
+  font-family: var(--font-family);
   pointer-events: none;
 }
 
@@ -106,14 +106,14 @@ watch(() => props.initStatus, (newVal, oldVal) => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 24px;
+  gap: var(--space-6);
   pointer-events: auto;
-  background: rgba(20, 20, 20, 0.6);
-  padding: 40px 60px;
-  border-radius: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--bg-card);
+  padding: var(--space-10) var(--space-8);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-subtle);
   backdrop-filter: blur(12px);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-xl);
   animation: float 6s ease-in-out infinite;
 }
 
@@ -200,38 +200,38 @@ watch(() => props.initStatus, (newVal, oldVal) => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: rgba(255, 255, 255, 0.05);
-  padding: 10px 16px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  transition: all 0.2s ease;
+  background: var(--bg-inset);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  transition: all var(--transition-fast);
 }
 
 .shortcut-row:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--bg-card-hover);
   transform: translateX(5px);
-  border-color: rgba(255, 255, 255, 0.2);
+  border-color: var(--border-default);
 }
 
 .key-combo {
   display: flex;
-  gap: 4px;
+  gap: var(--space-1);
 }
 
 .key {
-  background: rgba(255, 255, 255, 0.15);
-  padding: 4px 8px;
-  border-radius: 6px;
-  font-family: 'Consolas', monospace;
-  font-size: 12px;
+  background: var(--color-primary-light);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
   font-weight: bold;
-  color: #FFD700;
-  border: 1px solid rgba(255, 215, 0, 0.2);
+  color: var(--color-primary);
+  border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
 .action {
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.7);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
   font-weight: 500;
 }
 
@@ -243,17 +243,17 @@ watch(() => props.initStatus, (newVal, oldVal) => {
   transform: translate(-50%, -50%) scale(0.5);
   width: 280px;
   max-height: 300px;
-  background: rgba(20, 20, 20, 0.95);
-  border-radius: 12px;
-  padding: 15px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--bg-elevated);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  border: 1px solid var(--border-subtle);
   display: flex;
   flex-direction: column;
   opacity: 0;
-  z-index: -1; /* 位于 Logo 后面 */
+  z-index: -1;
   pointer-events: none;
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  box-shadow: var(--shadow-xl);
 }
 
 /* Hover Logo 时显示公告 */
@@ -261,19 +261,19 @@ watch(() => props.initStatus, (newVal, oldVal) => {
 .update-log:hover {
   opacity: 1;
   pointer-events: auto;
-  left: 100%; /* 移到 Logo 右侧 */
+  left: 100%;
   top: 0;
   transform: translate(20px, -10px) scale(1);
 }
 
 .log-title {
-  font-size: 12px;
+  font-size: var(--text-xs);
   font-weight: bold;
-  color: #4CAF50;
-  margin-bottom: 8px;
+  color: var(--color-primary);
+  margin-bottom: var(--space-2);
   text-transform: uppercase;
   letter-spacing: 1px;
-  flex-shrink: 0; /* 防止标题被压缩 */
+  flex-shrink: 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -287,9 +287,9 @@ watch(() => props.initStatus, (newVal, oldVal) => {
   top: 25px;
   width: 12px;
   height: 12px;
-  background: rgba(20, 20, 20, 0.95);
-  border-left: 1px solid rgba(255, 255, 255, 0.1);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--bg-elevated);
+  border-left: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
   transform: rotate(45deg);
 }
 
@@ -300,10 +300,10 @@ watch(() => props.initStatus, (newVal, oldVal) => {
 }
 
 .log-list li {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.6);
-  margin-bottom: 4px;
-  padding-left: 12px;
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-1);
+  padding-left: var(--space-3);
   position: relative;
   line-height: 1.4;
 }
@@ -312,7 +312,7 @@ watch(() => props.initStatus, (newVal, oldVal) => {
   content: "•";
   position: absolute;
   left: 0;
-  color: #4CAF50;
+  color: var(--color-primary);
 }
 
 /* Animations */
@@ -422,8 +422,8 @@ watch(() => props.initStatus, (newVal, oldVal) => {
   height: 140%;
   border-radius: 50%;
   border: 3px solid transparent;
-  border-top-color: #4CAF50;
-  border-right-color: rgba(76, 175, 80, 0.5);
+  border-top-color: var(--color-primary);
+  border-right-color: rgba(16, 185, 129, 0.5);
   animation: spin 1s linear infinite;
 }
 
@@ -431,28 +431,28 @@ watch(() => props.initStatus, (newVal, oldVal) => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 10px;
+  gap: var(--space-2);
+  padding: var(--space-3);
   width: 100%;
 }
 
 .loading-text {
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 14px;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
   font-weight: 500;
   letter-spacing: 0.5px;
 }
 
 .loading-dots {
   display: flex;
-  gap: 4px;
+  gap: var(--space-1);
 }
 
 .loading-dots span {
   width: 4px;
   height: 4px;
-  background-color: #4CAF50;
-  border-radius: 50%;
+  background-color: var(--color-primary);
+  border-radius: var(--radius-full);
   animation: wave 1.5s infinite ease-in-out both;
 }
 
@@ -475,9 +475,9 @@ watch(() => props.initStatus, (newVal, oldVal) => {
   border-radius: 50%;
   display: block;
   stroke-width: 3;
-  stroke: #4CAF50;
+  stroke: var(--color-primary);
   stroke-miterlimit: 10;
-  box-shadow: inset 0px 0px 0px #4CAF50;
+  box-shadow: inset 0px 0px 0px var(--color-primary);
   animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
 }
 
@@ -486,7 +486,7 @@ watch(() => props.initStatus, (newVal, oldVal) => {
   stroke-dashoffset: 166;
   stroke-width: 2;
   stroke-miterlimit: 10;
-  stroke: #4CAF50;
+  stroke: var(--color-primary);
   fill: none;
   animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
 }
@@ -506,8 +506,8 @@ watch(() => props.initStatus, (newVal, oldVal) => {
 }
 
 .success-text {
-  color: #4CAF50;
-  font-size: 16px;
+  color: var(--color-primary);
+  font-size: var(--text-base);
   font-weight: 600;
   letter-spacing: 1px;
   animation: fadeIn 0.5s ease;

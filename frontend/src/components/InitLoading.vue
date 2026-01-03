@@ -76,17 +76,17 @@ const statusText = computed(() => {
   height: 100%;
   border-radius: 50%;
   border: 2px solid transparent;
-  border-top-color: #4CAF50;
-  border-right-color: rgba(76, 175, 80, 0.5);
+  border-top-color: var(--color-primary);
+  border-right-color: rgba(16, 185, 129, 0.5);
   animation: spin 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
 }
 
 .loader-ring.inner {
   width: 70%;
   height: 70%;
-  border-top-color: #00bcd4;
+  border-top-color: #0ea5e9;
   border-right-color: transparent;
-  border-left-color: rgba(0, 188, 212, 0.5);
+  border-left-color: rgba(14, 165, 233, 0.5);
   animation: spin 1.5s cubic-bezier(0.5, 0, 0.5, 1) infinite reverse;
 }
 
@@ -94,7 +94,7 @@ const statusText = computed(() => {
   position: absolute;
   width: 100%;
   height: 100%;
-  background: radial-gradient(circle, rgba(76, 175, 80, 0.15) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 70%);
   animation: pulse 2s ease-in-out infinite;
 }
 

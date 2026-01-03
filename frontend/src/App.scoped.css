@@ -1,4 +1,6 @@
-/* App.vue scoped 样式 */
+/* ========================================
+   App.vue Scoped Styles
+   ======================================== */
 
 .modal-body {
     max-height: 60vh;
@@ -19,31 +21,50 @@
     pointer-events: auto;
 }
 
+/* ========================================
+   Settings Modal Tabs
+   ======================================== */
+
 .tabs {
     display: flex;
-    gap: 20px;
+    gap: var(--space-5);
 }
 
 .tab {
     cursor: pointer;
-    padding-bottom: 5px;
-    color: #888;
+    padding-bottom: var(--space-2);
+    color: var(--text-muted);
     font-weight: 600;
-    transition: color 0.2s;
+    font-size: var(--text-sm);
+    transition: all var(--transition-fast);
+    border-bottom: 2px solid transparent;
 }
 
 .tab.active {
-    color: #fff;
-    border-bottom: 2px solid #4CAF50;
+    color: var(--text-primary);
+    border-bottom-color: var(--color-primary);
 }
 
-.tab:hover {
-    color: #ccc;
+.tab:hover:not(.active) {
+    color: var(--text-secondary);
 }
+
+/* ========================================
+   Form Hints & Warnings
+   ======================================== */
+
+.warning-hint {
+    color: var(--color-warning) !important;
+    margin-top: var(--space-2);
+}
+
+/* ========================================
+   Form Helpers
+   ======================================== */
 
 .input-group {
     display: flex;
-    gap: 10px;
+    gap: var(--space-3);
 }
 
 .input-group input {
@@ -51,49 +72,60 @@
 }
 
 .error-text {
-    color: #ff5252;
-    font-size: 12px;
-    margin-top: 5px;
+    color: var(--color-error);
+    font-size: var(--text-sm);
+    margin-top: var(--space-2);
 }
 
 .hint-text {
-    font-size: 12px;
-    color: #888;
-    margin-top: 4px;
-    margin-left: 24px;
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+    margin-top: var(--space-1);
+    margin-left: var(--space-6);
 }
 
-
+/* ========================================
+   Radio & Checkbox
+   ======================================== */
 
 .radio-group {
     display: flex;
-    gap: 15px;
-    margin-top: 5px;
+    gap: var(--space-4);
+    margin-top: var(--space-2);
 }
 
 .radio-label {
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: var(--space-2);
     cursor: pointer;
-    font-size: 14px;
-    color: #e0e0e0;
+    font-size: var(--text-base);
+    color: var(--text-secondary);
+    transition: color var(--transition-fast);
+}
+
+.radio-label:hover {
+    color: var(--text-primary);
 }
 
 .checkbox-label {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: var(--space-2);
     cursor: pointer;
-    font-size: 14px;
-    font-weight: bold;
-    color: #e0e0e0;
+    font-size: var(--text-base);
+    font-weight: 600;
+    color: var(--text-secondary);
 }
 
+/* ========================================
+   Context Settings
+   ======================================== */
+
 .context-setting {
-    margin-top: 15px;
-    padding-top: 15px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: var(--space-4);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--border-subtle);
 }
 
 .context-setting:first-child {
@@ -111,32 +143,37 @@
     pointer-events: none;
 }
 
+/* ========================================
+   Mode Toggle Buttons
+   ======================================== */
+
 .mode-toggle-group {
     display: flex;
-    gap: 15px;
-    margin-top: 10px;
+    gap: var(--space-4);
+    margin-top: var(--space-3);
 }
 
 .mode-btn {
     flex: 1;
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 12px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all var(--transition-fast);
 }
 
 .mode-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--bg-card-hover);
+    border-color: var(--border-default);
 }
 
 .mode-btn.active {
-    background: rgba(76, 175, 80, 0.2);
-    border-color: #4CAF50;
+    background: var(--color-primary-light);
+    border-color: var(--color-primary);
 }
 
 .mode-icon {
@@ -150,39 +187,39 @@
 }
 
 .mode-title {
-    font-weight: bold;
-    color: #fff;
-    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    font-size: var(--text-base);
 }
 
 .mode-desc {
-    font-size: 12px;
-    color: #aaa;
+    font-size: var(--text-sm);
+    color: var(--text-muted);
 }
 
 .mode-btn.active .mode-title {
-    color: #4CAF50;
+    color: var(--color-primary);
 }
 
+/* ========================================
+   Append Loading (AI Thinking)
+   ======================================== */
+
 .append-loading {
-    padding: 12px 0;
-    margin-top: 15px;
+    padding: var(--space-4) 0;
+    margin-top: var(--space-4);
     display: flex;
     align-items: center;
-    gap: 10px;
-    color: #b2ebf2;
-    font-size: 13px;
-    font-family: 'Segoe UI', sans-serif;
-    letter-spacing: 0.5px;
-    animation: fadeInSimple 0.5s ease-out;
+    gap: var(--space-3);
+    animation: appendFadeIn 0.4s ease-out;
 }
 
 .append-loading .ai-icon {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
-    background: rgba(0, 188, 212, 0.08);
-    border: 1px solid rgba(0, 188, 212, 0.3);
+    background: var(--color-primary-light);
+    border: 1px solid rgba(16, 185, 129, 0.3);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -192,20 +229,16 @@
 .append-loading .ai-icon-inner {
     width: 8px;
     height: 8px;
-    background: #00bcd4;
+    background: var(--color-primary);
     border-radius: 50%;
-    box-shadow: 0 0 8px rgba(0, 188, 212, 0.6);
-    animation: pulse-glow 3s infinite ease-in-out;
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
+    animation: appendPulse 2s infinite ease-in-out;
 }
 
 .append-loading .text {
-    font-weight: 500;
-    background: linear-gradient(90deg, #80deea, #ffffff, #80deea);
-    background-size: 200% 100%;
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    animation: shimmer 4s infinite linear;
+    font-weight: 600;
+    font-size: var(--text-sm);
+    color: var(--text-primary);
 }
 
 .wave-dots {
@@ -213,16 +246,15 @@
     gap: 4px;
     align-items: center;
     height: 100%;
-    margin-top: 4px;
+    margin-left: var(--space-1);
 }
 
 .wave-dots span {
-    width: 3px;
-    height: 3px;
-    background-color: #4dd0e1;
+    width: 4px;
+    height: 4px;
+    background-color: var(--color-primary);
     border-radius: 50%;
-    box-shadow: 0 0 4px rgba(77, 208, 225, 0.4);
-    animation: wave 1.5s infinite ease-in-out both;
+    animation: waveAnimation 1.4s infinite ease-in-out both;
 }
 
 .wave-dots span:nth-child(1) {
@@ -233,53 +265,41 @@
     animation-delay: -0.16s;
 }
 
-@keyframes pulse-glow {
-
-    0%,
-    100% {
+@keyframes appendPulse {
+    0%, 100% {
         transform: scale(0.85);
-        opacity: 0.6;
+        opacity: 0.7;
     }
-
     50% {
-        transform: scale(1.15);
+        transform: scale(1.1);
         opacity: 1;
-        box-shadow: 0 0 15px rgba(0, 188, 212, 0.8);
+        box-shadow: 0 0 16px rgba(16, 185, 129, 0.8);
     }
 }
 
-@keyframes shimmer {
-    0% {
-        background-position: 100% 0;
-    }
-
-    100% {
-        background-position: -100% 0;
-    }
-}
-
-@keyframes wave {
-
-    0%,
-    80%,
-    100% {
+@keyframes waveAnimation {
+    0%, 80%, 100% {
         transform: translateY(0);
     }
-
     40% {
-        transform: translateY(-4px);
+        transform: translateY(-5px);
     }
 }
 
-@keyframes fadeInSimple {
+@keyframes appendFadeIn {
     from {
         opacity: 0;
+        transform: translateY(4px);
     }
-
     to {
         opacity: 1;
+        transform: translateY(0);
     }
 }
+
+/* ========================================
+   Setting Row
+   ======================================== */
 
 .setting-row {
     display: flex;
@@ -290,25 +310,28 @@
 .setting-info {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: var(--space-1);
 }
 
 .setting-title {
-    font-size: 14px;
-    font-weight: bold;
-    color: #e0e0e0;
+    font-size: var(--text-base);
+    font-weight: 600;
+    color: var(--text-primary);
 }
 
 .setting-desc {
-    font-size: 12px;
-    color: #888;
+    font-size: var(--text-sm);
+    color: var(--text-muted);
 }
 
-/* Switch Toggle Styles */
+/* ========================================
+   Switch Toggle
+   ======================================== */
+
 .switch {
     position: relative;
     display: inline-block;
-    width: 46px;
+    width: 44px;
     height: 24px;
 }
 
@@ -325,8 +348,8 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: #ccc;
-    transition: .4s;
+    background-color: var(--bg-card-hover);
+    transition: var(--transition-fast);
 }
 
 .slider:before {
@@ -337,42 +360,46 @@
     left: 3px;
     bottom: 3px;
     background-color: white;
-    transition: .4s;
+    transition: var(--transition-fast);
+    box-shadow: var(--shadow-sm);
 }
 
 input:checked+.slider {
-    background-color: #4CAF50;
+    background-color: var(--color-primary);
 }
 
 input:focus+.slider {
-    box-shadow: 0 0 1px #4CAF50;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
 }
 
 input:checked+.slider:before {
-    transform: translateX(22px);
+    transform: translateX(20px);
 }
 
 .slider.round {
-    border-radius: 24px;
+    border-radius: var(--radius-full);
 }
 
 .slider.round:before {
     border-radius: 50%;
 }
 
-/* Resume Styles */
+/* ========================================
+   Resume Styles
+   ======================================== */
+
 .resume-card {
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 8px;
-    padding: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    padding: var(--space-5);
+    border: 1px solid var(--border-subtle);
 }
 
 .resume-header {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 10px;
+    gap: var(--space-3);
+    margin-bottom: var(--space-3);
 }
 
 .resume-icon {
@@ -380,64 +407,64 @@ input:checked+.slider:before {
 }
 
 .resume-title {
-    font-size: 16px;
-    font-weight: bold;
-    color: #e0e0e0;
+    font-size: var(--text-lg);
+    font-weight: 700;
+    color: var(--text-primary);
 }
 
 .resume-desc {
-    font-size: 13px;
-    color: #aaa;
-    margin-bottom: 20px;
-    line-height: 1.5;
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    margin-bottom: var(--space-5);
+    line-height: 1.6;
 }
 
 .resume-upload-area {
-    border: 2px dashed rgba(255, 255, 255, 0.2);
-    border-radius: 8px;
-    padding: 20px;
+    border: 2px dashed var(--border-default);
+    border-radius: var(--radius-md);
+    padding: var(--space-5);
     text-align: center;
-    transition: all 0.3s ease;
+    transition: all var(--transition-fast);
 }
 
 .resume-upload-area:hover {
-    border-color: #4CAF50;
-    background: rgba(76, 175, 80, 0.05);
+    border-color: var(--color-primary);
+    background: var(--color-primary-light);
 }
 
 .upload-placeholder {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
+    gap: var(--space-3);
     cursor: pointer;
-    padding: 20px;
+    padding: var(--space-5);
 }
 
 .upload-icon {
-    font-size: 32px;
-    opacity: 0.7;
+    font-size: 36px;
+    opacity: 0.6;
 }
 
 .upload-text {
-    font-size: 14px;
-    color: #4CAF50;
-    font-weight: 500;
+    font-size: var(--text-base);
+    color: var(--color-primary);
+    font-weight: 600;
 }
 
 .file-info {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: rgba(0, 0, 0, 0.2);
-    padding: 10px 15px;
-    border-radius: 6px;
+    background: var(--bg-input);
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-sm);
 }
 
 .file-details {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: var(--space-3);
 }
 
 .file-icon {
@@ -445,52 +472,54 @@ input:checked+.slider:before {
 }
 
 .file-name {
-    font-size: 14px;
-    color: #e0e0e0;
+    font-size: var(--text-base);
+    color: var(--text-primary);
     word-break: break-all;
 }
 
 .file-actions {
     display: flex;
-    gap: 10px;
+    gap: var(--space-2);
 }
 
 .btn-secondary.small,
 .btn-danger.small {
-    padding: 4px 10px;
-    font-size: 12px;
+    padding: var(--space-1) var(--space-3);
+    font-size: var(--text-sm);
 }
 
 .btn-danger {
-    background-color: rgba(244, 67, 54, 0.1);
-    color: #f44336;
-    border: 1px solid rgba(244, 67, 54, 0.3);
+    background-color: rgba(239, 68, 68, 0.1);
+    color: var(--color-error);
+    border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
 .btn-danger:hover {
-    background-color: rgba(244, 67, 54, 0.2);
+    background-color: rgba(239, 68, 68, 0.2);
 }
 
 .interrupted-placeholder {
-    color: #888;
+    color: var(--text-muted);
     font-style: italic;
     text-align: center;
-    padding: 20px;
-    font-size: 14px;
-    animation: fadeIn 0.3s ease;
+    padding: var(--space-5);
+    font-size: var(--text-base);
 }
 
-/* 模型选择页面样式 */
+/* ========================================
+   Model Selection
+   ======================================== */
+
 .model-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: var(--space-3);
 }
 
 .model-actions {
     display: flex;
-    gap: 8px;
+    gap: var(--space-2);
 }
 
 .btn-icon {
@@ -499,17 +528,17 @@ input:checked+.slider:before {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
     cursor: pointer;
     font-size: 16px;
-    transition: all 0.2s ease;
+    transition: all var(--transition-fast);
 }
 
 .btn-icon:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.2);
+    background: var(--bg-card-hover);
+    border-color: var(--border-default);
 }
 
 .btn-icon:disabled {
@@ -518,42 +547,45 @@ input:checked+.slider:before {
 }
 
 .btn-icon .spin {
-    animation: spin 1s linear infinite;
+    animation: iconSpin 1s linear infinite;
     display: inline-block;
 }
 
-@keyframes spin {
-    from {
-        transform: rotate(0deg);
-    }
-
-    to {
-        transform: rotate(360deg);
-    }
+@keyframes iconSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
 
-/* 连通性状态显示 */
+/* ========================================
+   Connection Status
+   ======================================== */
+
 .connection-status {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-top: 12px;
-    padding: 10px 14px;
-    border-radius: 8px;
-    font-size: 13px;
-    animation: fadeInSimple 0.3s ease;
+    gap: var(--space-2);
+    margin-top: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    animation: statusFadeIn 0.3s ease;
+}
+
+@keyframes statusFadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .connection-status.success {
-    background: rgba(76, 175, 80, 0.15);
-    border: 1px solid rgba(76, 175, 80, 0.3);
-    color: #4CAF50;
+    background: var(--color-primary-light);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    color: var(--color-primary);
 }
 
 .connection-status.error {
-    background: rgba(244, 67, 54, 0.15);
-    border: 1px solid rgba(244, 67, 54, 0.3);
-    color: #f44336;
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: var(--color-error);
 }
 
 .status-icon {
@@ -566,83 +598,86 @@ input:checked+.slider:before {
 }
 
 
-/* Premium Account Panel Styles */
+/* ========================================
+   Modern Panel
+   ======================================== */
+
 .modern-panel {
-    background: linear-gradient(165deg, rgba(32, 32, 36, 0.8) 0%, rgba(20, 20, 25, 0.95) 100%);
-    border-radius: 16px;
-    padding: 24px 28px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+    background: linear-gradient(165deg, var(--bg-elevated) 0%, var(--bg-base) 100%);
+    border-radius: var(--radius-xl);
+    padding: var(--space-6);
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-lg);
     backdrop-filter: blur(12px);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: all var(--transition-base);
 }
 
 .modern-panel:hover {
     box-shadow: 0 15px 50px rgba(0, 0, 0, 0.35);
-    border-color: rgba(255, 255, 255, 0.12);
+    border-color: var(--border-default);
 }
 
 .panel-header {
     display: flex;
     align-items: center;
-    gap: 16px;
-    margin-bottom: 28px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+    padding-bottom: var(--space-5);
+    border-bottom: 1px solid var(--border-subtle);
 }
 
 .header-icon-box {
     width: 48px;
     height: 48px;
-    background: rgba(255, 255, 255, 0.03);
-    border-radius: 14px;
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
     display: flex;
     align-items: center;
     justify-content: center;
     box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-subtle);
 }
 
 .header-content h3 {
-    font-size: 18px;
+    font-size: var(--text-lg);
     font-weight: 700;
-    color: #ffffff;
+    color: var(--text-primary);
     margin: 0 0 6px 0;
     letter-spacing: 0.5px;
 }
 
 .header-content p {
-    font-size: 13px;
-    color: rgba(255, 255, 255, 0.45);
+    font-size: var(--text-sm);
+    color: var(--text-tertiary);
     margin: 0;
 }
 
 .config-form {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: var(--space-5);
 }
 
 .form-item {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: var(--space-3);
 }
 
 .item-label {
-    font-size: 14px;
+    font-size: var(--text-sm);
     font-weight: 600;
-    color: rgba(255, 255, 255, 0.85);
+    color: var(--text-secondary);
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
 .sub-label {
-    font-size: 12px;
-    color: rgba(255, 255, 255, 0.35);
+    font-size: var(--text-xs);
+    color: var(--text-tertiary);
     font-weight: 400;
-    font-family: 'Consolas', monospace;
+    font-family: var(--font-mono);
 }
 
 .control-wrapper {
@@ -654,30 +689,30 @@ input:checked+.slider:before {
     position: relative;
     display: flex;
     align-items: center;
-    background: rgba(0, 0, 0, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 12px;
+    background: var(--bg-inset);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all var(--transition-base);
 }
 
 .input-wrapper:focus-within {
-    background: rgba(0, 0, 0, 0.3);
-    border-color: #4CAF50;
-    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.15);
+    background: var(--bg-card);
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-focus);
 }
 
 .input-icon {
-    padding: 0 16px;
-    color: rgba(255, 255, 255, 0.3);
+    padding: 0 var(--space-4);
+    color: var(--text-tertiary);
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: color 0.2s;
+    transition: color var(--transition-fast);
 }
 
 .input-wrapper:focus-within .input-icon {
-    color: #4CAF50;
+    color: var(--color-primary);
 }
 
 .modern-input {
@@ -685,27 +720,27 @@ input:checked+.slider:before {
     background: transparent;
     border: none;
     outline: none;
-    color: #fff;
-    font-size: 14px;
-    padding: 14px 16px 14px 0;
-    font-family: 'Inter', system-ui, sans-serif;
+    color: var(--text-primary);
+    font-size: var(--text-sm);
+    padding: 14px var(--space-4) 14px 0;
+    font-family: var(--font-family);
     letter-spacing: 0.5px;
     width: 100%;
 }
 
 .modern-input::placeholder {
-    color: rgba(255, 255, 255, 0.2);
+    color: var(--text-disabled);
 }
 
 /* Panel Footer */
 .panel-footer {
-    margin-top: 32px;
+    margin-top: var(--space-8);
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: var(--space-2);
     opacity: 0.6;
-    transition: opacity 0.2s;
+    transition: opacity var(--transition-fast);
 }
 
 .panel-footer:hover {
@@ -715,18 +750,18 @@ input:checked+.slider:before {
 .status-dot {
     width: 8px;
     height: 8px;
-    background: #ff5252;
-    border-radius: 50%;
-    box-shadow: 0 0 8px rgba(255, 82, 82, 0.5);
-    transition: all 0.3s;
+    background: var(--color-error);
+    border-radius: var(--radius-full);
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+    transition: all var(--transition-base);
 }
 
 .status-dot.active {
-    background: #4CAF50;
-    box-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
+    background: var(--color-primary);
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
 }
 
 .footer-text {
-    font-size: 12px;
-    color: rgba(255, 255, 255, 0.5);
+    font-size: var(--text-xs);
+    color: var(--text-tertiary);
 }
