@@ -88,6 +88,7 @@ defineProps({
 })
 
 defineEmits(['update:provider', 'update:apiKey', 'update:baseURL'])
+
 </script>
 
 <style scoped>

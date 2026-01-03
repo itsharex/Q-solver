@@ -76,9 +76,9 @@ export function useSettings(shortcuts, tempShortcuts, uiState, callbacks) {
       // 如果有 API Key，标记为已验证
       if (settings.apiKey) {
         uiState.isKeyValid = true
-        if (callbacks.fetchBalance) callbacks.fetchBalance()
+
       } else {
-        if (callbacks.setBalance) callbacks.setBalance(-1)
+
       }
     } catch (e) {
       console.error('loadSettings error', e)
@@ -230,7 +230,7 @@ export function useSettings(shortcuts, tempShortcuts, uiState, callbacks) {
         // 更新本地状态
         Object.assign(settings, tempSettings)
         if (callbacks.resetStatus) callbacks.resetStatus()
-        if (callbacks.updateBalanceFromTemp) callbacks.updateBalanceFromTemp()
+
         if (callbacks.closeSettings) callbacks.closeSettings()
       }
     } catch (e) {

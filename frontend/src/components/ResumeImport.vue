@@ -51,11 +51,6 @@
                                 <span v-if="!canAIParse" class="vision-warning" title="当前模型不支持视觉功能，请切换模型或手动输入">
                                     ⚠️
                                 </span>
-                                <!-- <button class="pdf-btn collapse-btn"
-                                    @click="pdfControlsCollapsed = !pdfControlsCollapsed" title="展开/折叠PDF控件">
-                                    <span v-if="pdfControlsCollapsed">▶</span>
-                                    <span v-else>▼</span>
-                                </button> -->
                                 <template v-if="!pdfControlsCollapsed">
                                     <button class="pdf-btn" @click="prevPage" :disabled="pageNum <= 1" title="上一页">
                                         &lt;
@@ -133,8 +128,6 @@ import { GetResumePDF } from '../../wailsjs/go/main/App';
 import * as pdfjsLib from 'pdfjs-dist';
 import { supportsVision } from '../utils/modelCapabilities';
 
-// 设置 PDF.js worker
-// 使用 new URL 方式在 Vite 中引入 worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
     'pdfjs-dist/build/pdf.worker.mjs',
     import.meta.url
@@ -176,7 +169,7 @@ const localContent = ref(props.rawContent);
 // PDF 相关状态
 const pageNum = ref(1);
 const pageCount = ref(0);
-const scale = ref(0.75); // 默认放大一点，让字更清晰
+const scale = ref(0.75);
 const canvasRef = ref(null);
 let pdfDoc = null;
 let renderTask = null;

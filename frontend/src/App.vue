@@ -3,9 +3,8 @@
     <!-- <InitLoading v-if="initStatus !== 'ready'" :status="initStatus" /> -->
   </Transition>
   <TopBar :shortcuts="shortcuts" :activeButtons="activeButtons" :isClickThrough="isClickThrough"
-    :statusIcon="statusIcon" :statusText="statusText" :balance="balance" :isRefreshingBalance="isRefreshingBalance"
-    :settings="settings" :isStealthMode="isStealthMode" @openSettings="openSettings" @refreshBalance="refreshBalance"
-    @quit="quit" />
+    :statusIcon="statusIcon" :statusText="statusText" :settings="settings" :isStealthMode="isStealthMode"
+    @openSettings="openSettings" @quit="quit" />
 
   <WelcomeView v-if="!hasStarted" :solveShortcut="solveShortcut" :toggleShortcut="shortcuts.toggle?.keyName || 'Alt+H'"
     :initStatus="initStatus" />
@@ -199,7 +198,6 @@ import { StopRecordingKey, SelectResume, ClearResume, RestoreFocus, RemoveFocus,
 
 import { useUI } from './composables/useUI'
 import { useStatus } from './composables/useStatus'
-import { useBalance } from './composables/useBalance'
 import { useShortcuts } from './composables/useShortcuts'
 import { useSettings } from './composables/useSettings'
 import { useSolution } from './composables/useSolution'
@@ -279,9 +277,7 @@ const {
   statusText, statusIcon, resetStatus
 } = useStatus(settings)
 
-const {
-  balance, tempBalance, isRefreshingBalance, fetchBalance, refreshBalance
-} = useBalance(settings, statusText, statusIcon, resetStatus)
+
 
 const {
   renderedContent, history, activeHistoryIndex, isLoading, isAppending, shouldOverwriteHistory,
@@ -290,20 +286,17 @@ const {
 } = useSolution(settings)
 
 // Populate callbacks
-settingsCallbacks.fetchBalance = fetchBalance
+
 settingsCallbacks.resetStatus = resetStatus
 settingsCallbacks.showToast = showToast
-settingsCallbacks.setBalance = (val) => { balance.value = val }
-settingsCallbacks.setTempBalance = (val) => { tempBalance.value = val }
-settingsCallbacks.updateBalanceFromTemp = () => { balance.value = tempBalance.value }
-settingsCallbacks.onKeyChange = () => { tempBalance.value = null }
+
 settingsCallbacks.closeSettings = closeSettings
 
 function openSettings() {
   RestoreFocus()
   // 初始化临时设置
   initSettings()
-  tempBalance.value = balance.value
+
 
   // 加载模型列表
   if (settings.apiKey) {
@@ -428,7 +421,7 @@ onMounted(() => {
     statusText.value = '解题完成'
     statusIcon.value = '📝'
     handleSolution(data)
-    fetchBalance()
+
   })
 
   EventsOn('copy-code', () => {

@@ -63,14 +63,7 @@
     margin-left: 24px;
 }
 
-.balance-display {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 16px;
-    font-weight: bold;
-    color: #4CAF50;
-}
+
 
 .radio-group {
     display: flex;

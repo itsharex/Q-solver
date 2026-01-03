@@ -19,11 +19,11 @@
       </div>
       <div class="divider"></div>
       <div class="control-group" @click="$emit('openSettings')" style="cursor: pointer;"
-           @mouseenter="showSettingsTooltip" @mouseleave="hideSettingsTooltip" ref="settingsBtnRef">
+        @mouseenter="showSettingsTooltip" @mouseleave="hideSettingsTooltip" ref="settingsBtnRef">
         <span class="label">⚙️ 设置</span>
       </div>
       <div class="divider"></div>
-      <div class="status-group" ref="statusGroupRef" @mouseenter="showTooltip" @mouseleave="hideTooltip" @click="$emit('refreshBalance')" style="cursor: pointer;">
+      <div class="status-group" ref="statusGroupRef" @mouseenter="showTooltip" @mouseleave="hideTooltip">
         <span>{{ statusIcon }}</span>
         <span>{{ statusText }}</span>
       </div>
@@ -36,30 +36,31 @@
 
   <Teleport to="body">
     <div class="status-tooltip" v-if="showStatusTooltip" :style="tooltipStyle">
-        <div class="tooltip-row">
-          <span class="tooltip-label">状态:</span>
-          <span class="tooltip-value">{{ statusText }}</span>
-        </div>
-        <div class="tooltip-row">
-          <span class="tooltip-label">API状态:</span>
-          <span class="tooltip-value">
-{{ statusText === '已连接' ? '✅ 接口通畅' : (statusText === 'Key无效' ? '🚫 Key无效' : (statusText === '连接失败' ? '❌ 连接失败' : (isRefreshingBalance ? '验证中...' : '未配置'))) }}          </span>
-        </div>
-        <div class="tooltip-row">
-          <span class="tooltip-label">模型:</span>
-          <span class="tooltip-value">{{ settings.model }}</span>
-        </div>
-        <div class="tooltip-row">
-          <span class="tooltip-label">隐身:</span>
-          <span class="tooltip-value" :style="{ color: isStealthMode ? '#52c41a' : '#ff4d4f' }">
-            {{ isStealthMode ? '已开启' : '已关闭' }}
-          </span>
-        </div>
+      <div class="tooltip-row">
+        <span class="tooltip-label">状态:</span>
+        <span class="tooltip-value">{{ statusText }}</span>
+      </div>
+      <div class="tooltip-row">
+        <span class="tooltip-label">API状态:</span>
+        <span class="tooltip-value">
+          {{ statusText === '已连接' ? '✅ 接口通畅' : (statusText === 'Key无效' ? '🚫 Key无效' : (statusText === '连接失败' ? '❌ 连接失败'
+            : '未配置')) }} </span>
+      </div>
+      <div class="tooltip-row">
+        <span class="tooltip-label">模型:</span>
+        <span class="tooltip-value">{{ settings.model }}</span>
+      </div>
+      <div class="tooltip-row">
+        <span class="tooltip-label">隐身:</span>
+        <span class="tooltip-value" :style="{ color: isStealthMode ? '#52c41a' : '#ff4d4f' }">
+          {{ isStealthMode ? '已开启' : '已关闭' }}
+        </span>
+      </div>
     </div>
     <div class="settings-tooltip" v-if="showSettingsTip" :style="settingsTooltipStyle">
-        <div class="tooltip-warning">
-            ⚠️ 注意：打开设置将获取焦点<br>录屏期间请勿操作
-        </div>
+      <div class="tooltip-warning">
+        ⚠️ 注意：打开设置将获取焦点<br>录屏期间请勿操作
+      </div>
     </div>
   </Teleport>
 </template>
@@ -73,13 +74,12 @@ const props = defineProps({
   isClickThrough: Boolean,
   statusIcon: String,
   statusText: String,
-  balance: Number,
-  isRefreshingBalance: Boolean,
+
   settings: Object,
   isStealthMode: Boolean
 })
 
-defineEmits(['openSettings', 'refreshBalance', 'quit'])
+defineEmits(['openSettings', 'quit'])
 
 const showStatusTooltip = ref(false)
 const statusGroupRef = ref(null)
@@ -118,7 +118,9 @@ function hideSettingsTooltip() {
 
 <style scoped>
 /* Styles from App.vue related to TopBar */
-.top-bar-wrapper { pointer-events: auto; }
+.top-bar-wrapper {
+  pointer-events: auto;
+}
 
 .status-group {
   position: relative;
@@ -133,7 +135,7 @@ function hideSettingsTooltip() {
   padding: 10px 14px;
   min-width: 160px;
   z-index: 99999;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(8px);
   pointer-events: none;
   animation: fadeIn 0.2s ease-out;
@@ -147,7 +149,7 @@ function hideSettingsTooltip() {
   border-radius: 6px;
   padding: 10px 14px;
   z-index: 99999;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(8px);
   pointer-events: none;
   animation: fadeIn 0.2s ease-out;
@@ -209,7 +211,14 @@ function hideSettingsTooltip() {
 
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translate(-50%, -5px); }
-  to { opacity: 1; transform: translate(-50%, 0); }
+  from {
+    opacity: 0;
+    transform: translate(-50%, -5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
 }
 </style>
