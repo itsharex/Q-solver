@@ -4,7 +4,9 @@ import (
 	"Q-Solver/pkg/config"
 	"Q-Solver/pkg/llm"
 	"Q-Solver/pkg/logger"
+	"bytes"
 	"context"
+	"errors"
 
 	"github.com/openai/openai-go"
 )
@@ -40,6 +42,7 @@ func (s *Solver) ClearHistory() {
 }
 
 func (s *Solver) Solve(ctx context.Context, req Request, cb Callbacks) bool {
+	// 1. 检查 API Key
 	if req.Config.GetAPIKey() == "" {
 		if cb.EmitEvent != nil {
 			cb.EmitEvent("require-login")
@@ -49,46 +52,53 @@ func (s *Solver) Solve(ctx context.Context, req Request, cb Callbacks) bool {
 
 	logger.Println("开始解题流程...")
 
-	InitParts := []openai.ChatCompletionContentPartUnionParam{}
+	// 2. 构建 System Prompt
+	var systemPrompt bytes.Buffer
 	if req.Config.GetPrompt() != "" {
-		InitParts = append(InitParts, openai.TextContentPart(req.Config.GetPrompt()))
+		systemPrompt.WriteString(req.Config.GetPrompt())
 	}
 
+	// 如果使用 Markdown 简历，将简历内容追加到 System Prompt
 	if req.Config.GetUseMarkdownResume() && req.Config.GetResumeContent() != "" {
 		logger.Println("使用 Markdown 简历内容")
-		InitParts = append(InitParts, openai.TextContentPart("\n\n# 候选人简历内容：\n"+req.Config.GetResumeContent()))
-	} else if req.ResumeBase64 != "" {
-		InitParts = append(InitParts, openai.TextContentPart("\n\n# 候选人简历已作为附件发送，请参考简历内容回答。"))
-		InitParts = append(InitParts, openai.ImageContentPart(openai.ChatCompletionContentPartImageImageURLParam{
-			URL: "data:application/pdf;base64," + req.ResumeBase64,
-		}))
+		systemPrompt.WriteString("\n\n# 候选人简历内容如下: \n")
+		systemPrompt.WriteString(req.Config.GetResumeContent())
+	}
+
+	// 3. 构建当前用户消息（包含截图）
+	userParts := []openai.ChatCompletionContentPartUnionParam{
+		openai.ImageContentPart(openai.ChatCompletionContentPartImageImageURLParam{
+			URL: req.ScreenshotBase64,
+		}),
+	}
+
+	// 如果使用 PDF 简历，将简历附件加入用户消息
+	if !req.Config.GetUseMarkdownResume() && req.ResumeBase64 != "" {
+		userParts = append(userParts,
+			openai.TextContentPart("\n\n# 候选人简历已作为附件发送，请参考简历内容回答。"),
+			openai.ImageContentPart(openai.ChatCompletionContentPartImageImageURLParam{
+				URL: "data:application/pdf;base64," + req.ResumeBase64,
+			}),
+		)
 		logger.Println("已注入简历附件 (PDF)")
 	}
 
-	var messagesToSend []openai.ChatCompletionMessageParamUnion
-	historyParts := []openai.ChatCompletionContentPartUnionParam{}
-	historyParts = append(historyParts, openai.TextContentPart("[用户上传了一张图片，但是为了防止请求体过大，这里用文本替代，**你可以在之前的对话中找到图片内容的描述**。]"))
-
-	userParts := []openai.ChatCompletionContentPartUnionParam{}
-	userParts = append(userParts, openai.ImageContentPart(openai.ChatCompletionContentPartImageImageURLParam{
-		URL: req.ScreenshotBase64,
-	}))
-
 	currentUserMsg := openai.UserMessage(userParts)
 
-	if len(InitParts) > 0 {
-		messagesToSend = append(messagesToSend, openai.UserMessage(InitParts))
-	}
+	// 4. 构建最终发送的消息列表
+	var messagesToSend []openai.ChatCompletionMessageParamUnion
 
 	if req.Config.GetKeepContext() {
-		if len(s.chatHistory) > 0 {
-			messagesToSend = append(messagesToSend, s.chatHistory...)
-		}
+		// 保持上下文模式：使用并更新历史记录
+		s.ensureSystemPrompt(systemPrompt.String())
+		messagesToSend = append(messagesToSend, s.chatHistory...)
 	} else {
-		s.chatHistory = nil
+		// 不保持上下文模式：每次都是全新对话
+		messagesToSend = append(messagesToSend, openai.SystemMessage(systemPrompt.String()))
 	}
 	messagesToSend = append(messagesToSend, currentUserMsg)
 
+	// 5. 调用 LLM 生成回答
 	if cb.EmitEvent != nil {
 		cb.EmitEvent("solution-stream-start")
 	}
@@ -100,7 +110,7 @@ func (s *Solver) Solve(ctx context.Context, req Request, cb Callbacks) bool {
 	})
 
 	if err != nil {
-		if ctx.Err() == context.Canceled {
+		if errors.Is(ctx.Err(), context.Canceled) {
 			logger.Println("当前任务已中断 (用户产生新输入)")
 			if cb.EmitEvent != nil {
 				cb.EmitEvent("solution-error", "context canceled")
@@ -114,20 +124,40 @@ func (s *Solver) Solve(ctx context.Context, req Request, cb Callbacks) bool {
 		return false
 	}
 
-	if !req.Config.GetKeepContext() {
-		if cb.EmitEvent != nil {
-			cb.EmitEvent("solution", answer)
-		}
-		s.chatHistory = make([]openai.ChatCompletionMessageParamUnion, 0)
-		return true
-	}
-
-	cleanUserMsg := openai.UserMessage(historyParts)
-	s.chatHistory = append(s.chatHistory, cleanUserMsg)
-	s.chatHistory = append(s.chatHistory, openai.AssistantMessage(answer))
-
+	// 6. 处理结果
 	if cb.EmitEvent != nil {
 		cb.EmitEvent("solution", answer)
 	}
+
+	if req.Config.GetKeepContext() {
+		// 保持上下文模式：保存完整的用户消息和助手回复到历史
+		s.chatHistory = append(s.chatHistory, currentUserMsg)
+		s.chatHistory = append(s.chatHistory, openai.AssistantMessage(answer))
+	} else {
+		// 不保持上下文模式：清空历史
+		s.chatHistory = []openai.ChatCompletionMessageParamUnion{}
+	}
+
 	return true
+}
+
+// ensureSystemPrompt 确保 chatHistory 的第一条是正确的 System Prompt
+func (s *Solver) ensureSystemPrompt(prompt string) {
+	if len(s.chatHistory) == 0 {
+		s.chatHistory = append(s.chatHistory, openai.SystemMessage(prompt))
+		logger.Println("插入 SystemPrompt")
+		return
+	}
+
+	// 检查第一条是否为系统消息
+	if s.chatHistory[0].OfSystem != nil {
+		if s.chatHistory[0].OfSystem.Content.OfString.Value != prompt {
+			s.chatHistory[0] = openai.SystemMessage(prompt)
+			logger.Println("替换 SystemPrompt")
+		}
+	} else {
+		// 第一条不是系统消息，插入到头部
+		s.chatHistory = append([]openai.ChatCompletionMessageParamUnion{openai.SystemMessage(prompt)}, s.chatHistory...)
+		logger.Println("插入 SystemPrompt 到消息历史头部")
+	}
 }

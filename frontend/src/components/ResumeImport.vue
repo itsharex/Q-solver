@@ -22,9 +22,20 @@
             <!-- File Info Header -->
             <div class="file-header">
                 <div class="file-info">
-                    <div class="file-icon">📎</div>
-                    <div class="file-details">
+                    <div class="file-icon-box">
+                        <svg class="pdf-icon" viewBox="0 0 24 24" fill="none">
+                            <path d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V8L14 2Z"
+                                fill="currentColor" opacity="0.2" />
+                            <path d="M14 2V8H20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                            <path d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V8L14 2Z"
+                                stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    <div class="file-meta">
                         <span class="file-name">{{ fileName }}</span>
+                        <span class="file-type">PDF 文档</span>
                     </div>
                 </div>
                 <div class="file-actions">
@@ -350,44 +361,58 @@ function handleMenuAction(action) {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 16px;
-    background: rgba(255, 255, 255, 0.03);
-    border-radius: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 14px 18px;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(139, 92, 246, 0.05));
+    border-radius: 12px;
+    border: 1px solid rgba(99, 102, 241, 0.15);
 }
 
 .file-info {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 14px;
 }
 
-.file-icon {
-    font-size: 20px;
-    width: 36px;
-    height: 36px;
+.file-icon-box {
+    width: 42px;
+    height: 42px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(99, 102, 241, 0.1);
-    border-radius: 8px;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.15));
+    border-radius: 10px;
+    border: 1px solid rgba(99, 102, 241, 0.2);
 }
 
-.file-details {
+.pdf-icon {
+    width: 22px;
+    height: 22px;
+    color: #a5b4fc;
+}
+
+.file-meta {
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    gap: 3px;
 }
 
 .file-name {
-    font-size: 13px;
-    font-weight: 500;
+    font-size: 14px;
+    font-weight: 600;
     color: #fff;
+    letter-spacing: 0.2px;
+}
+
+.file-type {
+    font-size: 11px;
+    color: rgba(165, 180, 252, 0.7);
+    font-weight: 500;
 }
 
 .file-actions {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
 }
 
 .toggle-chip {
