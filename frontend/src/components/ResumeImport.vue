@@ -1,136 +1,147 @@
 <template>
-    <div class="resume-import-container">
-        <!-- Header / File Selection -->
-        <div class="resume-header-section">
-            <div class="header-title">
-                <span class="icon">📄</span>
-                <span>简历导入</span>
+    <div class="resume-import">
+        <!-- Empty State - No file selected -->
+        <div v-if="!resumePath" class="empty-state">
+            <div class="empty-state-card" @click="$emit('select-resume')">
+                <div class="upload-icon-wrapper">
+                    <div class="upload-icon">📄</div>
+                    <div class="upload-pulse"></div>
+                </div>
+                <h3 class="empty-title">导入 PDF 简历</h3>
+                <p class="empty-desc">AI 将在解题时参考您的背景信息，提供更个性化的回答</p>
+                <button class="btn-upload">
+                    <span class="btn-icon">📂</span>
+                    选择文件
+                </button>
+                <p class="empty-hint">支持 .pdf 格式</p>
             </div>
+        </div>
 
-            <div class="file-controls">
-                <div class="toggle-wrapper" v-if="resumePath"
-                    @click="$emit('update:useMarkdownResume', !useMarkdownResume)"
-                    title="勾选后，AI 将使用解析后的 Markdown 文本作为简历。不勾选则发送 PDF 版本。">
-                    <span class="toggle-label" :class="{ active: useMarkdownResume }">使用MarkDown简历</span>
-                    <div class="toggle-switch" :class="{ active: useMarkdownResume }">
-                        <div class="toggle-knob"></div>
+        <!-- File Selected State -->
+        <div v-else class="resume-content">
+            <!-- File Info Header -->
+            <div class="file-header">
+                <div class="file-info">
+                    <div class="file-icon">📎</div>
+                    <div class="file-details">
+                        <span class="file-name">{{ fileName }}</span>
+                        <span class="file-meta">{{ pageCount }} 页</span>
                     </div>
                 </div>
-                <div class="separator-v" v-if="resumePath"></div>
-
-                <div v-if="!resumePath" class="upload-btn" @click="$emit('select-resume')">
-                    <span class="icon">📂</span> 选择 PDF 简历
+                <div class="file-actions">
+                    <!-- Use Markdown Toggle -->
+                    <div class="toggle-chip" :class="{ active: useMarkdownResume }"
+                        @click="$emit('update:useMarkdownResume', !useMarkdownResume)" title="使用解析后的 Markdown 文本">
+                        <span class="toggle-dot"></span>
+                        <span>Markdown 模式</span>
+                    </div>
+                    <!-- Parse Button -->
+                    <button class="btn-parse" @click="handleParseClick" :disabled="isParsing">
+                        <span v-if="!isParsing">✨</span>
+                        <span v-else class="spin">⏳</span>
+                        {{ isParsing ? '解析中' : 'AI 解析' }}
+                    </button>
+                    <!-- Menu Button -->
+                    <div class="menu-wrapper">
+                        <button class="btn-menu" @click="showMenu = !showMenu">⋮</button>
+                        <div v-if="showMenu" class="dropdown-menu">
+                            <div class="menu-item" @click="handleMenuAction('manual')">
+                                <span>📝</span> 手动输入
+                            </div>
+                            <div class="menu-item" @click="handleMenuAction('change')">
+                                <span>📂</span> 更换文件
+                            </div>
+                            <div class="menu-item danger" @click="handleMenuAction('clear')">
+                                <span>🗑️</span> 清除简历
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div v-else class="file-selected">
-                    <div class="btn-group">
-                        <button class="btn-secondary small" @click="toggleFlip">
-                            {{ isFlipped ? '切换 PDF' : '切换 Markdown' }}
+            </div>
+
+            <!-- Tab Navigation -->
+            <div class="tab-nav">
+                <button class="tab-btn" :class="{ active: activeTab === 'pdf' }" @click="activeTab = 'pdf'">
+                    <span class="tab-icon">📑</span> PDF 预览
+                </button>
+                <button class="tab-btn" :class="{ active: activeTab === 'markdown' }" @click="activeTab = 'markdown'">
+                    <span class="tab-icon">📝</span> Markdown
+                    <span v-if="localContent" class="tab-badge">✓</span>
+                </button>
+            </div>
+
+            <!-- Content Area -->
+            <div class="content-area">
+                <!-- PDF Preview Tab -->
+                <div v-show="activeTab === 'pdf'" class="preview-panel pdf-preview">
+                    <div v-if="pageCount > 0" class="pdf-viewer">
+                        <div class="canvas-container">
+                            <canvas ref="canvasRef"></canvas>
+                        </div>
+                        <div class="pdf-controls">
+                            <button class="ctrl-btn" @click="prevPage" :disabled="pageNum <= 1">‹</button>
+                            <span class="page-indicator">{{ pageNum }} / {{ pageCount }}</span>
+                            <button class="ctrl-btn" @click="nextPage" :disabled="pageNum >= pageCount">›</button>
+                        </div>
+                    </div>
+                    <div v-else class="loading-state">
+                        <span class="spin">⏳</span>
+                        <p>加载中...</p>
+                    </div>
+                </div>
+
+                <!-- Markdown Tab -->
+                <div v-show="activeTab === 'markdown'" class="preview-panel markdown-preview">
+                    <!-- Edit/Preview Toggle -->
+                    <div class="markdown-toolbar" v-if="localContent || isEditing">
+                        <button class="toolbar-btn" :class="{ active: !isEditing }" @click="isEditing = false">
+                            预览
                         </button>
-                        <button class="btn-secondary small" @click="enableManualInput">手动输入</button>
-                        <button class="btn-secondary small" @click="$emit('select-resume')">更换</button>
-                        <button class="btn-danger small" @click="$emit('clear-resume')">清除</button>
+                        <button class="toolbar-btn" :class="{ active: isEditing }" @click="isEditing = true">
+                            编辑
+                        </button>
+                    </div>
+
+                    <!-- Editor -->
+                    <div v-if="isEditing" class="editor-wrapper">
+                        <textarea v-model="localContent" @input="updateContent" class="md-editor"
+                            placeholder="在此输入或粘贴 Markdown 格式的简历内容..."></textarea>
+                    </div>
+
+                    <!-- Preview -->
+                    <div v-else-if="renderedContent" class="md-preview" v-html="renderedContent"></div>
+
+                    <!-- Parsing State -->
+                    <div v-else-if="isParsing" class="empty-content">
+                        <span class="spin large">⏳</span>
+                        <p>AI 正在解析您的简历...</p>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div v-else class="empty-content">
+                        <div class="empty-icon">📝</div>
+                        <p class="empty-text">暂无 Markdown 内容</p>
+                        <p class="empty-subtext">点击 "AI 解析" 自动转换，或手动输入</p>
+                        <button class="btn-secondary-sm" @click="isEditing = true">开始编辑</button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Flip Container -->
-        <div class="flip-container" v-if="resumePath">
-            <div class="flipper" :class="{ flipped: isFlipped }">
-                <!-- Front: PDF Preview -->
-                <div class="front">
-                    <div class="preview-pane pdf-pane">
-                        <div class="pane-label pdf-pane-label">
-                            <span>PDF 预览</span>
-                            <div class="pdf-pane-actions unified-actions">
-                                <button class="btn-primary parse-btn" @click="handleParseClick" :disabled="isParsing">
-                                    <span class="icon" v-if="!isParsing">✨</span>
-                                    <span class="icon spin" v-else>⏳</span>
-                                    {{ isParsing ? '解析中...' : 'AI 解析为 Markdown' }}
-                                </button>
-                                <span v-if="!modelSupportsFile" class="vision-warning" title="当前模型可能不支持 PDF，点击解析时会提示确认">
-                                    ⚠️
-                                </span>
-                                <template v-if="!pdfControlsCollapsed">
-                                    <button class="pdf-btn" @click="prevPage" :disabled="pageNum <= 1" title="上一页">
-                                        &lt;
-                                    </button>
-                                    <span class="page-info">{{ pageNum }} / {{ pageCount }}</span>
-                                    <button class="pdf-btn" @click="nextPage" :disabled="pageNum >= pageCount"
-                                        title="下一页">
-                                        &gt;
-                                    </button>
-                                </template>
-                            </div>
-                        </div>
-                        <div class="pane-body">
-                            <div v-show="pageCount > 0" class="pdf-container">
-                                <div class="canvas-wrapper">
-                                    <canvas ref="canvasRef"></canvas>
-                                </div>
-                            </div>
-                            <div v-if="pageCount === 0" class="placeholder-content">
-                                <span class="icon">📑</span>
-                                <p>PDF 预览区域</p>
-                                <p class="sub-text">{{ resumePath }}</p>
-                            </div>
-                        </div>
+        <!-- Confirm Dialog -->
+        <Teleport to="body">
+            <div v-if="showConfirmDialog" class="dialog-overlay" @click.self="showConfirmDialog = false">
+                <div class="dialog-box">
+                    <div class="dialog-icon">⚠️</div>
+                    <h4>模型可能不支持</h4>
+                    <p>当前模型可能不支持 PDF 解析，是否仍要继续？</p>
+                    <div class="dialog-actions">
+                        <button class="btn-cancel" @click="showConfirmDialog = false">取消</button>
+                        <button class="btn-confirm" @click="confirmParse">继续</button>
                     </div>
                 </div>
-
-                <!-- Back: Markdown Preview -->
-                <div class="back">
-                    <div class="preview-pane markdown-pane">
-                        <div class="pane-label">
-                            <span>Markdown 预览</span>
-                            <div class="right-controls">
-                                <span class="action-text" @click="toggleEdit" v-if="renderedContent || localContent">{{
-                                    isEditing ? '预览'
-                                        : '编辑' }}</span>
-                                <span class="separator" v-if="renderedContent || localContent">|</span>
-                                <span class="hint-text" @click="toggleFlip">&lt; 点击切换到 PDF</span>
-                            </div>
-                        </div>
-                        <div class="pane-body">
-                            <div v-if="isEditing" class="editor-container">
-                                <textarea v-model="localContent" @input="updateContent" class="markdown-editor"
-                                    placeholder="在此编辑 Markdown..."></textarea>
-                            </div>
-                            <div v-else-if="renderedContent" class="markdown-content" v-html="renderedContent"></div>
-                            <div v-else-if="isParsing" class="placeholder-content">
-                                <span class="icon spin">⏳</span>
-                                <p>正在解析中...</p>
-                            </div>
-                            <div v-else class="placeholder-content">
-                                <span class="icon">📝</span>
-                                <p>等待解析...</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
             </div>
-        </div>
-
-        <!-- Empty State Description -->
-        <div v-else class="empty-state-desc">
-            <p>导入您的 PDF 简历，AI 将在解题时参考您的背景信息，提供更个性化的回答。</p>
-        </div>
-
-        <!-- Bottom Action Bar 已移除 -->
-
-        <!-- PDF 解析确认弹窗 -->
-        <div v-if="showConfirmDialog" class="confirm-overlay">
-            <div class="confirm-dialog">
-                <div class="confirm-icon">⚠️</div>
-                <div class="confirm-title">模型可能不支持</div>
-                <div class="confirm-message">当前模型可能不支持 PDF 解析，是否仍要继续？</div>
-                <div class="confirm-actions">
-                    <button class="btn-secondary" @click="showConfirmDialog = false">取消</button>
-                    <button class="btn-primary" @click="confirmParse">继续</button>
-                </div>
-            </div>
-        </div>
+        </Teleport>
     </div>
 </template>
 
@@ -147,46 +158,42 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
 ).href;
 
 const props = defineProps({
-    resumePath: {
-        type: String,
-        default: ''
-    },
-    rawContent: {
-        type: String,
-        default: ''
-    },
-    isParsing: {
-        type: Boolean,
-        default: false
-    },
-    useMarkdownResume: {
-        type: Boolean,
-        default: false
-    },
-    currentModel: {
-        type: String,
-        default: ''
-    }
+    resumePath: { type: String, default: '' },
+    rawContent: { type: String, default: '' },
+    isParsing: { type: Boolean, default: false },
+    useMarkdownResume: { type: Boolean, default: false },
+    currentModel: { type: String, default: '' }
 });
-
-// 检查当前模型是否支持视觉或 PDF 功能
-const modelSupportsFile = computed(() => supportsVision(props.currentModel) || supportsPDF(props.currentModel));
 
 const emit = defineEmits(['select-resume', 'clear-resume', 'parse-resume', 'update:rawContent', 'update:useMarkdownResume']);
 
-const isFlipped = ref(false);
+// UI State
+const activeTab = ref('pdf');
 const isEditing = ref(false);
-const localContent = ref(props.rawContent);
+const showMenu = ref(false);
 const showConfirmDialog = ref(false);
+const localContent = ref(props.rawContent);
 
-// PDF 相关状态
+// PDF State
 const pageNum = ref(1);
 const pageCount = ref(0);
-const scale = ref(0.75);
+const scale = ref(0.8);
 const canvasRef = ref(null);
 let pdfDoc = null;
 let renderTask = null;
 
+// Computed
+const modelSupportsFile = computed(() => supportsVision(props.currentModel) || supportsPDF(props.currentModel));
+const fileName = computed(() => {
+    if (!props.resumePath) return '';
+    return props.resumePath.split(/[\\/]/).pop() || 'resume.pdf';
+});
+const renderedContent = computed(() => {
+    if (!localContent.value) return '';
+    return marked.parse(localContent.value);
+});
+
+// Watchers
 watch(() => props.rawContent, (newVal) => {
     if (newVal !== localContent.value) {
         localContent.value = newVal;
@@ -200,69 +207,66 @@ watch(() => props.resumePath, async (newVal) => {
         pdfDoc = null;
         pageCount.value = 0;
         pageNum.value = 1;
-        // 清除 canvas
-        const canvas = canvasRef.value;
-        if (canvas) {
-            const ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-        }
+        clearCanvas();
     }
 });
 
+// Click outside to close menu
+watch(showMenu, (val) => {
+    if (val) {
+        setTimeout(() => {
+            document.addEventListener('click', closeMenu);
+        }, 0);
+    }
+});
+
+function closeMenu() {
+    showMenu.value = false;
+    document.removeEventListener('click', closeMenu);
+}
+
+// Lifecycle
 onMounted(async () => {
     if (props.resumePath) {
         await loadPdfPreview();
     }
 });
 
+// PDF Functions
 async function loadPdfPreview() {
     try {
         const base64 = await GetResumePDF();
         if (base64) {
             const binaryString = window.atob(base64);
-            const len = binaryString.length;
-            const bytes = new Uint8Array(len);
-            for (let i = 0; i < len; i++) {
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
                 bytes[i] = binaryString.charCodeAt(i);
             }
-
             const loadingTask = pdfjsLib.getDocument({ data: bytes });
             pdfDoc = await loadingTask.promise;
             pageCount.value = pdfDoc.numPages;
             pageNum.value = 1;
-            // 确保 DOM 更新后渲染
             nextTick(() => renderPage(pageNum.value));
         }
     } catch (e) {
-        console.error("Failed to load PDF preview:", e);
+        console.error("Failed to load PDF:", e);
     }
 }
 
 async function renderPage(num) {
     if (!pdfDoc) return;
-
     try {
         const page = await pdfDoc.getPage(num);
         const canvas = canvasRef.value;
         if (!canvas) return;
-
-        // 如果有正在进行的渲染任务，取消它
-        if (renderTask) {
-            renderTask.cancel();
-        }
+        if (renderTask) renderTask.cancel();
 
         const ctx = canvas.getContext('2d');
         const viewport = page.getViewport({ scale: scale.value });
-
         canvas.height = viewport.height;
         canvas.width = viewport.width;
 
-        const renderContext = {
-            canvasContext: ctx,
-            viewport: viewport
-        };
-
-        renderTask = page.render(renderContext);
+        renderTask = page.render({ canvasContext: ctx, viewport });
         await renderTask.promise;
     } catch (e) {
         if (e.name !== 'RenderingCancelledException') {
@@ -273,48 +277,34 @@ async function renderPage(num) {
     }
 }
 
+function clearCanvas() {
+    const canvas = canvasRef.value;
+    if (canvas) {
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+}
+
 function prevPage() {
-    if (pageNum.value <= 1) return;
-    pageNum.value--;
-    renderPage(pageNum.value);
-}
-
-function nextPage() {
-    if (pageNum.value >= pageCount.value) return;
-    pageNum.value++;
-    renderPage(pageNum.value);
-}
-
-function zoomIn() {
-    scale.value += 0.25;
-    renderPage(pageNum.value);
-}
-
-function zoomOut() {
-    if (scale.value > 0.5) {
-        scale.value -= 0.25;
+    if (pageNum.value > 1) {
+        pageNum.value--;
         renderPage(pageNum.value);
     }
 }
 
+function nextPage() {
+    if (pageNum.value < pageCount.value) {
+        pageNum.value++;
+        renderPage(pageNum.value);
+    }
+}
+
+// Content Functions
 function updateContent() {
     emit('update:rawContent', localContent.value);
 }
 
-// 使用 marked.parse 解析 markdown 内容
-const renderedContent = computed(() => {
-    if (!localContent.value) return '';
-    return marked.parse(localContent.value);
-});
-
-function toggleFlip() {
-    isFlipped.value = !isFlipped.value;
-}
-
-function toggleEdit() {
-    isEditing.value = !isEditing.value;
-}
-
+// Action Handlers
 function handleParseClick() {
     if (!modelSupportsFile.value) {
         showConfirmDialog.value = true;
@@ -328,17 +318,688 @@ function confirmParse() {
     emit('parse-resume');
 }
 
-function enableManualInput() {
-    isFlipped.value = true;
-    isEditing.value = true;
+function handleMenuAction(action) {
+    showMenu.value = false;
+    switch (action) {
+        case 'manual':
+            activeTab.value = 'markdown';
+            isEditing.value = true;
+            break;
+        case 'change':
+            emit('select-resume');
+            break;
+        case 'clear':
+            emit('clear-resume');
+            break;
+    }
 }
 </script>
 
-
 <style scoped>
+/* ========================================
+   Resume Import - Modern UI
+   ======================================== */
+
+.resume-import {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    color: #fff;
+}
+
+/* ========================================
+   Empty State
+   ======================================== */
+
+.empty-state {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.empty-state-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 50px;
+    background: linear-gradient(145deg, rgba(40, 40, 50, 0.6), rgba(30, 30, 40, 0.8));
+    border: 2px dashed rgba(99, 102, 241, 0.3);
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.empty-state-card:hover {
+    border-color: rgba(99, 102, 241, 0.6);
+    background: linear-gradient(145deg, rgba(50, 50, 65, 0.7), rgba(35, 35, 50, 0.9));
+    transform: translateY(-2px);
+}
+
+.upload-icon-wrapper {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.upload-icon {
+    font-size: 48px;
+    position: relative;
+    z-index: 1;
+}
+
+.upload-pulse {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80px;
+    height: 80px;
+    background: rgba(99, 102, 241, 0.15);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.5;
+    }
+
+    50% {
+        transform: translate(-50%, -50%) scale(1.15);
+        opacity: 0.2;
+    }
+}
+
+.empty-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+    color: #fff;
+}
+
+.empty-desc {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.5);
+    margin: 0 0 20px 0;
+    text-align: center;
+    max-width: 240px;
+}
+
+.btn-upload {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 24px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-upload:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+}
+
+.empty-hint {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.3);
+    margin: 12px 0 0 0;
+}
+
+/* ========================================
+   File Header
+   ======================================== */
+
+.resume-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 0;
+}
+
+.file-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.file-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.file-icon {
+    font-size: 24px;
+}
+
+.file-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.file-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: #fff;
+}
+
+.file-meta {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.file-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.toggle-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.toggle-chip:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.toggle-chip.active {
+    background: rgba(99, 102, 241, 0.15);
+    border-color: rgba(99, 102, 241, 0.3);
+    color: #a5b4fc;
+}
+
+.toggle-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transition: all 0.2s;
+}
+
+.toggle-chip.active .toggle-dot {
+    background: #6366f1;
+    box-shadow: 0 0 6px rgba(99, 102, 241, 0.5);
+}
+
+.btn-parse {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-parse:hover:not(:disabled) {
+    box-shadow: 0 2px 12px rgba(99, 102, 241, 0.4);
+}
+
+.btn-parse:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.menu-wrapper {
+    position: relative;
+}
+
+.btn-menu {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-menu:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 4px;
+    min-width: 140px;
+    background: #2a2a35;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    z-index: 100;
+    overflow: hidden;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.menu-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.menu-item.danger {
+    color: #f87171;
+}
+
+.menu-item.danger:hover {
+    background: rgba(248, 113, 113, 0.1);
+}
+
+/* ========================================
+   Tab Navigation
+   ======================================== */
+
+.tab-nav {
+    display: flex;
+    gap: 4px;
+    padding: 4px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+}
+
+.tab-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.tab-btn:hover {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.tab-btn.active {
+    background: rgba(99, 102, 241, 0.15);
+    color: #a5b4fc;
+}
+
+.tab-icon {
+    font-size: 14px;
+}
+
+.tab-badge {
+    font-size: 10px;
+    color: #10b981;
+}
+
+/* ========================================
+   Content Area
+   ======================================== */
+
+.content-area {
+    flex: 1;
+    min-height: 0;
+    border-radius: 10px;
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.preview-panel {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* PDF Preview */
+.pdf-viewer {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.canvas-container {
+    flex: 1;
+    overflow: auto;
+    display: flex;
+    justify-content: center;
+    padding: 16px;
+    background: #1a1a1f;
+}
+
+.canvas-container canvas {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.pdf-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.3);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.ctrl-btn {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.08);
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.ctrl-btn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.ctrl-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.page-indicator {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.6);
+    font-variant-numeric: tabular-nums;
+}
+
+/* Markdown Preview */
+.markdown-toolbar {
+    display: flex;
+    gap: 2px;
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.2);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.toolbar-btn {
+    padding: 6px 14px;
+    background: transparent;
+    border: none;
+    border-radius: 4px;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.toolbar-btn:hover {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.toolbar-btn.active {
+    background: rgba(99, 102, 241, 0.15);
+    color: #a5b4fc;
+}
+
+.editor-wrapper {
+    flex: 1;
+    min-height: 0;
+}
+
+.md-editor {
+    width: 100%;
+    height: 100%;
+    padding: 16px;
+    background: transparent;
+    border: none;
+    color: #e0e0e0;
+    font-family: 'Fira Code', 'Consolas', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    resize: none;
+    outline: none;
+}
+
+.md-editor::placeholder {
+    color: rgba(255, 255, 255, 0.25);
+}
+
+.md-preview {
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #e0e0e0;
+}
+
+.md-preview :deep(h1),
+.md-preview :deep(h2),
+.md-preview :deep(h3) {
+    margin: 1em 0 0.5em 0;
+    color: #fff;
+}
+
+.md-preview :deep(h1) {
+    font-size: 1.4em;
+}
+
+.md-preview :deep(h2) {
+    font-size: 1.2em;
+}
+
+.md-preview :deep(h3) {
+    font-size: 1.1em;
+}
+
+.md-preview :deep(p) {
+    margin: 0.5em 0;
+}
+
+.md-preview :deep(ul),
+.md-preview :deep(ol) {
+    padding-left: 1.5em;
+    margin: 0.5em 0;
+}
+
+.md-preview :deep(code) {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+.md-preview :deep(pre) {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 12px;
+    border-radius: 6px;
+    overflow-x: auto;
+}
+
+.md-preview :deep(blockquote) {
+    border-left: 3px solid #6366f1;
+    padding-left: 12px;
+    margin: 0.5em 0;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* Empty Content */
+.empty-content,
+.loading-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.empty-icon {
+    font-size: 36px;
+    opacity: 0.5;
+}
+
+.empty-text {
+    font-size: 14px;
+    margin: 0;
+}
+
+.empty-subtext {
+    font-size: 12px;
+    margin: 0;
+    opacity: 0.6;
+}
+
+.btn-secondary-sm {
+    margin-top: 12px;
+    padding: 6px 16px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-secondary-sm:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+/* ========================================
+   Dialog
+   ======================================== */
+
+.dialog-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.dialog-box {
+    background: #2a2a35;
+    border-radius: 12px;
+    padding: 24px;
+    max-width: 320px;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.dialog-icon {
+    font-size: 40px;
+    margin-bottom: 12px;
+}
+
+.dialog-box h4 {
+    margin: 0 0 8px 0;
+    font-size: 16px;
+    color: #fff;
+}
+
+.dialog-box p {
+    margin: 0 0 20px 0;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.6);
+    line-height: 1.5;
+}
+
+.dialog-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.btn-cancel,
+.btn-confirm {
+    padding: 8px 20px;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-cancel {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #fff;
+}
+
+.btn-cancel:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.btn-confirm {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    border: none;
+    color: #fff;
+}
+
+.btn-confirm:hover {
+    box-shadow: 0 2px 12px rgba(99, 102, 241, 0.4);
+}
+
+/* ========================================
+   Utilities
+   ======================================== */
+
 .spin {
-    animation: spin 1s linear infinite;
     display: inline-block;
+    animation: spin 1s linear infinite;
+}
+
+.spin.large {
+    font-size: 32px;
 }
 
 @keyframes spin {
@@ -349,722 +1010,5 @@ function enableManualInput() {
     to {
         transform: rotate(360deg);
     }
-}
-
-.markdown-content {
-    flex: 1;
-    width: 100%;
-    height: 100%;
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding: 15px;
-    text-align: left;
-    font-size: 13px;
-    line-height: 1.6;
-    color: #e0e0e0;
-    min-height: 0;
-    /* 解决 3D 变换导致滚动失效的问题 */
-    transform: translateZ(0);
-    -webkit-overflow-scrolling: touch;
-}
-
-.markdown-content :deep(h1),
-.markdown-content :deep(h2),
-.markdown-content :deep(h3),
-.markdown-content :deep(h4),
-.markdown-content :deep(h5),
-.markdown-content :deep(h6) {
-    margin: 0.8em 0 0.4em 0;
-    font-weight: 600;
-}
-
-.markdown-content :deep(h1) {
-    font-size: 1.5em;
-}
-
-.markdown-content :deep(h2) {
-    font-size: 1.3em;
-}
-
-.markdown-content :deep(h3) {
-    font-size: 1.1em;
-}
-
-.markdown-content :deep(p) {
-    margin: 0.5em 0;
-}
-
-.markdown-content :deep(ul),
-.markdown-content :deep(ol) {
-    margin: 0.5em 0;
-    padding-left: 1.5em;
-}
-
-.markdown-content :deep(li) {
-    margin: 0.25em 0;
-}
-
-.markdown-content :deep(code) {
-    background: rgba(255, 255, 255, 0.1);
-    padding: 0.15em 0.4em;
-    border-radius: 3px;
-    font-family: 'Fira Code', monospace;
-    font-size: 0.9em;
-}
-
-.markdown-content :deep(pre) {
-    background: rgba(0, 0, 0, 0.3);
-    padding: 10px;
-    border-radius: 5px;
-    overflow-x: auto;
-}
-
-.markdown-content :deep(pre code) {
-    background: transparent;
-    padding: 0;
-}
-
-.markdown-content :deep(blockquote) {
-    border-left: 3px solid #1890ff;
-    margin: 0.5em 0;
-    padding-left: 1em;
-    color: #aaa;
-}
-
-.markdown-content :deep(hr) {
-    border: none;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    margin: 1em 0;
-}
-
-.markdown-content :deep(a) {
-    color: #1890ff;
-}
-
-.markdown-content :deep(strong) {
-    font-weight: 600;
-}
-
-.markdown-content :deep(table) {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 0.5em 0;
-}
-
-.markdown-content :deep(th),
-.markdown-content :deep(td) {
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 0.5em;
-    text-align: left;
-}
-
-.markdown-content :deep(th) {
-    background: rgba(255, 255, 255, 0.05);
-}
-
-.markdown-editor {
-    flex: 1;
-    width: 100%;
-    height: 100%;
-    background: transparent;
-    border: none;
-    color: #e0e0e0;
-    font-family: 'Fira Code', monospace;
-    font-size: 13px;
-    resize: none;
-    outline: none;
-    line-height: 1.6;
-    padding: 15px;
-    overflow-y: auto;
-    transform: translateZ(0);
-    -webkit-overflow-scrolling: touch;
-}
-
-.resume-import-container {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    gap: 15px;
-    color: #fff;
-}
-
-.resume-header-section {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-bottom: 10px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.header-title {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 16px;
-    font-weight: 600;
-}
-
-.file-controls {
-    display: flex;
-    align-items: center;
-}
-
-.upload-btn {
-    cursor: pointer;
-    background: rgba(255, 255, 255, 0.1);
-    padding: 6px 12px;
-    border-radius: 6px;
-    font-size: 13px;
-    transition: background 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.upload-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-}
-
-.file-selected {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.btn-group {
-    display: flex;
-    gap: 5px;
-}
-
-.btn-secondary,
-.btn-danger {
-    padding: 4px 8px;
-    border-radius: 4px;
-    border: none;
-    cursor: pointer;
-    font-size: 12px;
-    color: #fff;
-}
-
-.btn-danger {
-    background: #ff4d4f;
-    color: #fff;
-    border: none;
-}
-
-.btn-danger:hover {
-    background: #ff7875;
-}
-
-.btn-secondary {
-    background: rgba(255, 255, 255, 0.15);
-}
-
-.btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.25);
-}
-
-/* Flip Animation Styles */
-.flip-container {
-    flex: 1;
-    perspective: 1000px;
-    min-height: 500px;
-    /* 增加最小高度，让可视区域更大 */
-    position: relative;
-}
-
-btn-danger:hover {
-    background: rgba(255, 77, 79, 0.3);
-}
-
-/* Flip Animation Styles */
-.flip-container {
-    flex: 1;
-    perspective: 1000px;
-    min-height: 400px;
-    position: relative;
-}
-
-.flipper {
-    transition: 0.6s;
-    transform-style: preserve-3d;
-    position: relative;
-    width: 100%;
-    height: 100%;
-}
-
-.flipper.flipped {
-    transform: rotateY(180deg);
-}
-
-.front,
-.back {
-    backface-visibility: hidden;
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-}
-
-.front {
-    z-index: 2;
-    transform: rotateY(0deg);
-}
-
-.back {
-    transform: rotateY(180deg);
-    overflow: auto;
-}
-
-/* Pane Styles */
-.preview-pane {
-    height: 100%;
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    display: flex;
-    flex-direction: column;
-    overflow: auto;
-}
-
-.pane-label {
-    padding: 8px 12px;
-    background: rgba(255, 255, 255, 0.05);
-    font-size: 12px;
-    color: #aaa;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.pdf-pane-label {
-    position: relative;
-}
-
-.pdf-pane-actions {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.parse-btn {
-    font-size: 12px;
-    padding: 4px 10px;
-    border-radius: 4px;
-    min-width: unset;
-    background: rgba(24, 144, 255, 0.12);
-    color: #1890ff;
-    border: 1px solid #1890ff;
-    box-shadow: none;
-    transition: background 0.2s, color 0.2s, border 0.2s;
-    font-weight: 500;
-}
-
-.parse-btn:disabled {
-    background: rgba(24, 144, 255, 0.08);
-    color: #aaa;
-    border-color: #aaa;
-    cursor: not-allowed;
-}
-
-.parse-btn:hover:not(:disabled) {
-    background: #1890ff;
-    color: #fff;
-}
-
-.vision-warning {
-    font-size: 14px;
-    cursor: help;
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-
-    0%,
-    100% {
-        opacity: 1;
-    }
-
-    50% {
-        opacity: 0.5;
-    }
-}
-
-
-.hint-text {
-    cursor: pointer;
-    color: #1890ff;
-    font-size: 11px;
-}
-
-.hint-text:hover {
-    text-decoration: underline;
-}
-
-.pane-body {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    overflow: auto;
-    background: #1e1e1e;
-    min-height: 0;
-}
-
-.separator-v-small {
-    width: 1px;
-    height: 16px;
-    background: rgba(255, 255, 255, 0.1);
-    margin: 0 5px;
-}
-
-.icon-text {
-    font-size: 16px;
-    font-weight: bold;
-    line-height: 1;
-}
-
-.pdf-container {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    background: #2d2d2d;
-    display: flex;
-    flex-direction: column;
-}
-
-.pdf-controls {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 10px;
-    padding: 8px;
-    background: rgba(0, 0, 0, 0.3);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    z-index: 10;
-    flex-shrink: 0;
-    max-height: 44px;
-    overflow: hidden;
-    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.pdf-controls.collapsed {
-    max-height: 0;
-    padding: 0 8px;
-    border-bottom: none;
-}
-
-.collapse-btn {
-    width: 28px;
-    height: 28px;
-    background: rgba(255, 255, 255, 0.1);
-    border: none;
-    color: #fff;
-    border-radius: 4px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    font-weight: bold;
-    margin-right: 4px;
-}
-
-.canvas-wrapper {
-    flex: 1;
-    overflow: auto;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: auto;
-    padding: 20px;
-    box-sizing: border-box;
-    background: #2d2d2d;
-    position: relative;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.pdf-btn {
-    background: rgba(255, 255, 255, 0.1);
-    border: none;
-    color: #fff;
-    width: 28px;
-    height: 28px;
-    border-radius: 4px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.2s;
-}
-
-.pdf-btn:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.2);
-}
-
-.pdf-btn:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-}
-
-.page-info {
-    font-size: 12px;
-    color: #ccc;
-    font-variant-numeric: tabular-nums;
-}
-
-canvas {
-    /* 阴影效果 */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-
-    /* 强制重置尺寸限制，由 JS 控制大小 */
-    max-width: none !important;
-    width: auto !important;
-    height: auto !important;
-
-    /* 布局关键：变成块级 + 自动边距实现居中 */
-    display: block;
-    margin: auto;
-}
-
-.placeholder-content {
-    text-align: center;
-    color: rgba(255, 255, 255, 0.3);
-    margin: auto;
-    padding: 20px;
-}
-
-.placeholder-content .icon {
-    font-size: 32px;
-    display: block;
-    margin-bottom: 10px;
-}
-
-.sub-text {
-    font-size: 11px;
-    margin-top: 5px;
-    opacity: 0.7;
-    word-break: break-all;
-}
-
-.empty-state-desc {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    color: #888;
-    padding: 20px;
-    font-size: 14px;
-    line-height: 1.5;
-}
-
-.action-bar {
-    padding-top: 10px;
-}
-
-.btn-primary {
-    background: #0986fc;
-    color: white;
-    border: none;
-    /* padding: 10px 20px; */
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 700;
-    transition: background 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-}
-
-.btn-primary:hover {
-    background: #40a9ff;
-}
-
-.full-width {
-    width: 100%;
-}
-
-.right-controls {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.separator-v {
-    width: 1px;
-    height: 16px;
-    background: rgba(255, 255, 255, 0.15);
-    margin: 0 12px;
-}
-
-.toggle-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
-    user-select: none;
-}
-
-.toggle-label {
-    font-size: 12px;
-    color: #888;
-    transition: color 0.3s ease;
-    font-weight: 500;
-}
-
-.toggle-label.active {
-    color: #fff;
-}
-
-.toggle-switch {
-    width: 32px;
-    height: 18px;
-    background: rgba(255, 255, 255, 0.15);
-    border-radius: 10px;
-    position: relative;
-    transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.toggle-switch.active {
-    background: #1890ff;
-    border-color: #1890ff;
-}
-
-.toggle-knob {
-    width: 14px;
-    height: 14px;
-    background: #fff;
-    border-radius: 50%;
-    position: absolute;
-    top: 1px;
-    left: 1px;
-    transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-}
-
-.toggle-switch.active .toggle-knob {
-    transform: translateX(14px);
-}
-
-.checkbox-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
-    color: #ccc;
-    cursor: pointer;
-}
-
-.checkbox-wrapper input {
-    cursor: pointer;
-}
-
-.checkbox-wrapper label {
-    cursor: pointer;
-}
-
-.action-text {
-    cursor: pointer;
-    color: #1890ff;
-    font-size: 12px;
-}
-
-.action-text:hover {
-    text-decoration: underline;
-}
-
-.separator {
-    color: rgba(255, 255, 255, 0.2);
-}
-
-.editor-container {
-    flex: 1;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    overflow: auto;
-    min-height: 0;
-}
-
-/* Confirmation Dialog Styles */
-.confirm-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-}
-
-.confirm-dialog {
-    background: #2a2a2a;
-    border-radius: 12px;
-    padding: 24px;
-    max-width: 320px;
-    text-align: center;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-}
-
-.confirm-icon {
-    font-size: 48px;
-    margin-bottom: 12px;
-}
-
-.confirm-title {
-    font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 8px;
-    color: #fff;
-}
-
-.confirm-message {
-    font-size: 13px;
-    color: #aaa;
-    margin-bottom: 20px;
-    line-height: 1.5;
-}
-
-.confirm-actions {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-}
-
-.confirm-actions button {
-    min-width: 80px;
-    padding: 8px 16px;
-    border-radius: 6px;
-    font-size: 13px;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.confirm-actions .btn-primary {
-    background: #1890ff;
-    color: #fff;
-    border: none;
-}
-
-.confirm-actions .btn-primary:hover {
-    background: #40a9ff;
-}
-
-.confirm-actions .btn-secondary {
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.confirm-actions .btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.15);
 }
 </style>
