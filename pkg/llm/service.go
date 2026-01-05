@@ -17,6 +17,7 @@ const (
 	ProviderOpenAI ProviderType = "openai"
 	ProviderGemini ProviderType = "gemini"
 	ProviderClaude ProviderType = "claude"
+	ProviderCustom ProviderType = "custom"
 )
 
 // Service LLM 服务
@@ -36,7 +37,7 @@ func NewService(cfg *config.Config) *Service {
 
 // UpdateProvider 更新 Provider（配置变更时调用）
 func (s *Service) UpdateProvider() {
-	providerType := DetectProviderType( s.config.GetProvider())
+	providerType := DetectProviderType(s.config.GetProvider())
 	s.provider = CreateProvider(providerType, s.config)
 }
 
@@ -53,6 +54,8 @@ func DetectProviderType(Provider string) ProviderType {
 		return ProviderGemini
 	case strings.Contains(Provider, "anthropic"):
 		return ProviderClaude
+	case strings.Contains(Provider, "custom"):
+		return ProviderCustom
 	}
 	//全都没匹配到就用openai
 	return ProviderOpenAI
@@ -68,6 +71,9 @@ func CreateProvider(providerType ProviderType, cfg *config.Config) Provider {
 	case ProviderClaude:
 		logger.Println("创建ClaudeAdapter")
 		return NewClaudeAdapter(cfg)
+	case ProviderCustom:
+		logger.Println("创建CustomAdapter")
+		return NewCustomAdapter(cfg)
 	default:
 		logger.Println("创建OpenAIAdapter")
 		return NewOpenAIAdapter(cfg)

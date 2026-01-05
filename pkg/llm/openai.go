@@ -27,9 +27,10 @@ func NewOpenAIAdapter(cfg *config.Config) *OpenAIAdapter {
 	if model == "" {
 		model = openai.ChatModelGPT4o
 	}
-
+	// proxyUrl, _ := url.Parse("http://127.0.0.1:8888")
 	transport := &http.Transport{
 		TLSClientConfig: &tls.Config{},
+		// Proxy: http.ProxyURL(proxyUrl),
 	}
 	httpClient := &http.Client{
 		Transport: transport,

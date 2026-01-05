@@ -19,9 +19,15 @@ type ClaudeAdapter struct {
 
 // NewClaudeAdapter 创建 Claude 适配器
 func NewClaudeAdapter(cfg *config.Config) *ClaudeAdapter {
-	client := anthropic.NewClient(
+	opts := []option.RequestOption{
 		option.WithAPIKey(cfg.GetAPIKey()),
-	)
+	}
+	if *cfg.Provider == "custom" {
+		baseUrl := strings.TrimSuffix(cfg.GetBaseURL(), "/v1")
+		logger.Println("配置Claude自定义URL", baseUrl)
+		opts = append(opts, option.WithBaseURL(baseUrl))
+	}
+	client := anthropic.NewClient(opts...)
 
 	return &ClaudeAdapter{
 		client: &client,

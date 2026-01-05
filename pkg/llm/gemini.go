@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"Q-Solver/pkg/config"
+	"Q-Solver/pkg/logger"
 
 	"google.golang.org/genai"
 )
@@ -19,10 +20,21 @@ type GeminiAdapter struct {
 
 // NewGeminiAdapter 创建 Gemini 适配器
 func NewGeminiAdapter(cfg *config.Config) (*GeminiAdapter, error) {
-	client, err := genai.NewClient(context.Background(), &genai.ClientConfig{
+
+	clientConfig := &genai.ClientConfig{
 		APIKey:  cfg.GetAPIKey(),
 		Backend: genai.BackendGeminiAPI,
-	})
+	}
+	//自定义的话就用自定义的URL
+	if *cfg.Provider == "custom" {
+		baseUrl := strings.TrimSuffix(cfg.GetBaseURL(),"/v1")
+		logger.Println("配置Gemini自定义URL",baseUrl)
+		clientConfig.HTTPOptions = genai.HTTPOptions{
+			BaseURL: baseUrl,
+		}
+	}
+	client, err := genai.NewClient(context.Background(), clientConfig)
+
 	if err != nil {
 		return nil, fmt.Errorf("failed to create Gemini client: %w", err)
 	}
