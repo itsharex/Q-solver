@@ -13,9 +13,6 @@ type Provider interface {
 	// GetModels 获取可用模型列表
 	GetModels(ctx context.Context) ([]string, error)
 
-	// ParseResume 解析简历为 Markdown
-	ParseResume(ctx context.Context, resumeBase64 string) (string, error)
-
 	// TestChat 测试连通性
 	TestChat(ctx context.Context) error
 }
