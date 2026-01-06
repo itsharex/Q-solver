@@ -1,6 +1,7 @@
 package llm
 
 import (
+	"Q-Solver/pkg/config"
 	"context"
 )
 
@@ -163,10 +164,11 @@ type LiveSession interface {
 	SendAudio(data []byte) error
 	Receive() (*LiveMessage, error)
 	SendToolResponse(toolID string, result string) error
+	SendToolResponseWithImage(toolID string, imageData []byte, mimeType string) error
 	Close() error
 }
 
 // LiveProvider 支持实时对话的 Provider 可选接口
 type LiveProvider interface {
-	ConnectLive(ctx context.Context, cfg *LiveConfig) (LiveSession, error)
+	ConnectLive(ctx context.Context, cfg *LiveConfig, config *config.Config) (LiveSession, error)
 }

@@ -41,6 +41,8 @@ export function StartLiveSession():Promise<void>;
 
 export function StartRecordingKey(arg1:string):Promise<void>;
 
+export function StopLiveSession():Promise<void>;
+
 export function StopRecordingKey():Promise<void>;
 
 export function SyncSettingsToDefaultSettings(arg1:string):Promise<string>;

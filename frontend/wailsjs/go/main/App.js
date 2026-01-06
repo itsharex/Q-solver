@@ -78,6 +78,10 @@ export function StartRecordingKey(arg1) {
   return window['go']['main']['App']['StartRecordingKey'](arg1);
 }
 
+export function StopLiveSession() {
+  return window['go']['main']['App']['StopLiveSession']();
+}
+
 export function StopRecordingKey() {
   return window['go']['main']['App']['StopRecordingKey']();
 }

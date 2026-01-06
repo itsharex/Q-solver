@@ -7,7 +7,7 @@ import (
 	"github.com/gen2brain/malgo"
 )
 
-// LoopbackCapture 扬声器音频采集
+// LoopbackCapture 扬声器音频采集 (实时)
 type LoopbackCapture struct {
 	ctx     *malgo.AllocatedContext
 	device  *malgo.Device
@@ -22,7 +22,10 @@ func NewLoopbackCapture(onData func([]byte)) (*LoopbackCapture, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &LoopbackCapture{ctx: ctx, onData: onData}, nil
+	return &LoopbackCapture{
+		ctx:    ctx,
+		onData: onData,
+	}, nil
 }
 
 // Start 开始采集扬声器输出
@@ -39,12 +42,10 @@ func (c *LoopbackCapture) Start() error {
 	deviceConfig.Capture.Channels = 1
 	deviceConfig.SampleRate = 16000
 
+	// 数据回调 - 实时发送
 	onRecv := func(_, pInput []byte, frameCount uint32) {
-		if c.onData != nil && len(pInput) > 0 {
-			// 复制数据避免底层缓冲区被重用
-			data := make([]byte, len(pInput))
-			copy(data, pInput)
-			c.onData(data)
+		if len(pInput) > 0 && c.onData != nil {
+			c.onData(pInput)
 		}
 	}
 
@@ -62,7 +63,8 @@ func (c *LoopbackCapture) Start() error {
 
 	c.device = device
 	c.running = true
-	logger.Println("Loopback 采集已启动")
+
+	logger.Println("Loopback 采集已启动 (实时模式)")
 	return nil
 }
 

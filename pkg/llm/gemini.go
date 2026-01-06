@@ -33,6 +33,7 @@ func NewGeminiAdapter(cfg *config.Config) (*GeminiAdapter, error) {
 			BaseURL: baseUrl,
 		}
 	}
+	
 	client, err := genai.NewClient(context.Background(), clientConfig)
 
 	if err != nil {

@@ -93,6 +93,17 @@
                   <span class="slider round"></span>
                 </label>
               </div>
+
+              <div class="setting-row" style="margin-top: 12px;">
+                <div class="setting-info">
+                  <span class="setting-title">启用 Live API 模式</span>
+                  <span class="setting-desc">采集扬声器声音，实时识别面试官问题并回答</span>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" v-model="tempSettings.useLiveApi">
+                  <span class="slider round"></span>
+                </label>
+              </div>
             </div>
           </div>
 

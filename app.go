@@ -1,6 +1,7 @@
 package main
 
 import (
+	"Q-Solver/pkg/audio"
 	"Q-Solver/pkg/config"
 	"Q-Solver/pkg/llm"
 	"Q-Solver/pkg/logger"
@@ -13,6 +14,7 @@ import (
 	"context"
 	"encoding/base64"
 	"os"
+	"strings"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
@@ -32,6 +34,10 @@ type App struct {
 	shortcutService *shortcut.Service
 	screenService   *screen.Service
 	solver          *solution.Solver
+
+	// Live API
+	liveSession  llm.LiveSession
+	audioCapture *audio.LoopbackCapture
 }
 
 // NewApp 创建 App 实例
@@ -401,14 +407,30 @@ func (a *App) StartLiveSession() error {
 
 	// 连接 Live Session
 	liveCfg := llm.GetLiveConfig(&cfg)
-	session, err := liveProvider.ConnectLive(a.ctx, liveCfg)
+	session, err := liveProvider.ConnectLive(a.ctx, liveCfg, a.configManager.GetPtr())
 	if err != nil {
 		a.EmitEvent("live:status", "error")
 		a.EmitEvent("live:error", err.Error())
 		return err
 	}
 
+	a.liveSession = session
 	a.EmitEvent("live:status", "connected")
+
+	// 初始化音频采集
+	a.audioCapture, err = audio.NewLoopbackCapture(func(data []byte) {
+		if a.liveSession != nil {
+			_ = a.liveSession.SendAudio(data)
+		}
+	})
+	if err != nil {
+		logger.Printf("音频采集初始化失败: %v", err)
+		a.EmitEvent("live:error", "音频采集初始化失败: "+err.Error())
+	} else {
+		if err := a.audioCapture.Start(); err != nil {
+			logger.Printf("音频采集启动失败: %v", err)
+		}
+	}
 
 	// 启动接收协程
 	go a.liveReceiveLoop(session)
@@ -416,32 +438,61 @@ func (a *App) StartLiveSession() error {
 	return nil
 }
 
+// StopLiveSession 停止 Live API 会话
+func (a *App) StopLiveSession() {
+	logger.Println("Live: StopLiveSession 调用")
+	if a.audioCapture != nil {
+		logger.Println("Live: 停止音频采集")
+		a.audioCapture.Close()
+		a.audioCapture = nil
+	}
+	if a.liveSession != nil {
+		logger.Println("Live: 关闭会话")
+		a.liveSession.Close()
+		a.liveSession = nil
+	}
+	a.EmitEvent("live:status", "disconnected")
+}
+
 // liveReceiveLoop 接收 Live 消息的循环
 func (a *App) liveReceiveLoop(session llm.LiveSession) {
-	defer session.Close()
+	logger.Println("Live: 接收循环已启动")
+	defer func() {
+		logger.Println("Live: 接收循环结束")
+		session.Close()
+	}()
 
 	for {
 		msg, err := session.Receive()
 		if err != nil {
+			logger.Printf("Live: 接收错误: %v", err)
 			a.EmitEvent("live:status", "disconnected")
+			a.EmitEvent("live:error", err.Error())
 			return
 		}
 		if msg == nil {
 			continue
 		}
 
+		// logger.Printf("Live: 收到消息 type=%s", msg.Type)
+
 		switch msg.Type {
 		case llm.LiveMsgTranscript:
+			// logger.Printf("Live: 转录: %s", msg.Text)
 			a.EmitEvent("live:transcript", msg.Text)
 		case llm.LiveMsgAIText:
+			// logger.Printf("Live: AI回复: %s", msg.Text)
 			a.EmitEvent("live:ai-text", msg.Text)
 		case llm.LiveMsgToolCall:
+			logger.Printf("Live: 工具调用 %s (ID=%s)", msg.ToolName, msg.ToolID)
 			if msg.ToolName == "get_screenshot" {
 				a.handleLiveScreenshot(session, msg.ToolID)
 			}
 		case llm.LiveMsgDone:
+			logger.Println("Live: 对话轮完成")
 			a.EmitEvent("live:done")
 		case llm.LiveMsgError:
+			logger.Printf("Live: 错误: %s", msg.Text)
 			a.EmitEvent("live:error", msg.Text)
 		}
 	}
@@ -464,7 +515,31 @@ func (a *App) handleLiveScreenshot(session llm.LiveSession, toolID string) {
 		return
 	}
 
-	// 发送截图结果给模型
-	_ = session.SendToolResponse(toolID, preview.Base64)
-	logger.Println("Live: 已发送屏幕截图给模型")
+	// 解析 data URL 格式: data:image/jpeg;base64,xxxxx
+	base64Str := preview.Base64
+	mimeType := "image/jpeg" // 默认
+
+	if strings.HasPrefix(base64Str, "data:") {
+		// 提取 MIME 类型
+		if idx := strings.Index(base64Str, ";base64,"); idx > 5 {
+			mimeType = base64Str[5:idx]   // 提取 "image/jpeg" 或 "image/png"
+			base64Str = base64Str[idx+8:] // 去掉前缀，保留纯 base64
+		}
+	}
+
+	// 解码 Base64 为原始图片数据
+	imageData, err := base64.StdEncoding.DecodeString(base64Str)
+	if err != nil {
+		logger.Printf("Live Base64解码失败: %v", err)
+		_ = session.SendToolResponse(toolID, "图片解码失败")
+		return
+	}
+
+	// 发送图片数据给模型
+	err = session.SendToolResponseWithImage(toolID, imageData, mimeType)
+	if err != nil {
+		logger.Printf("Live 发送截图失败: %v", err)
+	} else {
+		logger.Printf("Live: 已发送屏幕截图给模型 (%d bytes, %s)", len(imageData), mimeType)
+	}
 }

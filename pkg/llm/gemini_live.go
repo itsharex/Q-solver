@@ -14,12 +14,13 @@ type GeminiLiveSession struct {
 }
 
 // ConnectLive 实现 LiveProvider 接口
-func (a *GeminiAdapter) ConnectLive(ctx context.Context, cfg *LiveConfig) (LiveSession, error) {
+func (a *GeminiAdapter) ConnectLive(ctx context.Context, cfg *LiveConfig, config *config.Config) (LiveSession, error) {
+	// Live API 只支持特定模型，用户配置的模型可能不支持 bidiGenerateContent
 	model := cfg.Model
 	if model == "" {
 		model = a.config.GetModel()
 	}
-
+	model = "gemini-2.0-flash-exp"
 	// 定义截图工具
 	screenshotTool := &genai.Tool{
 		FunctionDeclarations: []*genai.FunctionDeclaration{
@@ -32,7 +33,22 @@ func (a *GeminiAdapter) ConnectLive(ctx context.Context, cfg *LiveConfig) (LiveS
 
 	// 连接配置
 	connectCfg := &genai.LiveConnectConfig{
-		Tools: []*genai.Tool{screenshotTool},
+		Tools:                   []*genai.Tool{screenshotTool},
+		ResponseModalities:      []genai.Modality{genai.ModalityAudio},
+		MaxOutputTokens:         int32(config.GetMaxTokens()),
+		Temperature:             toFloat32Ptr(config.GetTemperature()),
+		TopP:                    toFloat32Ptr(config.GetTopP()),
+		TopK:                    intToFloat32Ptr(config.GetTopK()),
+		InputAudioTranscription: &genai.AudioTranscriptionConfig{},
+		SpeechConfig: &genai.SpeechConfig{
+			LanguageCode: "cmn-CN",
+			VoiceConfig: &genai.VoiceConfig{
+				PrebuiltVoiceConfig: &genai.PrebuiltVoiceConfig{
+					VoiceName: "Aoede", // 可选: Puck, Charon, Kore, Fenrir, Aoede
+				},
+			},
+		},
+		OutputAudioTranscription: &genai.AudioTranscriptionConfig{}, // 输出音频也转录
 	}
 
 	if cfg.SystemInstruction != "" {
@@ -41,21 +57,23 @@ func (a *GeminiAdapter) ConnectLive(ctx context.Context, cfg *LiveConfig) (LiveS
 		}
 	}
 
-	logger.Printf("LiveAPI: 连接到模型 %s", model)
-
 	session, err := a.client.Live.Connect(ctx, model, connectCfg)
 	if err != nil {
+		logger.Printf("LiveAPI: 连接到模型 %s 发生错误", err)
 		return nil, err
 	}
-
+	logger.Printf("LiveAPI: 连接到模型 %s", model)
 	return &GeminiLiveSession{session: session}, nil
 }
 
-// SendAudio 发送音频数据
+// SendAudio 发送音频数据 (16kHz, 16-bit, mono PCM)
 func (s *GeminiLiveSession) SendAudio(data []byte) error {
+	if len(data) == 0 {
+		return nil
+	}
 	return s.session.SendRealtimeInput(genai.LiveRealtimeInput{
 		Media: &genai.Blob{
-			MIMEType: "audio/pcm",
+			MIMEType: "audio/pcm;rate=16000",
 			Data:     data,
 		},
 	})
@@ -77,6 +95,24 @@ func (s *GeminiLiveSession) convertMessage(msg *genai.LiveServerMessage) *LiveMe
 		return nil
 	}
 
+	// 输入音频转录 (面试官说话的文字)
+	if msg.ServerContent != nil && msg.ServerContent.InputTranscription != nil {
+		text := msg.ServerContent.InputTranscription.Text
+		if text != "" {
+			// logger.Printf("LiveAPI: 收到输入转录: %s", text)
+			return &LiveMessage{Type: LiveMsgTranscript, Text: text}
+		}
+	}
+
+	// 输出音频转录 (AI 说话的文字) - 当 ResponseModalities 为 Audio 时
+	if msg.ServerContent != nil && msg.ServerContent.OutputTranscription != nil {
+		text := msg.ServerContent.OutputTranscription.Text
+		if text != "" {
+			// logger.Printf("LiveAPI: 收到输出转录: %s", text)
+			return &LiveMessage{Type: LiveMsgAIText, Text: text}
+		}
+	}
+
 	// 工具调用
 	if msg.ToolCall != nil && len(msg.ToolCall.FunctionCalls) > 0 {
 		fc := msg.ToolCall.FunctionCalls[0]
@@ -94,7 +130,7 @@ func (s *GeminiLiveSession) convertMessage(msg *genai.LiveServerMessage) *LiveMe
 			return &LiveMessage{Type: LiveMsgDone}
 		}
 
-		// 检查 ModelTurn 中的文本
+		// 检查 ModelTurn 中的文本 (当 ResponseModalities 为 Text 时)
 		if msg.ServerContent.ModelTurn != nil {
 			for _, part := range msg.ServerContent.ModelTurn.Parts {
 				if part != nil && part.Text != "" {
@@ -107,7 +143,7 @@ func (s *GeminiLiveSession) convertMessage(msg *genai.LiveServerMessage) *LiveMe
 	return nil
 }
 
-// SendToolResponse 发送工具调用结果
+// SendToolResponse 发送工具调用结果 (文本)
 func (s *GeminiLiveSession) SendToolResponse(toolID string, result string) error {
 	return s.session.SendToolResponse(genai.LiveToolResponseInput{
 		FunctionResponses: []*genai.FunctionResponse{
@@ -119,13 +155,28 @@ func (s *GeminiLiveSession) SendToolResponse(toolID string, result string) error
 	})
 }
 
+// SendToolResponseWithImage 发送图片作为工具调用结果
+func (s *GeminiLiveSession) SendToolResponseWithImage(toolID string, imageData []byte, mimeType string) error {
+	logger.Printf("LiveAPI: 发送图片工具响应 ID=%s, size=%d, mime=%s", toolID, len(imageData), mimeType)
+	return s.session.SendToolResponse(genai.LiveToolResponseInput{
+		FunctionResponses: []*genai.FunctionResponse{
+			{
+				ID: toolID,
+				Response: map[string]any{
+					"image": map[string]any{
+						"mimeType": mimeType,
+						"data":     imageData,
+					},
+				},
+			},
+		},
+	})
+}
+
 // Close 关闭会话
 func (s *GeminiLiveSession) Close() error {
 	return s.session.Close()
 }
-
-// 确保 GeminiAdapter 实现 LiveProvider 接口
-var _ LiveProvider = (*GeminiAdapter)(nil)
 
 // SupportsLive 检查是否支持 Live API
 func SupportsLive(p Provider) bool {
@@ -139,4 +190,14 @@ func GetLiveConfig(cfg *config.Config) *LiveConfig {
 		Model:             cfg.GetModel(),
 		SystemInstruction: cfg.GetPrompt(),
 	}
+}
+
+func toFloat32Ptr(v float64) *float32 {
+	f := float32(v)
+	return &f
+}
+
+func intToFloat32Ptr(v int) *float32 {
+	f := float32(v)
+	return &f
 }

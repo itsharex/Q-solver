@@ -6,7 +6,10 @@
     :statusIcon="statusIcon" :statusText="statusText" :settings="settings" :isStealthMode="isStealthMode"
     @openSettings="openSettings" @quit="quit" />
 
-  <WelcomeView v-if="!hasStarted || history.length === 0" :solveShortcut="solveShortcut"
+  <!-- Live API 模式优先 -->
+  <LiveView v-if="settings.useLiveApi" />
+
+  <WelcomeView v-else-if="!hasStarted || history.length === 0" :solveShortcut="solveShortcut"
     :toggleShortcut="shortcuts.toggle?.keyName || 'Alt+H'" :initStatus="initStatus" />
 
   <div v-else id="main-interface" class="main-interface" :class="{ visible: mainVisible }">
@@ -115,6 +118,7 @@ import LoadingView from './components/LoadingView.vue'
 import TopBar from './components/TopBar.vue'
 import HistoryItem from './components/HistoryItem.vue'
 import EmptyState from './components/EmptyState.vue'
+import LiveView from './components/LiveView.vue'
 import { EventsOn, Quit } from '../wailsjs/runtime/runtime'
 import { StopRecordingKey, SelectResume, ClearResume, RestoreFocus, RemoveFocus, ParseResume, GetInitStatus } from '../wailsjs/go/main/App'
 

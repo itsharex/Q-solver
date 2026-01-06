@@ -35,6 +35,7 @@
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { marked } from 'marked'
 import { EventsOn, EventsOff } from '../../wailsjs/runtime/runtime'
+import { StartLiveSession, StopLiveSession } from '../../wailsjs/go/main/App'
 
 const status = ref('disconnected') // disconnected, connecting, connected, error
 const transcript = ref('')
@@ -96,19 +97,28 @@ function onLiveError(err) {
 }
 
 function onLiveDone() {
-  // 一轮对话完成，可以重置 transcript
-  transcript.value = ''
+  // 一轮对话完成，添加换行以区分下一轮，不清除历史
+  transcript.value += '\n\n'
+  aiText.value += '\n\n' // AI 回复也换行
 }
 
 onMounted(() => {
+  // 注册事件监听
   EventsOn('live:status', onLiveStatus)
   EventsOn('live:transcript', onLiveTranscript)
   EventsOn('live:ai-text', onLiveAiText)
   EventsOn('live:error', onLiveError)
   EventsOn('live:done', onLiveDone)
+
+  // 启动 Live 会话
+  StartLiveSession()
 })
 
 onUnmounted(() => {
+  // 停止 Live 会话
+  StopLiveSession()
+
+  // 取消事件监听
   EventsOff('live:status')
   EventsOff('live:transcript')
   EventsOff('live:ai-text')
@@ -152,6 +162,7 @@ onUnmounted(() => {
   background: rgba(255, 100, 100, 0.15);
   color: #ff6b6b;
 }
+
 .status-disconnected .status-dot {
   background: #ff6b6b;
 }
@@ -160,6 +171,7 @@ onUnmounted(() => {
   background: rgba(255, 193, 7, 0.15);
   color: #ffc107;
 }
+
 .status-connecting .status-dot {
   background: #ffc107;
   animation: pulse 1s infinite;
@@ -169,6 +181,7 @@ onUnmounted(() => {
   background: rgba(76, 175, 80, 0.15);
   color: #4caf50;
 }
+
 .status-connected .status-dot {
   background: #4caf50;
 }
@@ -177,13 +190,21 @@ onUnmounted(() => {
   background: rgba(255, 100, 100, 0.15);
   color: #ff6b6b;
 }
+
 .status-error .status-dot {
   background: #ff6b6b;
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.4;
+  }
 }
 
 /* 内容区 */
@@ -218,6 +239,8 @@ onUnmounted(() => {
   font-size: 14px;
   line-height: 1.6;
   color: rgba(255, 255, 255, 0.9);
+  white-space: pre-wrap;
+  /* 保留换行 */
 }
 
 .content .placeholder {

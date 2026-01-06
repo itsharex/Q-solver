@@ -14,7 +14,7 @@ export function useSettings(shortcuts, tempShortcuts, uiState, callbacks) {
     baseURL: '',
     model: '',
     prompt: '',
-    transparency: 0,  // 0 = 不透明 (opacity=1), 1 = 完全透明 (opacity=0)
+    transparency: 0,
     mode: 'interview',
     keepContext: false,
     screenshotMode: 'window',
@@ -24,7 +24,8 @@ export function useSettings(shortcuts, tempShortcuts, uiState, callbacks) {
     compressionQuality: 80,
     sharpening: 0,
     grayscale: true,
-    noCompression: false
+    noCompression: false,
+    useLiveApi: false
   })
 
   // 临时编辑的配置（用于设置面板）
@@ -106,12 +107,13 @@ export function useSettings(shortcuts, tempShortcuts, uiState, callbacks) {
     settings.resumeContent = config.resumeContent || ''
     settings.useMarkdownResume = config.useMarkdownResume || false
     settings.screenshotMode = config.screenshotMode || 'window'
+    settings.useLiveApi = config.useLiveApi || false
 
     // 透明度转换：opacity 来自后端，默认 1.0（完全不透明）
     // transparency = 1 - opacity，所以 opacity=1 时 transparency=0
     const opacity = config.opacity !== undefined ? config.opacity : 1.0
     settings.transparency = 1.0 - opacity
-    
+
     // 应用透明度到 UI
     const app = document.getElementById('app')
     if (app) {
@@ -225,6 +227,7 @@ export function useSettings(shortcuts, tempShortcuts, uiState, callbacks) {
         resumeContent: tempSettings.resumeContent,
         useMarkdownResume: tempSettings.useMarkdownResume,
         provider: tempSettings.provider,
+        useLiveApi: tempSettings.useLiveApi,
         shortcuts: tempShortcuts
       }
 
