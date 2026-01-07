@@ -138,11 +138,12 @@ func ParseBase64DataURL(dataURL string) (mimeType string, data string) {
 type LiveMessageType string
 
 const (
-	LiveMsgTranscript LiveMessageType = "transcript" // 面试官语音转录
-	LiveMsgAIText     LiveMessageType = "ai_text"    // AI 文本回复
-	LiveMsgToolCall   LiveMessageType = "tool_call"  // 工具调用请求
-	LiveMsgDone       LiveMessageType = "done"       // 对话轮完成
-	LiveMsgError      LiveMessageType = "error"      // 错误
+	LiveMsgTranscript      LiveMessageType = "transcript"       // 面试官语音转录
+	LiveMsgInterviewerDone LiveMessageType = "interviewer_done" // 面试官说话结束
+	LiveMsgAIText          LiveMessageType = "ai_text"          // AI 文本回复
+	LiveMsgToolCall        LiveMessageType = "tool_call"        // 工具调用请求
+	LiveMsgDone            LiveMessageType = "done"             // 对话轮完成
+	LiveMsgError           LiveMessageType = "error"            // 错误
 )
 
 // LiveMessage 实时消息

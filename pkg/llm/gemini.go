@@ -20,20 +20,22 @@ type GeminiAdapter struct {
 
 // NewGeminiAdapter 创建 Gemini 适配器
 func NewGeminiAdapter(cfg *config.Config) (*GeminiAdapter, error) {
-
+	// os.Setenv("HTTP_PROXY", "http://127.0.0.1:8888")
+    // os.Setenv("HTTPS_PROXY", "http://127.0.0.1:8888")
+	
 	clientConfig := &genai.ClientConfig{
 		APIKey:  cfg.GetAPIKey(),
 		Backend: genai.BackendGeminiAPI,
 	}
 	//自定义的话就用自定义的URL
 	if *cfg.Provider == "custom" {
-		baseUrl := strings.TrimSuffix(cfg.GetBaseURL(),"/v1")
-		logger.Println("配置Gemini自定义URL",baseUrl)
+		baseUrl := strings.TrimSuffix(cfg.GetBaseURL(), "/v1")
+		logger.Println("配置Gemini自定义URL", baseUrl)
 		clientConfig.HTTPOptions = genai.HTTPOptions{
 			BaseURL: baseUrl,
 		}
 	}
-	
+
 	client, err := genai.NewClient(context.Background(), clientConfig)
 
 	if err != nil {
@@ -184,8 +186,6 @@ func (a *GeminiAdapter) GenerateContentStream(ctx context.Context, messages []Me
 
 	var fullContent strings.Builder
 	var fullThinking strings.Builder
-	// s,_:=a.client.Live.Connect(ctx,"",nil)
-	// s.Receive()
 	for resp := range a.client.Models.GenerateContentStream(ctx, model, contents, genConfig) {
 		if resp == nil {
 			continue

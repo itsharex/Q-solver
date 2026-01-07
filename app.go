@@ -480,6 +480,9 @@ func (a *App) liveReceiveLoop(session llm.LiveSession) {
 		case llm.LiveMsgTranscript:
 			// logger.Printf("Live: 转录: %s", msg.Text)
 			a.EmitEvent("live:transcript", msg.Text)
+		case llm.LiveMsgInterviewerDone:
+			logger.Println("Live: 面试官说话结束")
+			a.EmitEvent("live:interviewer-done")
 		case llm.LiveMsgAIText:
 			// logger.Printf("Live: AI回复: %s", msg.Text)
 			a.EmitEvent("live:ai-text", msg.Text)
