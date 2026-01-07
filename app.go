@@ -15,6 +15,7 @@ import (
 	"encoding/base64"
 	"os"
 	"strings"
+	"sync"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
@@ -38,6 +39,7 @@ type App struct {
 	// Live API
 	liveSession  llm.LiveSession
 	audioCapture *audio.LoopbackCapture
+	liveMu       sync.Mutex // 保护 Live Session 并发访问
 }
 
 // NewApp 创建 App 实例
@@ -105,15 +107,17 @@ func (a *App) onConfigChanged(cfg config.Config) {
 		a.solver.ClearHistory()
 	}
 
+	//关闭liveApi模式
+	// if cfg.UseLiveApi == false && a.liveSession != nil {
+	// 	a.StopLiveSession()
+	// }
 	// 如果 Live Session 正在运行，则重连
-	if a.liveSession != nil {
+	if cfg.UseLiveApi == true && a.liveSession != nil {
 		logger.Println("配置变更，重连 Live Session...")
 		a.StopLiveSession()
-		go func() {
-			if err := a.StartLiveSession(); err != nil {
-				logger.Printf("Live Session 重连失败: %v", err)
-			}
-		}()
+		if err := a.StartLiveSession(); err != nil {
+			logger.Printf("Live Session 重连失败: %v", err)
+		}
 	}
 
 	logger.Println("配置已更新并应用")
@@ -406,6 +410,9 @@ func (a *App) SaveImageToFile(base64Data string) (bool, error) {
 
 // StartLiveSession 启动 Live API 会话
 func (a *App) StartLiveSession() error {
+	a.liveMu.Lock()
+	defer a.liveMu.Unlock()
+
 	cfg := a.configManager.Get()
 
 	// 检查 Provider 是否支持 Live
@@ -422,7 +429,7 @@ func (a *App) StartLiveSession() error {
 	liveCfg := llm.GetLiveConfig(&cfg)
 	session, err := liveProvider.ConnectLive(a.ctx, liveCfg, a.configManager.GetPtr())
 	if err != nil {
-		logger.Println("liveApi连接服务器失败",err)
+		logger.Println("liveApi连接服务器失败", err)
 		a.EmitEvent("live:status", "error")
 		a.EmitEvent("live:error", err.Error())
 		return err
@@ -454,6 +461,9 @@ func (a *App) StartLiveSession() error {
 
 // StopLiveSession 停止 Live API 会话
 func (a *App) StopLiveSession() {
+	a.liveMu.Lock()
+	defer a.liveMu.Unlock()
+
 	logger.Println("Live: StopLiveSession 调用")
 	if a.audioCapture != nil {
 		logger.Println("Live: 停止音频采集")

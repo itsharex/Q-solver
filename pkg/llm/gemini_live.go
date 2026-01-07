@@ -22,6 +22,7 @@ func (a *GeminiAdapter) ConnectLive(ctx context.Context, cfg *LiveConfig, config
 	if model == "" {
 		model = a.config.Model
 	}
+	model="gemini-2.5-flash-native-audio-preview-12-2025"
 	// 定义截图工具
 	screenshotTool := &genai.Tool{
 		FunctionDeclarations: []*genai.FunctionDeclaration{
@@ -41,14 +42,7 @@ func (a *GeminiAdapter) ConnectLive(ctx context.Context, cfg *LiveConfig, config
 		TopP:                    toFloat32Ptr(config.TopP),
 		TopK:                    intToFloat32Ptr(config.TopK),
 		InputAudioTranscription: &genai.AudioTranscriptionConfig{},
-		SpeechConfig: &genai.SpeechConfig{
-			LanguageCode: "cmn-CN",
-			VoiceConfig: &genai.VoiceConfig{
-				PrebuiltVoiceConfig: &genai.PrebuiltVoiceConfig{
-					VoiceName: "Aoede",
-				},
-			},
-		},
+		SpeechConfig: &genai.SpeechConfig{},
 		OutputAudioTranscription: &genai.AudioTranscriptionConfig{},
 	}
 
