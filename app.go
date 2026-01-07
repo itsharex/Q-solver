@@ -102,7 +102,7 @@ func (a *App) onConfigChanged(cfg config.Config) {
 	a.shortcutService.SetShortcuts(cfg.Shortcuts)
 
 	// 如果关闭了上下文，清空历史
-	if !cfg.GetKeepContext() && a.solver != nil {
+	if !cfg.KeepContext && a.solver != nil {
 		a.solver.ClearHistory()
 	}
 
@@ -187,12 +187,12 @@ func (a *App) TriggerSolve() {
 	cfg := a.configManager.Get()
 
 	// Live 模式下禁用手动截图
-	if cfg.GetUseLiveApi() {
+	if cfg.UseLiveApi {
 		a.EmitEvent("toast", "当前模式不支持手动截图")
 		return
 	}
 
-	if cfg.GetAPIKey() == "" {
+	if cfg.APIKey == "" {
 		a.EmitEvent("require-login")
 		return
 	}
@@ -215,7 +215,7 @@ func (a *App) TriggerSolve() {
 func (a *App) solveInternal(ctx context.Context) bool {
 	cfg := a.configManager.Get()
 
-	if cfg.GetAPIKey() == "" {
+	if cfg.APIKey == "" {
 		a.EmitEvent("require-login")
 		return false
 	}
@@ -228,11 +228,11 @@ func (a *App) solveInternal(ctx context.Context) bool {
 
 	// 获取截图
 	previewResult, err := a.GetScreenshotPreview(
-		cfg.GetCompressionQuality(),
-		cfg.GetSharpening(),
-		cfg.GetGrayscale(),
-		cfg.GetNoCompression(),
-		cfg.GetScreenshotMode(),
+		cfg.CompressionQuality,
+		cfg.Sharpening,
+		cfg.Grayscale,
+		cfg.NoCompression,
+		cfg.ScreenshotMode,
 	)
 	if err != nil {
 		logger.Printf("图片编码失败: %v\n", err)
@@ -262,7 +262,7 @@ func (a *App) CancelRunningTask() bool {
 
 // IsInterruptThinkingEnabled 是否允许打断思考
 func (a *App) IsInterruptThinkingEnabled() bool {
-	return a.configManager.Get().GetInterruptThinking()
+	return a.configManager.Get().InterruptThinking
 }
 
 // ==================== 快捷键相关 ====================
@@ -295,7 +295,7 @@ func (a *App) CopyCode() {
 func (a *App) SelectResume() string {
 	path := a.resumeService.SelectResume(a.ctx)
 	if path != "" {
-		a.configManager.SetResumePath(path)
+		a.configManager.GetPtr().ResumePath = path
 	}
 	return path
 }
@@ -303,7 +303,10 @@ func (a *App) SelectResume() string {
 // ClearResume 清除简历
 func (a *App) ClearResume() {
 	a.resumeService.ClearResume()
-	a.configManager.ClearResume()
+	cfg := a.configManager.GetPtr()
+	cfg.ResumePath = ""
+	cfg.ResumeBase64 = ""
+	cfg.ResumeContent = ""
 }
 
 // GetResumePDF 获取简历 Base64
@@ -322,7 +325,7 @@ func (a *App) ParseResume() (string, error) {
 func (a *App) GetScreenshotPreview(quality int, sharpen float64, grayscale bool, noCompression bool, screenshotMode string) (screen.PreviewResult, error) {
 	mode := screenshotMode
 	if mode == "" {
-		mode = a.configManager.Get().GetScreenshotMode()
+		mode = a.configManager.Get().ScreenshotMode
 	}
 	return a.screenService.CapturePreview(quality, sharpen, grayscale, noCompression, mode)
 }
@@ -509,11 +512,11 @@ func (a *App) handleLiveScreenshot(session llm.LiveSession, toolID string) {
 	cfg := a.configManager.Get()
 
 	preview, err := a.GetScreenshotPreview(
-		cfg.GetCompressionQuality(),
-		cfg.GetSharpening(),
-		cfg.GetGrayscale(),
-		cfg.GetNoCompression(),
-		cfg.GetScreenshotMode(),
+		cfg.CompressionQuality,
+		cfg.Sharpening,
+		cfg.Grayscale,
+		cfg.NoCompression,
+		cfg.ScreenshotMode,
 	)
 	if err != nil {
 		logger.Printf("Live 截图失败: %v", err)

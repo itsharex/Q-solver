@@ -37,7 +37,7 @@ func NewCustomAdapter(cfg *config.Config) *CustomAdapter {
 
 // GenerateContentStream 生成内容流
 func (a *CustomAdapter) GenerateContentStream(ctx context.Context, messages []Message, callback StreamCallback) (Message, error) {
-	model := strings.ToLower(a.config.GetModel())
+	model := strings.ToLower(a.config.Model)
 
 	switch {
 	case strings.HasPrefix(model, "gemini"):
@@ -59,7 +59,7 @@ func (a *CustomAdapter) GenerateContentStream(ctx context.Context, messages []Me
 
 // TestChat 测试连通性
 func (a *CustomAdapter) TestChat(ctx context.Context) error {
-	model := strings.ToLower(a.config.GetModel())
+	model := strings.ToLower(a.config.Model)
 
 	switch {
 	case strings.HasPrefix(model, "gemini"):

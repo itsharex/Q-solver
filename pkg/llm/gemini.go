@@ -21,15 +21,15 @@ type GeminiAdapter struct {
 // NewGeminiAdapter 创建 Gemini 适配器
 func NewGeminiAdapter(cfg *config.Config) (*GeminiAdapter, error) {
 	// os.Setenv("HTTP_PROXY", "http://127.0.0.1:8888")
-    // os.Setenv("HTTPS_PROXY", "http://127.0.0.1:8888")
-	
+	// os.Setenv("HTTPS_PROXY", "http://127.0.0.1:8888")
+
 	clientConfig := &genai.ClientConfig{
-		APIKey:  cfg.GetAPIKey(),
+		APIKey:  cfg.APIKey,
 		Backend: genai.BackendGeminiAPI,
 	}
 	//自定义的话就用自定义的URL
-	if *cfg.Provider == "custom" {
-		baseUrl := strings.TrimSuffix(cfg.GetBaseURL(), "/v1")
+	if cfg.Provider == "custom" {
+		baseUrl := strings.TrimSuffix(cfg.BaseURL, "/v1")
 		logger.Println("配置Gemini自定义URL", baseUrl)
 		clientConfig.HTTPOptions = genai.HTTPOptions{
 			BaseURL: baseUrl,
@@ -157,16 +157,16 @@ func parseBase64DataURL(dataURL string) (mimeType string, data []byte) {
 func (a *GeminiAdapter) GenerateContentStream(ctx context.Context, messages []Message, onChunk StreamCallback) (Message, error) {
 	contents, systemInstruction := a.toGeminiContents(messages)
 
-	model := a.config.GetModel()
+	model := a.config.Model
 	if model == "" {
 		model = "gemini-2.0-flash"
 	}
 
-	maxTokens := int32(a.config.GetMaxTokens())
-	temp := float32(a.config.GetTemperature())
-	topP := float32(a.config.GetTopP())
-	topK := float32(a.config.GetTopK())
-	thinkingBudget := int32(a.config.GetThinkingBudget())
+	maxTokens := int32(a.config.MaxTokens)
+	temp := float32(a.config.Temperature)
+	topP := float32(a.config.TopP)
+	topK := float32(a.config.TopK)
+	thinkingBudget := int32(a.config.ThinkingBudget)
 
 	genConfig := &genai.GenerateContentConfig{
 		MaxOutputTokens: maxTokens,
@@ -244,7 +244,7 @@ func (a *GeminiAdapter) TestChat(ctx context.Context) error {
 		MaxOutputTokens: 1,
 	}
 
-	model := a.config.GetModel()
+	model := a.config.Model
 	if model == "" {
 		model = "gemini-2.0-flash"
 	}

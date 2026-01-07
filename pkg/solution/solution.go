@@ -41,7 +41,7 @@ func (s *Solver) ClearHistory() {
 
 func (s *Solver) Solve(ctx context.Context, req Request, cb Callbacks) bool {
 	// 1. 检查 API Key
-	if req.Config.GetAPIKey() == "" {
+	if req.Config.APIKey == "" {
 		if cb.EmitEvent != nil {
 			cb.EmitEvent("require-login")
 		}
@@ -52,15 +52,15 @@ func (s *Solver) Solve(ctx context.Context, req Request, cb Callbacks) bool {
 
 	// 2. 构建 System Prompt
 	var systemPrompt bytes.Buffer
-	if req.Config.GetPrompt() != "" {
-		systemPrompt.WriteString(req.Config.GetPrompt())
+	if req.Config.Prompt != "" {
+		systemPrompt.WriteString(req.Config.Prompt)
 	}
 
 	// 如果使用 Markdown 简历，将简历内容追加到 System Prompt
-	if req.Config.GetUseMarkdownResume() && req.Config.GetResumeContent() != "" {
+	if req.Config.UseMarkdownResume && req.Config.ResumeContent != "" {
 		logger.Println("使用 Markdown 简历内容")
 		systemPrompt.WriteString("\n\n# 候选人简历内容如下: \n")
-		systemPrompt.WriteString(req.Config.GetResumeContent())
+		systemPrompt.WriteString(req.Config.ResumeContent)
 	}
 
 	// 3. 构建当前用户消息（包含截图）
@@ -69,7 +69,7 @@ func (s *Solver) Solve(ctx context.Context, req Request, cb Callbacks) bool {
 	}
 
 	// 如果使用 PDF 简历，将简历附件加入用户消息
-	if !req.Config.GetUseMarkdownResume() && req.ResumeBase64 != "" {
+	if !req.Config.UseMarkdownResume && req.ResumeBase64 != "" {
 		userParts = append(userParts,
 			llm.TextPart("\n\n# 候选人简历已作为附件发送，请参考简历内容回答。"),
 			llm.PDFPart(req.ResumeBase64),
@@ -82,7 +82,7 @@ func (s *Solver) Solve(ctx context.Context, req Request, cb Callbacks) bool {
 	// 4. 构建最终发送的消息列表
 	var messagesToSend []llm.Message
 
-	if req.Config.GetKeepContext() {
+	if req.Config.KeepContext {
 		// 保持上下文模式：使用并更新历史记录
 		s.ensureSystemPrompt(systemPrompt.String())
 		messagesToSend = append(messagesToSend, s.chatHistory...)
@@ -129,7 +129,7 @@ func (s *Solver) Solve(ctx context.Context, req Request, cb Callbacks) bool {
 		cb.EmitEvent("solution", response.Content)
 	}
 
-	if req.Config.GetKeepContext() {
+	if req.Config.KeepContext {
 		// 保持上下文模式：保存完整的用户消息和助手回复到历史
 		s.chatHistory = append(s.chatHistory, currentUserMsg)
 		s.chatHistory = append(s.chatHistory, llm.NewAssistantMessage(response.Content))

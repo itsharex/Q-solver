@@ -20,10 +20,10 @@ type ClaudeAdapter struct {
 // NewClaudeAdapter 创建 Claude 适配器
 func NewClaudeAdapter(cfg *config.Config) *ClaudeAdapter {
 	opts := []option.RequestOption{
-		option.WithAPIKey(cfg.GetAPIKey()),
+		option.WithAPIKey(cfg.APIKey),
 	}
-	if *cfg.Provider == "custom" {
-		baseUrl := strings.TrimSuffix(cfg.GetBaseURL(), "/v1")
+	if cfg.Provider == "custom" {
+		baseUrl := strings.TrimSuffix(cfg.BaseURL, "/v1")
 		logger.Println("配置Claude自定义URL", baseUrl)
 		opts = append(opts, option.WithBaseURL(baseUrl))
 	}
@@ -109,19 +109,19 @@ func (a *ClaudeAdapter) toClaudeBlocks(msg Message) []anthropic.ContentBlockPara
 func (a *ClaudeAdapter) GenerateContentStream(ctx context.Context, messages []Message, onChunk StreamCallback) (Message, error) {
 	claudeMessages, systemPrompt := a.toClaudeMessages(messages)
 
-	model := a.config.GetModel()
+	model := a.config.Model
 	if model == "" {
 		model = "claude-sonnet-4-20250514"
 	}
 
 	params := anthropic.MessageNewParams{
 		Model:       anthropic.Model(model),
-		MaxTokens:   int64(a.config.GetMaxTokens()),
+		MaxTokens:   int64(a.config.MaxTokens),
 		Messages:    claudeMessages,
-		Temperature: anthropic.Float(a.config.GetTemperature()),
-		TopP:        anthropic.Float(a.config.GetTopP()),
-		TopK:        anthropic.Int(int64(a.config.GetTopK())),
-		Thinking:    anthropic.ThinkingConfigParamOfEnabled(int64(a.config.GetThinkingBudget())),
+		Temperature: anthropic.Float(a.config.Temperature),
+		TopP:        anthropic.Float(a.config.TopP),
+		TopK:        anthropic.Int(int64(a.config.TopK)),
+		Thinking:    anthropic.ThinkingConfigParamOfEnabled(int64(a.config.ThinkingBudget)),
 	}
 
 	if systemPrompt != "" {
@@ -172,7 +172,7 @@ func (a *ClaudeAdapter) GenerateContentStream(ctx context.Context, messages []Me
 
 // TestChat 测试连通性
 func (a *ClaudeAdapter) TestChat(ctx context.Context) error {
-	model := a.config.GetModel()
+	model := a.config.Model
 	if model == "" {
 		model = "claude-sonnet-4-20250514"
 	}

@@ -20,7 +20,7 @@ func (a *GeminiAdapter) ConnectLive(ctx context.Context, cfg *LiveConfig, config
 	// Live API 只支持特定模型，用户配置的模型可能不支持 bidiGenerateContent
 	model := cfg.Model
 	if model == "" {
-		model = a.config.GetModel()
+		model = a.config.Model
 	}
 	// 定义截图工具
 	screenshotTool := &genai.Tool{
@@ -36,10 +36,10 @@ func (a *GeminiAdapter) ConnectLive(ctx context.Context, cfg *LiveConfig, config
 	connectCfg := &genai.LiveConnectConfig{
 		Tools:                   []*genai.Tool{screenshotTool},
 		ResponseModalities:      []genai.Modality{genai.ModalityAudio},
-		MaxOutputTokens:         int32(config.GetMaxTokens()),
-		Temperature:             toFloat32Ptr(config.GetTemperature()),
-		TopP:                    toFloat32Ptr(config.GetTopP()),
-		TopK:                    intToFloat32Ptr(config.GetTopK()),
+		MaxOutputTokens:         int32(config.MaxTokens),
+		Temperature:             toFloat32Ptr(config.Temperature),
+		TopP:                    toFloat32Ptr(config.TopP),
+		TopK:                    intToFloat32Ptr(config.TopK),
 		InputAudioTranscription: &genai.AudioTranscriptionConfig{},
 		SpeechConfig: &genai.SpeechConfig{
 			LanguageCode: "cmn-CN",
@@ -110,8 +110,8 @@ func (s *GeminiLiveSession) convertMessage(msg *genai.LiveServerMessage) *LiveMe
 	if msg == nil {
 		return nil
 	}
-	if msg.ServerContent != nil && msg.ServerContent.Interrupted{
-		return  &LiveMessage{Type: LiveInterrupted, Text: "检测到面试官说话(已打断当前回复)"}
+	if msg.ServerContent != nil && msg.ServerContent.Interrupted {
+		return &LiveMessage{Type: LiveInterrupted, Text: "检测到面试官说话(已打断当前回复)"}
 	}
 	// 输入音频转录 (面试官说话的文字)
 	if msg.ServerContent != nil && msg.ServerContent.InputTranscription != nil {
@@ -210,8 +210,8 @@ func SupportsLive(p Provider) bool {
 // GetLiveConfig 从配置创建 LiveConfig
 func GetLiveConfig(cfg *config.Config) *LiveConfig {
 	return &LiveConfig{
-		Model:             cfg.GetModel(),
-		SystemInstruction: cfg.GetPrompt(),
+		Model:             cfg.Model,
+		SystemInstruction: cfg.Prompt,
 	}
 }
 

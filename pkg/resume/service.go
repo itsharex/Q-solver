@@ -43,31 +43,30 @@ func (s *Service) SelectResume(ctx context.Context) string {
 		return "" // 用户取消
 	}
 
-	s.config.ResumePath = &selection
+	s.config.ResumePath = selection
 	return selection
 }
 
 // ClearResume 清除简历
 func (s *Service) ClearResume() {
-	empty := ""
-	s.config.ResumePath = &empty
-	s.config.ResumeBase64 = &empty
+	s.config.ResumePath = ""
+	s.config.ResumeBase64 = ""
 	logger.Println("简历已清除")
 }
 
 // GetResumeBase64 读取简历并转换为 Base64
 func (s *Service) GetResumeBase64() (string, error) {
 	//读一下缓存
-	if len(s.config.GetResumeBase64()) > 0 {
+	if len(s.config.ResumeBase64) > 0 {
 		logger.Println("使用缓存的简历 Base64")
-		return s.config.GetResumeBase64(), nil
+		return s.config.ResumeBase64, nil
 	}
-	if s.config.GetResumePath() == "" {
+	if s.config.ResumePath == "" {
 		return "", nil
 	}
 
 	// 检查文件大小
-	fileInfo, err := os.Stat(s.config.GetResumePath())
+	fileInfo, err := os.Stat(s.config.ResumePath)
 	if err != nil {
 		return "", err
 	}
@@ -78,14 +77,14 @@ func (s *Service) GetResumeBase64() (string, error) {
 	}
 
 	// 读取文件内容
-	content, err := os.ReadFile(s.config.GetResumePath())
+	content, err := os.ReadFile(s.config.ResumePath)
 	if err != nil {
 		return "", err
 	}
 
 	// 转换为 Base64
 	encoded := base64.StdEncoding.EncodeToString(content)
-	s.config.ResumeBase64 = &encoded
+	s.config.ResumeBase64 = encoded
 	return encoded, nil
 }
 

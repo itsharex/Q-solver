@@ -37,7 +37,7 @@ func NewService(cfg *config.Config) *Service {
 
 // UpdateProvider 更新 Provider（配置变更时调用）
 func (s *Service) UpdateProvider() {
-	providerType := DetectProviderType(s.config.GetProvider())
+	providerType := DetectProviderType(s.config.Provider)
 	s.provider = CreateProvider(providerType, s.config)
 }
 
@@ -90,16 +90,16 @@ func (s *Service) TestConnection(ctx context.Context, apiKey, baseURL, model str
 	}
 
 	if baseURL == "" {
-		baseURL = s.config.GetBaseURL()
+		baseURL = s.config.BaseURL
 	}
 
 	// 创建临时 config 用于测试
 	tempConfig := *s.config
-	tempConfig.APIKey = &apiKey
-	tempConfig.BaseURL = &baseURL
-	tempConfig.Model = &model
+	tempConfig.APIKey = apiKey
+	tempConfig.BaseURL = baseURL
+	tempConfig.Model = model
 
-	providerType := DetectProviderType(s.config.GetProvider())
+	providerType := DetectProviderType(s.config.Provider)
 	tempProvider := CreateProvider(providerType, &tempConfig)
 
 	timeoutCtx, cancel := context.WithTimeout(ctx, 15*time.Second)
@@ -116,19 +116,19 @@ func (s *Service) TestConnection(ctx context.Context, apiKey, baseURL, model str
 // GetModels 获取模型列表
 func (s *Service) GetModels(ctx context.Context, apiKey string, baseURL string) ([]string, error) {
 	if baseURL == "" {
-		baseURL = s.config.GetBaseURL()
+		baseURL = s.config.BaseURL
 	}
 	if apiKey == "" {
-		apiKey = s.config.GetAPIKey()
+		apiKey = s.config.APIKey
 	}
 
 	// 如果提供了临时参数，使用临时 provider
-	if apiKey != s.config.GetAPIKey() || baseURL != s.config.GetBaseURL() {
+	if apiKey != s.config.APIKey || baseURL != s.config.BaseURL {
 		tempConfig := *s.config
-		tempConfig.APIKey = &apiKey
-		tempConfig.BaseURL = &baseURL
+		tempConfig.APIKey = apiKey
+		tempConfig.BaseURL = baseURL
 
-		providerType := DetectProviderType(s.config.GetProvider())
+		providerType := DetectProviderType(s.config.Provider)
 		tempProvider := CreateProvider(providerType, &tempConfig)
 		return tempProvider.GetModels(ctx)
 	}

@@ -23,7 +23,7 @@ type OpenAIAdapter struct {
 
 // NewOpenAIAdapter 创建 OpenAI 适配器
 func NewOpenAIAdapter(cfg *config.Config) *OpenAIAdapter {
-	model := cfg.GetModel()
+	model := cfg.Model
 	if model == "" {
 		model = openai.ChatModelGPT4o
 	}
@@ -37,12 +37,12 @@ func NewOpenAIAdapter(cfg *config.Config) *OpenAIAdapter {
 	}
 
 	opts := []option.RequestOption{
-		option.WithAPIKey(cfg.GetAPIKey()),
+		option.WithAPIKey(cfg.APIKey),
 		option.WithHTTPClient(httpClient),
 	}
 
-	if cfg.GetBaseURL() != "" {
-		opts = append(opts, option.WithBaseURL(cfg.GetBaseURL()))
+	if cfg.BaseURL != "" {
+		opts = append(opts, option.WithBaseURL(cfg.BaseURL))
 	}
 
 	client := openai.NewClient(opts...)
@@ -105,11 +105,11 @@ func (a *OpenAIAdapter) GenerateContentStream(ctx context.Context, messages []Me
 	openaiMessages := a.toOpenAIMessages(messages)
 
 	stream := a.client.Chat.Completions.NewStreaming(ctx, openai.ChatCompletionNewParams{
-		Model:       a.config.GetModel(),
+		Model:       a.config.Model,
 		Messages:    openaiMessages,
-		Temperature: openai.Float(a.config.GetTemperature()),
-		TopP:        openai.Float(a.config.GetTopP()),
-		MaxTokens:   openai.Int(int64(a.config.GetMaxTokens())),
+		Temperature: openai.Float(a.config.Temperature),
+		TopP:        openai.Float(a.config.TopP),
+		MaxTokens:   openai.Int(int64(a.config.MaxTokens)),
 	})
 
 	defer stream.Close()
@@ -189,7 +189,7 @@ func (a *OpenAIAdapter) parseError(err error) error {
 // TestChat 测试连通性
 func (a *OpenAIAdapter) TestChat(ctx context.Context) error {
 	_, err := a.client.Chat.Completions.New(ctx, openai.ChatCompletionNewParams{
-		Model: a.config.GetModel(),
+		Model: a.config.Model,
 		Messages: []openai.ChatCompletionMessageParamUnion{
 			openai.UserMessage("hi"),
 		},
