@@ -10,9 +10,7 @@ import (
 
 // GeminiLiveSession 封装 Gemini SDK 的 Live 会话
 type GeminiLiveSession struct {
-	session             *genai.Session
-	hasInterviewerInput bool         // 是否有面试官输入待处理
-	pendingAIMessage    *LiveMessage // 缓存的 AI 消息（等待 InterviewerDone 发送后再返回）
+	session *genai.Session
 }
 
 // ConnectLive 实现 LiveProvider 接口
@@ -22,7 +20,7 @@ func (a *GeminiAdapter) ConnectLive(ctx context.Context, cfg *LiveConfig, config
 	if model == "" {
 		model = a.config.Model
 	}
-	model="gemini-2.5-flash-native-audio-preview-12-2025"
+	// model="gemini-2.5-flash-native-audio-preview-12-2025"
 	// 定义截图工具
 	screenshotTool := &genai.Tool{
 		FunctionDeclarations: []*genai.FunctionDeclaration{
@@ -35,27 +33,18 @@ func (a *GeminiAdapter) ConnectLive(ctx context.Context, cfg *LiveConfig, config
 
 	// 连接配置
 	connectCfg := &genai.LiveConnectConfig{
-		Tools:                   []*genai.Tool{screenshotTool},
-		ResponseModalities:      []genai.Modality{genai.ModalityAudio},
-		MaxOutputTokens:         int32(config.MaxTokens),
-		Temperature:             toFloat32Ptr(config.Temperature),
-		TopP:                    toFloat32Ptr(config.TopP),
-		TopK:                    intToFloat32Ptr(config.TopK),
-		InputAudioTranscription: &genai.AudioTranscriptionConfig{},
-		SpeechConfig: &genai.SpeechConfig{},
+		Tools:                    []*genai.Tool{screenshotTool},
+		ResponseModalities:       []genai.Modality{genai.ModalityAudio},
+		MaxOutputTokens:          int32(config.MaxTokens),
+		Temperature:              toFloat32Ptr(config.Temperature),
+		TopP:                     toFloat32Ptr(config.TopP),
+		TopK:                     intToFloat32Ptr(config.TopK),
+		InputAudioTranscription:  &genai.AudioTranscriptionConfig{},
+		SpeechConfig:             &genai.SpeechConfig{},
 		OutputAudioTranscription: &genai.AudioTranscriptionConfig{},
 	}
 
-	// 定义结构化系统指令
-	const InterviewCopilotInstruction = ``
-
 	instructionText := cfg.SystemInstruction
-	if instructionText == "" {
-		instructionText = InterviewCopilotInstruction
-	} else {
-		// 如果用户有自定义指令，将其合并以保留核心规则
-		instructionText = InterviewCopilotInstruction + "\n\n# User Preferences\n" + instructionText
-	}
 
 	connectCfg.SystemInstruction = &genai.Content{
 		Parts: []*genai.Part{{Text: instructionText}},
@@ -84,13 +73,6 @@ func (s *GeminiLiveSession) SendAudio(data []byte) error {
 
 // Receive 接收消息 (阻塞)
 func (s *GeminiLiveSession) Receive() (*LiveMessage, error) {
-	// 如果有缓存的 AI 消息，先返回它
-	if s.pendingAIMessage != nil {
-		msg := s.pendingAIMessage
-		s.pendingAIMessage = nil
-		return msg, nil
-	}
-
 	msg, err := s.session.Receive()
 	if err != nil {
 		return &LiveMessage{Type: LiveMsgError, Text: err.Error()}, err
@@ -110,7 +92,6 @@ func (s *GeminiLiveSession) convertMessage(msg *genai.LiveServerMessage) *LiveMe
 	if msg.ServerContent != nil && msg.ServerContent.InputTranscription != nil {
 		text := msg.ServerContent.InputTranscription.Text
 		if text != "" {
-			s.hasInterviewerInput = true // 标记有面试官输入
 			return &LiveMessage{Type: LiveMsgTranscript, Text: text}
 		}
 	}
@@ -118,14 +99,7 @@ func (s *GeminiLiveSession) convertMessage(msg *genai.LiveServerMessage) *LiveMe
 	if msg.ServerContent != nil && msg.ServerContent.OutputTranscription != nil {
 		text := msg.ServerContent.OutputTranscription.Text
 		if text != "" {
-			aiMsg := &LiveMessage{Type: LiveMsgAIText, Text: text}
-			// 如果之前有面试官输入，先发送面试官结束信号，缓存 AI 消息
-			if s.hasInterviewerInput {
-				s.hasInterviewerInput = false
-				s.pendingAIMessage = aiMsg // 缓存 AI 消息，下次 Receive 时返回
-				return &LiveMessage{Type: LiveMsgInterviewerDone}
-			}
-			return aiMsg
+			return &LiveMessage{Type: LiveMsgAIText, Text: text}
 		}
 	}
 

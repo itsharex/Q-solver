@@ -125,32 +125,61 @@ function scrollToBottom() {
 
 watch(messages, scrollToBottom, { deep: true })
 
+function getLastMessage() {
+  if (messages.value.length === 0) return null
+  return messages.value[messages.value.length - 1]
+}
+
 function onLiveStatus(s) { status.value = s }
+
 function onLiveTranscript(text) {
-  if (!currentInterviewerMsg.value) {
-    currentInterviewerMsg.value = createMessage('interviewer')
-    messages.value.push(currentInterviewerMsg.value)
+  const lastMsg = getLastMessage()
+
+  // 如果上一条是 AI 且未完成，说明面试官插话了（或者 AI 说完了），先结束 AI 消息
+  if (lastMsg && lastMsg.type === 'ai' && !lastMsg.isComplete) {
+    lastMsg.isComplete = true
   }
-  currentInterviewerMsg.value.content += text
-}
-function onLiveInterviewerDone() {
-  if (currentInterviewerMsg.value) {
-    currentInterviewerMsg.value.isComplete = true
-    currentInterviewerMsg.value = null
+
+  // 检查是否可以追加到上一条面试官消息
+  if (lastMsg && lastMsg.type === 'interviewer' && !lastMsg.isComplete) {
+    lastMsg.content += text
+  } else {
+    // 新建面试官消息
+    const newMsg = createMessage('interviewer')
+    newMsg.content = text
+    messages.value.push(newMsg)
   }
 }
+
+// 后端已移除 LiveMsgInterviewerDone，此函数不再需要，保留空实现防止报错
+function onLiveInterviewerDone() { }
+
 function onLiveAiText(text) {
-  if (!currentAiMsg.value) {
-    currentAiMsg.value = createMessage('ai')
-    messages.value.push(currentAiMsg.value)
+  const lastMsg = getLastMessage()
+
+  // 如果上一条是面试官且未完成，说明 AI 开始回答了，结束面试官消息
+  if (lastMsg && lastMsg.type === 'interviewer' && !lastMsg.isComplete) {
+    lastMsg.isComplete = true
   }
-  currentAiMsg.value.content += text
+
+  // 检查是否可以追加到上一条 AI 消息
+  if (lastMsg && lastMsg.type === 'ai' && !lastMsg.isComplete) {
+    lastMsg.content += text
+  } else {
+    // 新建 AI 消息
+    const newMsg = createMessage('ai')
+    newMsg.content = text
+    messages.value.push(newMsg)
+  }
 }
+
 function onLiveError(err) { status.value = 'error'; errorMsg.value = err }
+
 function onLiveDone() {
-  if (currentAiMsg.value) {
-    currentAiMsg.value.isComplete = true
-    currentAiMsg.value = null
+  // 标记最后一条消息完成
+  const lastMsg = getLastMessage()
+  if (lastMsg) {
+    lastMsg.isComplete = true
   }
 }
 
@@ -162,10 +191,10 @@ function retryConnection() {
 }
 function onLiveInterrupted(text) {
   // AI 回复被打断，标记当前 AI 消息为已打断
-  if (currentAiMsg.value) {
-    currentAiMsg.value.isComplete = true
-    currentAiMsg.value.interrupted = true
-    currentAiMsg.value = null
+  const lastMsg = getLastMessage()
+  if (lastMsg && lastMsg.type === 'ai') {
+    lastMsg.isComplete = true
+    lastMsg.interrupted = true
   }
 }
 
