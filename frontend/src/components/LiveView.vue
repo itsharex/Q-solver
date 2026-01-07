@@ -78,7 +78,9 @@ function formatTime(timestamp) {
 // 渲染 Markdown
 function renderMarkdown(text) {
   if (!text) return ''
-  return marked.parse(text)
+  // 移除末尾多余的空行
+  const trimmed = text.replace(/\n+$/, '')
+  return marked.parse(trimmed)
 }
 
 const statusClass = computed(() => ({
@@ -102,7 +104,10 @@ const statusText = computed(() => {
 function scrollToBottom() {
   nextTick(() => {
     if (chatContainer.value) {
-      chatContainer.value.scrollTop = chatContainer.value.scrollHeight
+      // 使用 requestAnimationFrame 确保 DOM 更新后再滚动
+      requestAnimationFrame(() => {
+        chatContainer.value.scrollTop = chatContainer.value.scrollHeight
+      })
     }
   })
 }
@@ -185,7 +190,9 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: linear-gradient(180deg, rgba(18, 18, 22, 0.98) 0%, rgba(12, 12, 15, 1) 100%);
+  /* 透明背景，继承父容器 */
+  pointer-events: auto;
+  /* 确保鼠标事件可用 */
 }
 
 /* 状态栏 */
@@ -265,11 +272,19 @@ onUnmounted(() => {
 /* 聊天消息区域 */
 .chat-messages {
   flex: 1;
-  overflow-y: auto;
-  padding: 16px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  padding: 16px 16px 32px 16px;
+  /* 底部留有更多空间 */
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 10px;
+  /* 减小气泡间距 */
+  min-height: 0;
+  pointer-events: auto;
+  scroll-behavior: smooth;
+  overscroll-behavior-y: bounce;
+  /* iOS 弹性效果 */
 }
 
 .chat-messages::-webkit-scrollbar {
