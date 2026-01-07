@@ -7,13 +7,19 @@ import (
 	"github.com/gen2brain/malgo"
 )
 
+var (
+	targetTime = 40 // 攒多ms发送一次
+	buffsize   = 16000 * 2 * targetTime / 1000
+)
+
 // LoopbackCapture 扬声器音频采集 (实时)
 type LoopbackCapture struct {
-	ctx     *malgo.AllocatedContext
-	device  *malgo.Device
-	onData  func([]byte)
-	mu      sync.Mutex
-	running bool
+	ctx         *malgo.AllocatedContext
+	device      *malgo.Device
+	onData      func([]byte)
+	mu          sync.Mutex
+	running     bool
+	audioBuffer []byte
 }
 
 // NewLoopbackCapture 创建 Loopback 采集器
@@ -23,8 +29,9 @@ func NewLoopbackCapture(onData func([]byte)) (*LoopbackCapture, error) {
 		return nil, err
 	}
 	return &LoopbackCapture{
-		ctx:    ctx,
-		onData: onData,
+		ctx:         ctx,
+		onData:      onData,
+		audioBuffer: make([]byte, buffsize*2), //多申请一些防止频繁扩容
 	}, nil
 }
 
@@ -45,7 +52,13 @@ func (c *LoopbackCapture) Start() error {
 	// 数据回调 - 实时发送
 	onRecv := func(_, pInput []byte, frameCount uint32) {
 		if len(pInput) > 0 && c.onData != nil {
-			c.onData(pInput)
+			c.audioBuffer = append(c.audioBuffer, pInput...)
+			for len(c.audioBuffer) >= buffsize {
+				dataCopy := make([]byte, buffsize)
+				copy(dataCopy, c.audioBuffer[:buffsize])
+				c.onData(dataCopy)
+				c.audioBuffer = c.audioBuffer[buffsize:]
+			}
 		}
 	}
 
