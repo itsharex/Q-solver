@@ -4,6 +4,7 @@ import (
 	"Q-Solver/pkg/logger"
 	"fmt"
 	"maps"
+	"runtime"
 )
 
 type Service struct {
@@ -53,6 +54,11 @@ func (s *Service) SetShortcuts(shortcuts map[string]KeyBinding) {
 }
 
 func (s *Service) StartRecording(action string) {
+	// macOS 不支持热键录制
+	if runtime.GOOS == "darwin" {
+		s.delegate.EmitEvent("toast", "macOS 不支持自定义快捷键，请使用预设快捷键")
+		return
+	}
 	s.manager.StartRecording(action)
 }
 
