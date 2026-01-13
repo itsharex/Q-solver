@@ -8,6 +8,7 @@ require (
 	github.com/kbinani/screenshot v0.0.0-20250624051815-089614a94018
 	github.com/openai/openai-go v1.12.0
 	github.com/wailsapp/wails/v2 v2.11.0
+	golang.design/x/hotkey v0.4.1
 	google.golang.org/genai v1.40.0
 )
 

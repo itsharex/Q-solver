@@ -2,22 +2,25 @@ package main
 
 import (
 	"embed"
-
 	"os"
+	"runtime"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
+	"github.com/wailsapp/wails/v2/pkg/options/mac"
 	"github.com/wailsapp/wails/v2/pkg/options/windows"
 )
 
 //go:embed all:frontend/dist
 var assets embed.FS
 
-
 func main() {
+	// Windows 专用环境变量
+	if runtime.GOOS == "windows" {
+		os.Setenv("WEBVIEW2_ADDITIONAL_BROWSER_ARGS", "--disable-gpu")
+	}
 
-	os.Setenv("WEBVIEW2_ADDITIONAL_BROWSER_ARGS", "--disable-gpu")
 	app := NewApp()
 	err := wails.Run(&options.App{
 		Title:  "",
@@ -38,6 +41,15 @@ func main() {
 			BackdropType:         windows.None,
 			WebviewBrowserPath:   "",
 			Theme:                windows.SystemDefault,
+		},
+		Mac: &mac.Options{
+			TitleBar:             mac.TitleBarHidden(),
+			WebviewIsTransparent: true,
+			WindowIsTranslucent:  false, // 禁用系统毛玻璃效果，避免白色遮罩
+			About: &mac.AboutInfo{
+				Title:   "Q-Solver",
+				Message: "AI 笔试助手",
+			},
 		},
 		OnShutdown: app.OnShutdown,
 	})

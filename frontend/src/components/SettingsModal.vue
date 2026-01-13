@@ -108,14 +108,15 @@
           </div>
 
           <div class="form-group">
-            <label>快捷键配置 (点击录制)</label>
+            <label>快捷键配置 {{ isMacOS ? '(macOS 不支持自定义)' : '(点击录制)' }}</label>
             <div class="shortcut-list">
               <div class="shortcut-item" v-for="key in shortcutActions" :key="key.action">
                 <span>{{ key.label }}</span>
-                <button class="btn-record" :class="{ recording: recordingAction === key.action }"
-                  @click="$emit('record-key', key.action)">
+                <button class="btn-record" :class="{ recording: recordingAction === key.action, disabled: isMacOS }"
+                  @click="!isMacOS && $emit('record-key', key.action)"
+                  :title="isMacOS ? 'macOS 使用预设快捷键，不支持自定义' : '点击录制新快捷键'">
                   {{ recordingAction === key.action ? recordingText : (tempShortcuts[key.action]?.keyName ||
-                    key.default) }}
+                    (isMacOS ? key.macDefault : key.default)) }}
                 </button>
               </div>
             </div>
@@ -169,6 +170,7 @@ const props = defineProps({
   renderedPrompt: String,
   resumeRawContent: String,
   isResumeParsing: Boolean,
+  isMacOS: Boolean,
 })
 
 defineEmits([

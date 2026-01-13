@@ -81,6 +81,7 @@
     :availableModels="uiState.availableModels" :isLoadingModels="uiState.isLoadingModels"
     :isTestingConnection="uiState.isTestingConnection" :connectionStatus="uiState.connectionStatus"
     :renderedPrompt="renderedPrompt" :resumeRawContent="resumeState.rawContent" :isResumeParsing="resumeState.isParsing"
+    :isMacOS="isMacOS"
     @close="closeSettings" @save="saveSettings" @refresh-models="refreshModels" @test-connection="testConnection"
     @record-key="recordKey" @select-resume="selectResume" @clear-resume="clearResume" @parse-resume="parseResume"
     @update:resumeRawContent="val => resumeState.rawContent = val" />
@@ -150,7 +151,7 @@ const {
 } = useUI()
 
 const {
-  shortcuts, tempShortcuts, recordingAction, recordingText, shortcutActions, recordKey
+  shortcuts, tempShortcuts, recordingAction, recordingText, shortcutActions, recordKey, isMacOS
 } = useShortcuts()
 
 // Settings callbacks placeholder

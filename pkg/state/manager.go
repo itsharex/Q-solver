@@ -2,9 +2,8 @@ package state
 
 import (
 	"Q-Solver/pkg/logger"
-	"Q-Solver/pkg/winapi"
+	"Q-Solver/pkg/platform"
 	"context"
-	"os"
 	"sync"
 	"time"
 
@@ -35,7 +34,7 @@ type StateManager struct {
 	// 窗口状态
 	windowState WindowState
 	windowMu    sync.RWMutex
-	hwnd        uintptr
+	hwnd        platform.WindowHandle
 
 	// 初始化状态
 	initStatus   InitStatus
@@ -72,14 +71,17 @@ func (sm *StateManager) initWindowHandle() {
 	const retryInterval = 500 * time.Millisecond
 
 	for i := 0; i < maxRetries; i++ {
-		hwnd, _ := winapi.GetHwndByPid(uint32(os.Getpid()))
-		if hwnd != 0 {
+		hwnd, err := platform.Current.GetWindowHandle()
+		if err == nil && hwnd != 0 {
 			sm.windowMu.Lock()
 			sm.hwnd = hwnd
 			sm.windowMu.Unlock()
 
-			winapi.ApplyGhostMode(hwnd)
-			logger.Println("幽灵模式已激活 (无边框/隐身/防抢焦/隐藏任务栏)")
+			if err := platform.Current.ApplyGhostMode(hwnd); err != nil {
+				logger.Printf("应用幽灵模式失败: %v\n", err)
+			} else {
+				logger.Println("幽灵模式已激活 (无边框/隐身/防抢焦/隐藏任务栏)")
+			}
 			return
 		}
 		time.Sleep(retryInterval)
@@ -88,7 +90,7 @@ func (sm *StateManager) initWindowHandle() {
 }
 
 // GetHwnd 获取窗口句柄
-func (sm *StateManager) GetHwnd() uintptr {
+func (sm *StateManager) GetHwnd() platform.WindowHandle {
 	sm.windowMu.RLock()
 	defer sm.windowMu.RUnlock()
 	return sm.hwnd
@@ -155,7 +157,7 @@ func (sm *StateManager) ToggleVisibility() bool {
 
 	if sm.windowState.Visible {
 		// 禁用隐身模式，可被录屏检测
-		err := winapi.SetWindowDisplayAffinity(sm.hwnd, winapi.WDA_NONE)
+		err := platform.Current.SetDisplayAffinity(sm.hwnd, false)
 		if err != nil {
 			logger.Printf("设置显示亲和性失败: %v\n", err)
 		} else {
@@ -163,7 +165,7 @@ func (sm *StateManager) ToggleVisibility() bool {
 		}
 	} else {
 		// 启用隐身模式
-		err := winapi.SetWindowDisplayAffinity(sm.hwnd, winapi.WDA_EXCLUDEFROMCAPTURE)
+		err := platform.Current.SetDisplayAffinity(sm.hwnd, true)
 		if err != nil {
 			logger.Printf("设置显示亲和性失败: %v\n", err)
 		} else {
@@ -191,7 +193,7 @@ func (sm *StateManager) ToggleClickThrough() bool {
 	}
 
 	newState := !sm.windowState.ClickThrough
-	err := winapi.SetWindowClickThrough(sm.hwnd, newState)
+	err := platform.Current.SetClickThrough(sm.hwnd, newState)
 	if err != nil {
 		logger.Printf("切换鼠标穿透失败: %v\n", err)
 		return sm.windowState.ClickThrough
@@ -219,7 +221,7 @@ func (sm *StateManager) RestoreFocus() {
 	sm.windowMu.RUnlock()
 
 	if hwnd != 0 {
-		winapi.RestoreFocus(hwnd)
+		platform.Current.RestoreFocus(hwnd)
 	}
 }
 
@@ -230,7 +232,7 @@ func (sm *StateManager) RemoveFocus() {
 	sm.windowMu.RUnlock()
 
 	if hwnd != 0 {
-		winapi.RemoveFocus(hwnd)
+		platform.Current.RemoveFocus(hwnd)
 	}
 }
 
