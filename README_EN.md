@@ -8,7 +8,7 @@
     <a href="https://golang.org"><img src="https://img.shields.io/badge/Go-1.25+-00ADD8?logo=go&logoColor=white" alt="Go"></a>
     <a href="https://vuejs.org"><img src="https://img.shields.io/badge/Vue-3.x-4FC08D?logo=vue.js&logoColor=white" alt="Vue"></a>
     <a href="https://wails.io"><img src="https://img.shields.io/badge/Wails-v2-E30613?logo=wails&logoColor=white" alt="Wails"></a>
-    <img src="https://img.shields.io/badge/Platform-Windows-0078D6?logo=windows&logoColor=white" alt="Windows">
+    <img src="https://img.shields.io/badge/Platform-Windows%20|%20macOS-0078D6?logo=windows&logoColor=white" alt="Platform">
     <img src="https://img.shields.io/badge/License-CC_BY--NC_4.0-lightgrey" alt="License">
   </p>
 
@@ -99,6 +99,35 @@ wails dev
 # 3. Build Production Version
 wails build
 ```
+
+---
+
+## 🍎 macOS Instructions
+
+### Screenshot Permission
+On first launch, you need to grant screenshot permission:
+1. Open **Settings** -> **Screenshot** tab
+2. Click **Grant Screenshot Permission** button
+3. Enable the app in System Preferences
+4. Return to the app and click **Refresh Permission Status**
+
+### System Audio Capture (Gemini Live API)
+macOS does not natively support recording system audio. You need to install a virtual audio driver:
+
+1. **Install BlackHole** (2-channel version recommended):
+   ```bash
+   brew install blackhole-2ch
+   ```
+
+2. **Configure Multi-Output Device**:
+   - Open **Audio MIDI Setup** (Applications > Utilities)
+   - Click the **+** button at the bottom left, select **Create Multi-Output Device**
+   - Check both **BlackHole 2ch** and your speakers/headphones
+   - Right-click the new multi-output device and select **Use This Device For Sound Output**
+
+3. **Grant Microphone Permission**: When launching the Live API feature for the first time, please allow microphone access.
+
+> **Note**: If BlackHole is not installed, the "Interviewer Mode" in Live API will not be able to capture system audio.
 
 ---
 

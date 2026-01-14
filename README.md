@@ -8,7 +8,7 @@
     <a href="https://golang.org"><img src="https://img.shields.io/badge/Go-1.25+-00ADD8?logo=go&logoColor=white" alt="Go"></a>
     <a href="https://vuejs.org"><img src="https://img.shields.io/badge/Vue-3.x-4FC08D?logo=vue.js&logoColor=white" alt="Vue"></a>
     <a href="https://wails.io"><img src="https://img.shields.io/badge/Wails-v2-E30613?logo=wails&logoColor=white" alt="Wails"></a>
-    <img src="https://img.shields.io/badge/Platform-Windows-0078D6?logo=windows&logoColor=white" alt="Windows">
+    <img src="https://img.shields.io/badge/Platform-Windows%20|%20macOS-0078D6?logo=windows&logoColor=white" alt="Platform">
     <img src="https://img.shields.io/badge/License-CC_BY--NC_4.0-lightgrey" alt="License">
   </p>
 
@@ -95,6 +95,35 @@ wails dev
 # 3. 编译生产版本
 wails build
 ```
+
+---
+
+## 🍎 macOS 使用说明
+
+### 截图权限
+首次使用时，需要授予截图权限：
+1. 打开 **设置** -> **截图** 选项卡
+2. 点击 **授权截图权限** 按钮
+3. 在系统偏好设置中勾选本应用
+4. 返回应用点击 **刷新权限状态**
+
+### 系统音频采集 (Gemini Live API)
+macOS 原生不支持录制系统音频，需要安装虚拟音频驱动：
+
+1. **安装 BlackHole**（推荐 2 声道版本）：
+   ```bash
+   brew install blackhole-2ch
+   ```
+
+2. **配置多输出设备**：
+   - 打开 **音频 MIDI 设置**（应用程序 > 实用工具）
+   - 点击左下角 **+** 按钮，选择 **创建多输出设备**
+   - 勾选 **BlackHole 2ch** 和您的扬声器/耳机
+   - 右键点击新建的多输出设备，选择 **将此设备用于声音输出**
+
+3. **授权麦克风权限**：首次启动 Live API 功能时，请允许麦克风访问权限。
+
+> **注意**：如果未安装 BlackHole，Live API 的"面试官模式"将无法捕获系统音频。
 
 ---
 
