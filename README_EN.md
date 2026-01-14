@@ -104,6 +104,11 @@ wails build
 
 ## 🍎 macOS Instructions
 
+> ⚠️ **Compatibility Note**: The macOS version is currently in **compatibility adaptation stage** and may have bugs or instability. Please submit an Issue if you encounter any problems!
+
+### Shortcut Limitations
+The macOS version **does not support global shortcuts** (such as F8 for screenshot, F9 for hide, etc.). Please use the buttons on the interface.
+
 ### Screenshot Permission
 On first launch, you need to grant screenshot permission:
 1. Open **Settings** -> **Screenshot** tab
@@ -147,7 +152,9 @@ Launch the software and click the **Settings** icon in the top right corner:
 
 ---
 
-## ⌨️ Shortcuts
+## ⌨️ Shortcuts (Windows Only)
+
+> **Note**: The macOS version does not support global shortcuts. Please use the interface buttons.
 
 | Key | Function |
 | :--- | :--- |
