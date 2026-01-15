@@ -2,7 +2,7 @@
   <img src="assets/banner.jpg" alt="Q-Solver Banner" width="100%" style="border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.12);">
 
   <h1 style="font-size: 3rem; margin: 20px 0;">Q-Solver</h1>
-  <p style="font-size: 1.2rem; color: #666;">📝 All-in-One Desktop AI Assistant: One-Click Captions, Deep Thinking, Instant Answers</p>
+  <p style="font-size: 1.2rem; color: #666;">📝 Screenshot, Think, Solve — Your Distraction-Free AI Assistant</p>
 
   <p>
     <a href="https://golang.org"><img src="https://img.shields.io/badge/Go-1.25+-00ADD8?logo=go&logoColor=white" alt="Go"></a>
@@ -28,33 +28,33 @@
 
 ## 📖 Introduction
 
-**Q-Solver** is a desktop AI assistant tailored for written tests and efficient multitasking. It deeply integrates top-tier LLMs like **OpenAI**, **Google Gemini**, and **Anthropic Claude**. With minimal screenshot interactions, it provides real-time code analysis, Q&A, and content creation assistance.
+**Q-Solver** is a desktop AI assistant designed for **high-pressure, high-focus scenarios**. It deeply integrates top-tier LLMs like **OpenAI**, **Google Gemini**, and **Anthropic Claude**. With minimal screenshot interactions, it provides real-time code analysis, Q&A, and content creation assistance.
 
-Unlike traditional chatbots, Q-Solver features unique capabilities such as **Reasoning Chain Visualization**, **Stealth/Anti-Recording Mode**, and **Resume Context Awareness**, seamlessly blending into your workflow as a truly "understanding" AI assistant.
+When you need to **stay focused while getting instant help**, Q-Solver is your best choice—floating window that doesn't break your flow, stealth mode that leaves no trace, and context awareness that truly understands your needs.
 
 ---
 
 ## ✨ Features
 
 ### 🛡️ Stealth Mode
-Designed for high-focus or written test environments. When activated:
-- **Borderless / Semi-Transparent**: Floats perfectly above other windows.
-- **Anti-Focus Stealing**: Does not auto-hide when operating other software; answers remain visible.
-- **Anti-Screen Recording**: Special window attributes to evade some screen capture and recording detection.
-- **Click-Through**: Click through the window to interact with the application behind it.
+Designed for scenarios where you **need to focus without interruption**:
+- **Borderless / Semi-Transparent**: Always on top, never blocking your workspace
+- **Anti-Focus Stealing**: Window stays visible when switching apps, answers always accessible
+- **Stealth / Anti-Detection**: Special window attributes to evade screen recording and screenshot tools
+- **Click-Through**: Click through the window to interact with apps behind it, zero interference
 
 ### 🔌 Comprehensive Model Support
 - **Native SDK Integration**: Built-in native SDKs for Google Gemini, Anthropic Claude, and OpenAI (not just HTTP forwarding) to ensure optimal streaming response and stability.
 - **Custom Access**: Supports aggregation services like OneAPI for flexible network adaptation.
 
-### 📄 Context & Resume Awareness
-- **Resume Assistant**: Import PDF/Markdown resumes, and the AI generates personalized answers based on your background (ideal for mock interviews and resume polishing).
+### 📄 Context Awareness
+- **Background Import**: Import PDF/Markdown documents, and the AI generates personalized answers based on your background.
 - **Smart Memory**: Supports multi-turn conversation context, automatically clearing when a new topic starts.
 
 ### 🎙️ Gemini Live API (Experimental)
 - **Real-time Voice Conversation**: Supports bidirectional real-time voice calls with Gemini models, providing an ultra-low latency interaction experience.
-- **Interviewer Mode**: Simulates real technical interview scenarios, transcribing interviewer questions in real-time, with AI providing instant answer suggestions.
-- **Note**: This feature is currently in an **experimental stage**. Connection instability or audio interruptions may occur due to network conditions.
+- **Voice Transcription Mode**: Captures and transcribes the other party's voice in real-time, with AI providing instant answer suggestions to help you handle any conversation scenario.
+- **Note**: This feature is currently in an **experimental stage**. Connection instability may occur due to network conditions.
 - **Supported Models**: Please select `gemini-2.0-flash-exp`.
 
 ### ⚡ Extreme Performance
@@ -144,7 +144,14 @@ macOS does not natively support recording system audio. You need to install a vi
    - Check both **BlackHole 2ch** and your speakers/headphones
    - Right-click the new multi-output device and select **Use This Device For Sound Output**
 
-3. **Grant Microphone Permission**: When launching the Live API feature for the first time, please allow microphone access.
+3. **Adjust BlackHole Volume** (Important!):
+   - In **Audio MIDI Setup**, select **BlackHole 2ch** on the left panel
+   - In the **Input** tab on the right, drag the **Main** volume slider to **1.0** (far right)
+   - If the volume is not set to 1.0, the captured system audio will be very quiet
+
+   <img src="assets/img5.png" width="600" style="border-radius: 8px; margin: 10px 0;" />
+
+4. **Grant Microphone Permission**: When launching the Live API feature for the first time, please allow microphone access.
 
 > **Note**: If BlackHole is not installed, the "Interviewer Mode" in Live API will not be able to capture system audio.
 
@@ -166,19 +173,31 @@ Launch the software and click the **Settings** icon in the top right corner:
 
 ---
 
-## ⌨️ Shortcuts (Windows Only)
+## ⌨️ Shortcuts
 
-> **Note**: The macOS version does not support global shortcuts. Please use the interface buttons.
+### Windows Shortcuts
+
+Windows version supports **customizable** shortcuts. Default configuration:
 
 | Key | Function |
 | :--- | :--- |
-| **F8** | **capture Screenshot & Ask** (Core Function) |
+| **F8** | **Screenshot & Ask** (Core Function) |
 | **F9** | Show / Hide Main Window |
 | **F10** | Toggle Mouse Click-Through |
 | **Alt + ⬆️/⬇️/⬅️/➡️** | Fine-tune Window Position |
 | **Alt + PgUp/PgDn** | Quick History Navigation |
 
----
+### macOS Shortcuts
+
+macOS version uses **fixed** shortcuts. Customization is not supported yet:
+
+| Key | Function |
+| :--- | :--- |
+| **⌘1** | **Screenshot & Solve** (Core Function) |
+| **⌘2** | Show / Hide Main Window |
+| **⌘3** | Toggle Mouse Click-Through |
+| **⌘⌥↑/↓/←/→** | Fine-tune Window Position |
+| **⌘⌥⇧↑/↓** | Quick History Navigation |
 
 ## Support
 
