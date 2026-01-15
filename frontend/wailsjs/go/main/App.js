@@ -6,6 +6,10 @@ export function CancelRunningTask() {
   return window['go']['main']['App']['CancelRunningTask']();
 }
 
+export function CheckMicrophoneAccess() {
+  return window['go']['main']['App']['CheckMicrophoneAccess']();
+}
+
 export function CheckScreenCapturePermission() {
   return window['go']['main']['App']['CheckScreenCapturePermission']();
 }
@@ -50,6 +54,10 @@ export function MoveWindow(arg1, arg2) {
   return window['go']['main']['App']['MoveWindow'](arg1, arg2);
 }
 
+export function OpenMicrophoneSettings() {
+  return window['go']['main']['App']['OpenMicrophoneSettings']();
+}
+
 export function OpenScreenCaptureSettings() {
   return window['go']['main']['App']['OpenScreenCaptureSettings']();
 }
@@ -60,6 +68,10 @@ export function ParseResume() {
 
 export function RemoveFocus() {
   return window['go']['main']['App']['RemoveFocus']();
+}
+
+export function RequestMicrophoneAccess() {
+  return window['go']['main']['App']['RequestMicrophoneAccess']();
 }
 
 export function RequestScreenCapturePermission() {

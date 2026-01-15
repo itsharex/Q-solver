@@ -82,6 +82,11 @@ func (c *LoopbackCapture) findLoopbackDevice() (*malgo.DeviceID, error) {
 		return nil, err
 	}
 
+	logger.Printf("可用的捕获设备列表 (%d 个):", len(infos))
+	for i, info := range infos {
+		logger.Printf("  [%d] %s", i, info.Name())
+	}
+
 	// 按优先级查找虚拟音频设备
 	loopbackKeywords := []string{
 		"blackhole",    // BlackHole (推荐)
@@ -172,6 +177,7 @@ func (c *LoopbackCapture) packetizer() {
 	defer ticker.Stop()
 
 	packetBuffer := make([]byte, PacketSize)
+	packetCount := 0
 
 	for {
 		select {
@@ -192,6 +198,19 @@ func (c *LoopbackCapture) packetizer() {
 			}
 
 			if n == PacketSize {
+				packetCount++
+				// 每 100 个包打印一次（约 3 秒）
+				if packetCount%100 == 0 {
+					// 计算 RMS（均方根）来检测是否有实际音频
+					var sum int64
+					for i := 0; i < len(packetBuffer); i += 2 {
+						sample := int16(packetBuffer[i]) | int16(packetBuffer[i+1])<<8
+						sum += int64(sample) * int64(sample)
+					}
+					rms := int(sum / int64(len(packetBuffer)/2))
+					logger.Printf("音频采集中: 已发送 %d 个数据包, RMS=%d (0=静音)", packetCount, rms)
+				}
+
 				// 创建副本发送到 channel
 				packet := make([]byte, PacketSize)
 				copy(packet, packetBuffer)

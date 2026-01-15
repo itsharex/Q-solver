@@ -4,7 +4,7 @@ package shortcut
 
 import (
 	"Q-Solver/pkg/logger"
-	"Q-Solver/pkg/winapi"
+	"Q-Solver/pkg/platform"
 	"syscall"
 	"unsafe"
 )
@@ -43,7 +43,7 @@ func (m *Manager) Start() {
 
 func (m *Manager) Stop() {
 	if m.hHook != 0 {
-		if winapi.UnhookWindowsHookEx(m.hHook) {
+		if platform.UnhookWindowsHookEx(m.hHook) {
 			logger.Println("卸载键盘Hook成功")
 		} else {
 			logger.Println("卸载键盘Hook失败")
@@ -51,7 +51,7 @@ func (m *Manager) Stop() {
 		m.hHook = 0
 	}
 	if m.hMouseHook != 0 {
-		if winapi.UnhookWindowsHookEx(m.hMouseHook) {
+		if platform.UnhookWindowsHookEx(m.hMouseHook) {
 			logger.Println("卸载鼠标Hook成功")
 		} else {
 			logger.Println("卸载鼠标Hook失败")
@@ -74,12 +74,12 @@ func (m *Manager) StopRecording() {
 
 func (m *Manager) installHooks() {
 	// 获取模块句柄
-	hMod := winapi.GetModuleHandle("")
+	hMod := platform.GetModuleHandle("")
 
 	// 创建键盘回调
 	kbdCallback := syscall.NewCallback(keyboardHookProc)
 	// 安装键盘钩子
-	m.hHook = winapi.SetWindowsHookEx(winapi.WH_KEYBOARD_LL, kbdCallback, hMod, 0)
+	m.hHook = platform.SetWindowsHookEx(platform.WH_KEYBOARD_LL, kbdCallback, hMod, 0)
 	if m.hHook == 0 {
 		logger.Println("安装键盘钩子失败")
 	}
@@ -87,7 +87,7 @@ func (m *Manager) installHooks() {
 	// 创建鼠标回调
 	mouseCallback := syscall.NewCallback(mouseHookProc)
 	// 安装鼠标钩子
-	m.hMouseHook = winapi.SetWindowsHookEx(winapi.WH_MOUSE_LL, mouseCallback, hMod, 0)
+	m.hMouseHook = platform.SetWindowsHookEx(platform.WH_MOUSE_LL, mouseCallback, hMod, 0)
 	if m.hMouseHook == 0 {
 		logger.Println("安装鼠标钩子失败")
 	}
@@ -97,8 +97,8 @@ func (m *Manager) installHooks() {
 	}
 
 	// 消息循环
-	var msg winapi.MSG
-	for winapi.GetMessage(&msg, 0, 0, 0) > 0 {
+	var msg platform.MSG
+	for platform.GetMessage(&msg, 0, 0, 0) > 0 {
 		// 保持线程活跃以处理钩子消息
 	}
 }
@@ -119,16 +119,16 @@ func keyboardHookProc(nCode int, wParam uintptr, lParam uintptr) uintptr {
 	// 只有当 nCode >= 0 时才处理消息，否则直接放行
 	if nCode >= 0 {
 		// 将 lParam 指针转换为键盘钩子结构体
-		kbd := (*winapi.KBDLLHOOKSTRUCT)(unsafe.Pointer(lParam))
+		kbd := (*platform.KBDLLHOOKSTRUCT)(unsafe.Pointer(lParam))
 		// 监听按下事件 (WM_KEYDOWN) 或 系统按键按下 (WM_SYSKEYDOWN，比如按住 Alt 时)
-		if wParam == winapi.WM_KEYDOWN || wParam == winapi.WM_SYSKEYDOWN {
+		if wParam == platform.WM_KEYDOWN || wParam == platform.WM_SYSKEYDOWN {
 			globalManager.heldKeys[kbd.VkCode] = true
 			if onKeysChanged() {
 				return 1
 			}
 		}
 		// 处理松开事件
-		if wParam == winapi.WM_KEYUP || wParam == winapi.WM_SYSKEYUP {
+		if wParam == platform.WM_KEYUP || wParam == platform.WM_SYSKEYUP {
 			// 1. 从 map 中移除该键
 			delete(globalManager.heldKeys, kbd.VkCode)
 
@@ -144,7 +144,7 @@ func keyboardHookProc(nCode int, wParam uintptr, lParam uintptr) uintptr {
 
 	// 如果不是我们要拦截的键，或者 nCode < 0，必须调用 CallNextHookEx
 	// 否则会导致系统键盘卡死或其他人无法使用键盘
-	return winapi.CallNextHookEx(globalManager.hHook, nCode, wParam, lParam)
+	return platform.CallNextHookEx(globalManager.hHook, nCode, wParam, lParam)
 }
 
 func mouseHookProc(nCode int, wParam uintptr, lParam uintptr) uintptr {
@@ -152,29 +152,29 @@ func mouseHookProc(nCode int, wParam uintptr, lParam uintptr) uintptr {
 		return 0
 	}
 	if nCode >= 0 {
-		mouseStruct := (*winapi.MSLLHOOKSTRUCT)(unsafe.Pointer(lParam))
+		mouseStruct := (*platform.MSLLHOOKSTRUCT)(unsafe.Pointer(lParam))
 		var vkCode uint32
 		isDown := false
 		isUp := false
 
 		switch wParam {
-		case winapi.WM_XBUTTONDOWN:
+		case platform.WM_XBUTTONDOWN:
 			isDown = true
 			xButton := (mouseStruct.MouseData >> 16) & 0xFFFF
 			switch xButton {
 			case 1:
-				vkCode = winapi.VK_XBUTTON1
+				vkCode = platform.VK_XBUTTON1
 			case 2:
-				vkCode = winapi.VK_XBUTTON2
+				vkCode = platform.VK_XBUTTON2
 			}
-		case winapi.WM_XBUTTONUP:
+		case platform.WM_XBUTTONUP:
 			isUp = true
 			xButton := (mouseStruct.MouseData >> 16) & 0xFFFF
 			switch xButton {
 			case 1:
-				vkCode = winapi.VK_XBUTTON1
+				vkCode = platform.VK_XBUTTON1
 			case 2:
-				vkCode = winapi.VK_XBUTTON2
+				vkCode = platform.VK_XBUTTON2
 			}
 		}
 
@@ -196,7 +196,7 @@ func mouseHookProc(nCode int, wParam uintptr, lParam uintptr) uintptr {
 			}
 		}
 	}
-	return winapi.CallNextHookEx(globalManager.hMouseHook, nCode, wParam, lParam)
+	return platform.CallNextHookEx(globalManager.hMouseHook, nCode, wParam, lParam)
 }
 
 func onKeysChanged() bool {
@@ -236,8 +236,8 @@ func onKeysChanged() bool {
 			if hasAlt || hasWin {
 				// 模拟按下并松开 Ctrl 键，防止 Windows 激活菜单栏/开始菜单
 				// VK_CONTROL = 0x11, KEYEVENTF_KEYUP = 0x0002
-				winapi.KeybdEvent(winapi.VK_CONTROL, 0, 0, 0)
-				winapi.KeybdEvent(winapi.VK_CONTROL, 0, 2, 0)
+				platform.KeybdEvent(platform.VK_CONTROL, 0, 0, 0)
+				platform.KeybdEvent(platform.VK_CONTROL, 0, 2, 0)
 			}
 
 			if globalManager.OnTrigger != nil {
