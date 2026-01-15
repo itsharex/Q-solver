@@ -1,5 +1,22 @@
 <template>
   <div class="screenshot-settings">
+    <!-- macOS 截图权限提示 -->
+    <div v-if="isMacOS && !hasPermission" class="permission-alert">
+      <div class="alert-content">
+        <span class="alert-icon">⚠️</span>
+        <div class="alert-text">
+          <strong>需要截图权限</strong>
+          <p>请授权截图权限以正常使用截图功能，否则只能截取桌面壁纸。</p>
+        </div>
+      </div>
+      <button v-if="!settingsOpened" class="btn-permission" @click="requestPermission" :disabled="requestingPermission">
+        {{ requestingPermission ? '正在请求...' : '授权截图权限' }}
+      </button>
+      <button v-else class="btn-permission btn-refresh" @click="refreshPermission" :disabled="requestingPermission">
+        {{ requestingPermission ? '正在检查...' : '刷新权限状态' }}
+      </button>
+    </div>
+
     <div class="preview-area">
       <div v-if="loading" class="loading">加载中...</div>
       <img v-else-if="previewImage" :src="previewImage" class="preview-img" @click="showLightbox = true" title="点击放大预览" />
@@ -90,7 +107,7 @@
 
 <script setup>
 import { ref, watch, onMounted, reactive } from 'vue'
-import { GetScreenshotPreview } from '../../wailsjs/go/main/App'
+import { GetScreenshotPreview, CheckScreenCapturePermission, RequestScreenCapturePermission, OpenScreenCaptureSettings, SetWindowAlwaysOnTop } from '../../wailsjs/go/main/App'
 
 const props = defineProps(['modelValue'])
 const emit = defineEmits(['update:modelValue'])
@@ -104,6 +121,77 @@ const isGrayscale = ref(true)
 const noCompression = ref(false)
 const showLightbox = ref(false)
 const screenshotMode = ref('window')
+
+// macOS 权限相关
+const isMacOS = ref(false)
+const hasPermission = ref(true)
+const requestingPermission = ref(false)
+const settingsOpened = ref(false) // 是否已打开设置页面
+
+// 检测是否为 macOS
+function detectPlatform() {
+  const platform = navigator.platform?.toLowerCase() || ''
+  const userAgent = navigator.userAgent?.toLowerCase() || ''
+  isMacOS.value = platform.includes('mac') || userAgent.includes('mac')
+}
+
+// 检查截图权限
+async function checkPermission() {
+  if (!isMacOS.value) {
+    hasPermission.value = true
+    return
+  }
+  try {
+    hasPermission.value = await CheckScreenCapturePermission()
+  } catch (e) {
+    console.error('检查截图权限失败:', e)
+    hasPermission.value = true // 出错时默认有权限
+  }
+}
+
+// 请求截图权限 - 打开系统设置并取消置顶
+async function requestPermission() {
+  requestingPermission.value = true
+  try {
+    // 首次点击，请求权限并打开设置页面
+    await RequestScreenCapturePermission()
+    // 取消窗口置顶，方便用户操作设置
+    await SetWindowAlwaysOnTop(false)
+    // 打开系统设置的屏幕录制权限页面
+    await OpenScreenCaptureSettings()
+    // 标记已打开设置
+    settingsOpened.value = true
+  } catch (e) {
+    console.error('请求截图权限失败:', e)
+  } finally {
+    requestingPermission.value = false
+  }
+}
+
+// 刷新权限状态 - 用户设置完成后点击
+async function refreshPermission() {
+  requestingPermission.value = true
+  try {
+    await checkPermission()
+    if (hasPermission.value) {
+      // 权限获取成功，恢复置顶并刷新预览
+      await SetWindowAlwaysOnTop(true)
+      settingsOpened.value = false
+      updatePreview()
+    } else {
+      // 权限仍未获取，恢复置顶
+      await SetWindowAlwaysOnTop(true)
+      settingsOpened.value = false
+    }
+  } catch (e) {
+    console.error('刷新权限状态失败:', e)
+    // 即使失败也恢复置顶
+    await SetWindowAlwaysOnTop(true)
+    settingsOpened.value = false
+  } finally {
+    requestingPermission.value = false
+  }
+}
 
 // Tooltip state
 const tooltip = reactive({
@@ -187,7 +275,9 @@ async function updatePreview() {
     }
 }
 
-onMounted(() => {
+onMounted(async () => {
+    detectPlatform()
+    await checkPermission()
     updatePreview()
 })
 </script>
@@ -198,6 +288,78 @@ onMounted(() => {
     flex-direction: column;
     gap: 15px;
 }
+
+/* 权限提示样式 */
+.permission-alert {
+    background: rgba(255, 193, 7, 0.15);
+    border: 1px solid rgba(255, 193, 7, 0.4);
+    border-radius: 8px;
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.alert-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.alert-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.alert-text {
+    flex: 1;
+}
+
+.alert-text strong {
+    color: #ffc107;
+    font-size: 13px;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.alert-text p {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 12px;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.btn-permission {
+    background: #ffc107;
+    color: #000;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-permission:hover:not(:disabled) {
+    background: #ffca2c;
+    transform: translateY(-1px);
+}
+
+.btn-permission:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-permission.btn-refresh {
+    background: #4CAF50;
+    color: #fff;
+}
+
+.btn-permission.btn-refresh:hover:not(:disabled) {
+    background: #5CBF60;
+}
+
 .preview-area {
     height: 200px;
     background: #000;

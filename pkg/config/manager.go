@@ -37,17 +37,14 @@ func (cm *ConfigManager) getConfigPath() string {
 	} else {
 		sysConfigDir, err := os.UserConfigDir()
 		if err != nil {
-			logger.Printf("获取系统配置路径失败，回退到当前目录: %v", err)
 			sysConfigDir = "."
 		}
 		appDir = filepath.Join(sysConfigDir, "Q-Solver")
 	}
 
 	if err := os.MkdirAll(appDir, 0755); err != nil {
-		logger.Printf("错误: 创建配置文件夹失败 [%s]: %v", appDir, err)
 	}
 	fullPath := filepath.Join(appDir, "config.json")
-	logger.Printf("当前平台: %s, 配置文件路径: %s", runtime.GOOS, fullPath)
 
 	return fullPath
 }

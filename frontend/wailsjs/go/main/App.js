@@ -6,6 +6,14 @@ export function CancelRunningTask() {
   return window['go']['main']['App']['CancelRunningTask']();
 }
 
+export function CheckMicrophoneAccess() {
+  return window['go']['main']['App']['CheckMicrophoneAccess']();
+}
+
+export function CheckScreenCapturePermission() {
+  return window['go']['main']['App']['CheckScreenCapturePermission']();
+}
+
 export function ClearResume() {
   return window['go']['main']['App']['ClearResume']();
 }
@@ -46,12 +54,28 @@ export function MoveWindow(arg1, arg2) {
   return window['go']['main']['App']['MoveWindow'](arg1, arg2);
 }
 
+export function OpenMicrophoneSettings() {
+  return window['go']['main']['App']['OpenMicrophoneSettings']();
+}
+
+export function OpenScreenCaptureSettings() {
+  return window['go']['main']['App']['OpenScreenCaptureSettings']();
+}
+
 export function ParseResume() {
   return window['go']['main']['App']['ParseResume']();
 }
 
 export function RemoveFocus() {
   return window['go']['main']['App']['RemoveFocus']();
+}
+
+export function RequestMicrophoneAccess() {
+  return window['go']['main']['App']['RequestMicrophoneAccess']();
+}
+
+export function RequestScreenCapturePermission() {
+  return window['go']['main']['App']['RequestScreenCapturePermission']();
 }
 
 export function RestoreFocus() {
@@ -68,6 +92,10 @@ export function ScrollContent(arg1) {
 
 export function SelectResume() {
   return window['go']['main']['App']['SelectResume']();
+}
+
+export function SetWindowAlwaysOnTop(arg1) {
+  return window['go']['main']['App']['SetWindowAlwaysOnTop'](arg1);
 }
 
 export function StartLiveSession() {

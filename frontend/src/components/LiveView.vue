@@ -74,15 +74,15 @@
       <!-- 右侧：信息面板 -->
       <div class="info-panel">
         <!-- 连接状态提醒 -->
-        <div class="panel-section connection-reminder" :class="{ warning: connectionWarning }">
+        <div class="panel-section connection-reminder" :class="{ warning: connectionWarning, error: status === 'error', disconnected: status === 'disconnected' }">
           <div class="section-title">
             <span class="icon">⏱️</span>
             <span>连接状态</span>
           </div>
           <div class="connection-info">
             <div class="connection-status">
-              <span class="status-text">{{ connectionWarning ? '警告：连接即将超时' : '连接正常' }}</span>
-              <span class="status-hint">{{ connectionWarning ? '请准备手动切换连接' : '最长10分钟自动切换' }}</span>
+              <span class="status-text">{{ connectionStatusText }}</span>
+              <span class="status-hint">{{ connectionStatusHint }}</span>
             </div>
           </div>
         </div>
@@ -116,6 +116,27 @@
             <span v-for="tag in topKeywords" :key="tag" class="tag">{{ tag }}</span>
           </div>
         </div>
+
+        <!-- macOS 麦克风权限 -->
+        <div v-if="isMacOS" class="panel-section mic-permission">
+          <div class="section-title">
+            <span class="icon">🎤</span>
+            <span>麦克风权限</span>
+          </div>
+          <div class="permission-content">
+            <div class="permission-status" :class="micPermissionClass">
+              <span class="status-icon">{{ micPermissionIcon }}</span>
+              <span class="status-text">{{ micPermissionText }}</span>
+            </div>
+            <button 
+              v-if="micPermissionStatus !== 1" 
+              class="permission-btn" 
+              @click="handleMicPermission"
+            >
+              {{ micPermissionStatus === 0 ? '授权麦克风' : '前往设置' }}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -124,8 +145,8 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { marked } from 'marked'
-import { EventsOn, EventsOff } from '../../wailsjs/runtime/runtime'
-import { StartLiveSession, StopLiveSession } from '../../wailsjs/go/main/App'
+import { EventsOn, EventsOff, Environment } from '../../wailsjs/runtime/runtime'
+import { StartLiveSession, StopLiveSession, CheckMicrophoneAccess, RequestMicrophoneAccess, OpenMicrophoneSettings } from '../../wailsjs/go/main/App'
 
 const status = ref('disconnected')
 const errorMsg = ref('')
@@ -133,6 +154,12 @@ const chatContainer = ref(null)
 const messages = ref([])
 const currentInterviewerMsg = ref(null)
 const currentAiMsg = ref(null)
+
+// 平台检测
+const isMacOS = ref(false)
+
+// 麦克风权限状态: 0=未决定, 1=已授权, 2=已拒绝
+const micPermissionStatus = ref(1)
 
 // 右侧面板数据
 const sessionStartTime = ref(Date.now())
@@ -181,6 +208,68 @@ const statusText = computed(() => {
   return map[status.value] || '未知'
 })
 
+// 右侧面板连接状态显示
+const connectionStatusText = computed(() => {
+  if (status.value === 'error') return '连接失败'
+  if (status.value === 'disconnected') return '未连接'
+  if (status.value === 'connecting') return '连接中...'
+  if (connectionWarning.value) return '警告：连接即将超时'
+  return '连接正常'
+})
+
+const connectionStatusHint = computed(() => {
+  if (status.value === 'error') return '请检查网络或模型配置后重试'
+  if (status.value === 'disconnected') return '等待连接...'
+  if (status.value === 'connecting') return '正在建立连接...'
+  if (connectionWarning.value) return '请准备手动切换连接'
+  return '最长10分钟自动切换'
+})
+
+// 麦克风权限相关
+const micPermissionClass = computed(() => {
+  switch (micPermissionStatus.value) {
+    case 1: return 'granted'
+    case 2: return 'denied'
+    default: return 'undetermined'
+  }
+})
+
+const micPermissionIcon = computed(() => {
+  switch (micPermissionStatus.value) {
+    case 1: return '✅'
+    case 2: return '❌'
+    default: return '⚠️'
+  }
+})
+
+const micPermissionText = computed(() => {
+  switch (micPermissionStatus.value) {
+    case 1: return '已授权'
+    case 2: return '已拒绝'
+    default: return '未授权'
+  }
+})
+
+async function handleMicPermission() {
+  if (micPermissionStatus.value === 0) {
+    // 未决定，请求权限
+    await RequestMicrophoneAccess()
+    // 等待一下再检查
+    setTimeout(async () => {
+      micPermissionStatus.value = await CheckMicrophoneAccess()
+    }, 500)
+  } else if (micPermissionStatus.value === 2) {
+    // 已拒绝，打开设置
+    await OpenMicrophoneSettings()
+  }
+}
+
+async function refreshMicPermission() {
+  if (isMacOS.value) {
+    micPermissionStatus.value = await CheckMicrophoneAccess()
+  }
+}
+
 function scrollToBottom() {
   setTimeout(() => {
     if (chatContainer.value) {
@@ -196,7 +285,21 @@ function getLastMessage() {
   return messages.value[messages.value.length - 1]
 }
 
-function onLiveStatus(s) { status.value = s }
+function onLiveStatus(s) {
+  console.log('[LiveView] onLiveStatus 收到状态:', s)
+  status.value = s
+  
+  // 根据状态控制计时器
+  if (s === 'connected') {
+    // 连接成功，重置并启动计时器
+    sessionStartTime.value = Date.now()
+    sessionDuration.value = '0m 00s'
+    startTimers()
+  } else if (s === 'error' || s === 'disconnected') {
+    // 连接失败或断开，停止计时器
+    stopTimers()
+  }
+}
 
 function onLiveTranscript(text) {
   const lastMsg = getLastMessage()
@@ -239,7 +342,11 @@ function onLiveAiText(text) {
   }
 }
 
-function onLiveError(err) { status.value = 'error'; errorMsg.value = err }
+function onLiveError(err) {
+  console.log('[LiveView] onLiveError 收到错误:', err)
+  status.value = 'error'
+  errorMsg.value = err
+}
 
 function onLiveDone() {
   // 标记最后一条消息完成
@@ -321,7 +428,20 @@ watch(messages, (msgs) => {
   topKeywords.value = extractKeywords(allText)
 }, { deep: true })
 
-onMounted(() => {
+onMounted(async () => {
+  // 检测平台
+  try {
+    const env = await Environment()
+    isMacOS.value = env.platform === 'darwin'
+    
+    // macOS 下检查麦克风权限
+    if (isMacOS.value) {
+      micPermissionStatus.value = await CheckMicrophoneAccess()
+    }
+  } catch (e) {
+    console.error('获取环境信息失败:', e)
+  }
+
   EventsOn('live:status', onLiveStatus)
   EventsOn('live:transcript', onLiveTranscript)
   EventsOn('live:interviewer-done', onLiveInterviewerDone)
@@ -333,7 +453,7 @@ onMounted(() => {
   EventsOn('live:connection-warning', onLiveConnectionWarning)
 
   StartLiveSession()
-  startTimers()
+  // 计时器由 onLiveStatus('connected') 触发启动
 })
 
 onUnmounted(() => {
@@ -684,6 +804,16 @@ onUnmounted(() => {
   animation: pulse-warning 2s ease-in-out infinite;
 }
 
+.connection-reminder.error {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.12), rgba(220, 38, 38, 0.08));
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
+.connection-reminder.disconnected {
+  background: linear-gradient(135deg, rgba(156, 163, 175, 0.1), rgba(107, 114, 128, 0.05));
+  border-color: rgba(156, 163, 175, 0.25);
+}
+
 @keyframes pulse-warning {
 
   0%,
@@ -799,6 +929,59 @@ onUnmounted(() => {
 .keyword-tags .tag:hover {
   background: linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(139, 92, 246, 0.15));
   border-color: rgba(139, 92, 246, 0.5);
+  transform: translateY(-1px);
+}
+
+/* 麦克风权限 */
+.mic-permission .permission-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+}
+
+.mic-permission .permission-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.mic-permission .permission-status.granted {
+  color: #10b981;
+}
+
+.mic-permission .permission-status.denied {
+  color: #ef4444;
+}
+
+.mic-permission .permission-status.undetermined {
+  color: #fbbf24;
+}
+
+.mic-permission .permission-status .status-icon {
+  font-size: 16px;
+}
+
+.mic-permission .permission-btn {
+  padding: 8px 16px;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(59, 130, 246, 0.15));
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  border-radius: 8px;
+  color: #93c5fd;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mic-permission .permission-btn:hover {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.4), rgba(59, 130, 246, 0.25));
+  border-color: rgba(59, 130, 246, 0.6);
   transform: translateY(-1px);
 }
 

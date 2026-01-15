@@ -5,6 +5,7 @@ import (
 	"Q-Solver/pkg/live"
 	"Q-Solver/pkg/llm"
 	"Q-Solver/pkg/logger"
+	"Q-Solver/pkg/platform"
 	"Q-Solver/pkg/resume"
 	"Q-Solver/pkg/screen"
 	"Q-Solver/pkg/shortcut"
@@ -357,6 +358,50 @@ func (a *App) GetScreenshotPreview(quality int, sharpen float64, grayscale bool,
 		mode = a.configManager.Get().ScreenshotMode
 	}
 	return a.screenService.CapturePreview(quality, sharpen, grayscale, noCompression, mode)
+}
+
+// CheckScreenCapturePermission 检查截图权限 (macOS)
+func (a *App) CheckScreenCapturePermission() bool {
+	return platform.CheckScreenCaptureAccess()
+}
+
+// RequestScreenCapturePermission 请求截图权限 (macOS)
+func (a *App) RequestScreenCapturePermission() bool {
+	return platform.RequestScreenCaptureAccess()
+}
+
+// OpenScreenCaptureSettings 打开系统设置的屏幕录制权限页面 (macOS)
+func (a *App) OpenScreenCaptureSettings() {
+	platform.OpenScreenCaptureSettings()
+}
+
+// CheckMicrophoneAccess 检查麦克风权限状态 (macOS)
+// 返回: 0=未决定, 1=已授权, 2=已拒绝
+func (a *App) CheckMicrophoneAccess() int {
+	return platform.CheckMicrophoneAccess()
+}
+
+// RequestMicrophoneAccess 请求麦克风权限 (macOS)
+func (a *App) RequestMicrophoneAccess() {
+	platform.RequestMicrophoneAccess()
+}
+
+// OpenMicrophoneSettings 打开系统设置的麦克风权限页面 (macOS)
+func (a *App) OpenMicrophoneSettings() {
+	platform.OpenMicrophoneSettings()
+}
+
+// SetWindowAlwaysOnTop 设置窗口是否置顶
+func (a *App) SetWindowAlwaysOnTop(alwaysOnTop bool) {
+	hwnd := a.stateManager.GetHwnd()
+	if hwnd == 0 {
+		return
+	}
+	if alwaysOnTop {
+		platform.SetWindowLevel(hwnd, platform.WindowLevelFloating)
+	} else {
+		platform.SetWindowLevel(hwnd, platform.WindowLevelNormal)
+	}
 }
 
 // ==================== LLM 相关 ====================
