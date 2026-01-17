@@ -1013,6 +1013,7 @@ input:checked+.slider:before {
     justify-content: center;
 }
 
+
 .resume-warning-dialog .warning-actions button {
     min-width: 100px;
     padding: var(--space-3) var(--space-5);

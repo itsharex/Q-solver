@@ -109,6 +109,8 @@
     </div>
   </div>
 
+  <!-- 窗口调整手柄 -->
+  <ResizeHandle />
 
 </template>
 
@@ -122,6 +124,7 @@ import TopBar from './components/TopBar.vue'
 import HistoryItem from './components/HistoryItem.vue'
 import EmptyState from './components/EmptyState.vue'
 import LiveView from './components/LiveView.vue'
+import ResizeHandle from './components/ResizeHandle.vue'
 import { EventsOn, Quit } from '../wailsjs/runtime/runtime'
 import { StopRecordingKey, SelectResume, ClearResume, RestoreFocus, RemoveFocus, ParseResume, GetInitStatus } from '../wailsjs/go/main/App'
 

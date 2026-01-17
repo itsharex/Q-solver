@@ -23,33 +23,9 @@
         <span class="label">⚙️ 设置</span>
       </div>
       <div class="divider"></div>
-      <div class="status-group" ref="statusGroupRef" @mouseenter="showTooltip" @mouseleave="hideTooltip" style="--wails-draggable:no-drag">
-        <div class="status-indicator" :class="statusClass">
-          <svg class="status-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <!-- 已连接/就绪/解题完成: 信号满格 -->
-            <template v-if="isConnectedStatus">
-              <rect x="2" y="16" width="4" height="6" rx="1" fill="currentColor"/>
-              <rect x="8" y="11" width="4" height="11" rx="1" fill="currentColor"/>
-              <rect x="14" y="6" width="4" height="16" rx="1" fill="currentColor"/>
-              <rect x="20" y="2" width="2" height="20" rx="1" fill="currentColor"/>
-            </template>
-            <!-- 未配置: 齿轮 -->
-            <template v-else-if="isUnconfigured">
-              <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
-              <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </template>
-            <!-- Key无效: 警告 -->
-            <template v-else-if="isInvalidKey">
-              <path d="M12 9v4M12 17h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-            </template>
-            <!-- 连接失败/出错: X -->
-            <template v-else>
-              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-              <path d="M15 9l-6 6M9 9l6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </template>
-          </svg>
-        </div>
+      <div class="status-group" ref="statusGroupRef" @click="toggleStatusPanel" style="--wails-draggable:no-drag">
+        <span class="status-dot" :class="statusClass"></span>
+        <span class="status-label">状态</span>
       </div>
       <div class="divider"></div>
       <div class="control-group" style="cursor: pointer; --wails-draggable:no-drag" @click="$emit('quit')">
@@ -59,28 +35,39 @@
   </div>
 
   <Teleport to="body">
-    <div class="status-tooltip" v-if="showStatusTooltip" :style="tooltipStyle">
-      <div class="tooltip-row">
-        <span class="tooltip-label">状态:</span>
-        <span class="tooltip-value">{{ statusText }}</span>
+    <!-- 状态面板 - 点击显示 -->
+    <Transition name="panel-fade">
+      <div class="status-panel" v-if="showStatusPanel" :style="panelStyle" @click.stop>
+        <div class="panel-header">
+          <span class="panel-title">运行状态</span>
+          <button class="panel-close" @click="showStatusPanel = false">✕</button>
+        </div>
+        <div class="panel-body">
+          <div class="status-row">
+            <span class="row-label">当前状态</span>
+            <span class="row-value" :class="statusValueClass">{{ statusText }}</span>
+          </div>
+          <div class="status-row">
+            <span class="row-label">API 连接</span>
+            <span class="row-value" :class="apiStatusClass">
+              {{ apiStatusText }}
+            </span>
+          </div>
+          <div class="status-row">
+            <span class="row-label">使用模型</span>
+            <span class="row-value model">{{ settings.model || '未设置' }}</span>
+          </div>
+          <div class="status-row">
+            <span class="row-label">隐身模式</span>
+            <span class="row-value" :class="isStealthMode ? 'success' : 'error'">
+              {{ isStealthMode ? '已开启' : '已关闭' }}
+            </span>
+          </div>
+        </div>
       </div>
-      <div class="tooltip-row">
-        <span class="tooltip-label">API状态:</span>
-        <span class="tooltip-value">
-          {{ statusText === '已连接' ? '✅ 接口通畅' : (statusText === 'Key无效' ? '🚫 Key无效' : (statusText === '连接失败' ? '❌ 连接失败'
-            : '未配置')) }} </span>
-      </div>
-      <div class="tooltip-row">
-        <span class="tooltip-label">模型:</span>
-        <span class="tooltip-value">{{ settings.model }}</span>
-      </div>
-      <div class="tooltip-row">
-        <span class="tooltip-label">隐身:</span>
-        <span class="tooltip-value" :style="{ color: isStealthMode ? '#52c41a' : '#ff4d4f' }">
-          {{ isStealthMode ? '已开启' : '已关闭' }}
-        </span>
-      </div>
-    </div>
+    </Transition>
+
+    <!-- 设置按钮 tooltip -->
     <div class="settings-tooltip" v-if="showSettingsTip" :style="settingsTooltipStyle">
       <div class="tooltip-warning">
         ⚠️ 注意：打开设置将获取焦点<br>录屏期间请勿操作
@@ -90,7 +77,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
 
 const props = defineProps({
   shortcuts: Object,
@@ -117,44 +104,76 @@ const statusClass = computed(() => {
   return 'unconfigured'
 })
 
-// 判断状态是否为已连接类
-const isConnectedStatus = computed(() => {
+// 状态值样式
+const statusValueClass = computed(() => {
   const text = props.statusText || ''
-  return text === '已连接' || text === '就绪' || text === '解题完成' || text.includes('思考') || text.includes('复制')
+  if (text === '已连接' || text === '就绪' || text === '解题完成' || text.includes('思考') || text.includes('复制')) return 'success'
+  if (text.includes('未配置')) return 'warning'
+  return 'error'
 })
 
-// 判断是否未配置
-const isUnconfigured = computed(() => {
+// API 状态文本
+const apiStatusText = computed(() => {
   const text = props.statusText || ''
-  return text.includes('未配置')
+  if (text === '已连接' || text === '就绪' || text === '解题完成' || text.includes('思考') || text.includes('复制')) return '连接正常'
+  if (text.includes('Key') || text.includes('无效')) return 'Key 无效'
+  if (text.includes('失败')) return '连接失败'
+  return '未配置'
 })
 
-// 判断是否Key无效
-const isInvalidKey = computed(() => {
+// API 状态样式
+const apiStatusClass = computed(() => {
   const text = props.statusText || ''
-  return text.includes('无效')
+  if (text === '已连接' || text === '就绪' || text === '解题完成' || text.includes('思考') || text.includes('复制')) return 'success'
+  if (text.includes('未配置')) return 'warning'
+  return 'error'
 })
 
-const showStatusTooltip = ref(false)
+// 状态面板
+const showStatusPanel = ref(false)
 const statusGroupRef = ref(null)
-const tooltipStyle = reactive({ top: '0px', left: '0px' })
+const panelStyle = reactive({ top: '0px', left: '0px' })
 
-const showSettingsTip = ref(false)
-const settingsBtnRef = ref(null)
-const settingsTooltipStyle = reactive({ top: '0px', left: '0px' })
-
-function showTooltip() {
+function toggleStatusPanel() {
+  if (showStatusPanel.value) {
+    showStatusPanel.value = false
+    return
+  }
+  
   if (statusGroupRef.value) {
     const rect = statusGroupRef.value.getBoundingClientRect()
-    tooltipStyle.top = `${rect.bottom + 10}px`
-    tooltipStyle.left = `${rect.left + rect.width / 2}px`
-    showStatusTooltip.value = true
+    panelStyle.top = `${rect.bottom + 8}px`
+    // 确保面板不会超出右边界
+    const panelWidth = 220
+    let left = rect.left + rect.width / 2 - panelWidth / 2
+    if (left + panelWidth > window.innerWidth - 10) {
+      left = window.innerWidth - panelWidth - 10
+    }
+    if (left < 10) left = 10
+    panelStyle.left = `${left}px`
+    showStatusPanel.value = true
   }
 }
 
-function hideTooltip() {
-  showStatusTooltip.value = false
+// 点击外部关闭面板
+function handleClickOutside(e) {
+  if (showStatusPanel.value && statusGroupRef.value && !statusGroupRef.value.contains(e.target)) {
+    showStatusPanel.value = false
+  }
 }
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
+
+// 设置按钮 tooltip
+const showSettingsTip = ref(false)
+const settingsBtnRef = ref(null)
+const settingsTooltipStyle = reactive({ top: '0px', left: '0px' })
 
 function showSettingsTooltip() {
   if (settingsBtnRef.value) {
@@ -179,63 +198,169 @@ function hideSettingsTooltip() {
   pointer-events: auto;
 }
 
+/* ========================================
+   Status Group - 简洁文本样式
+   ======================================== */
+
 .status-group {
   position: relative;
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 6px;
   cursor: pointer;
-  padding: 0 var(--space-2);
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
 }
 
-.status-indicator {
+.status-group:hover {
+  background: var(--bg-hover);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: all var(--transition-fast);
+}
+
+.status-dot.connected {
+  background: var(--color-success);
+  box-shadow: 0 0 8px var(--color-success);
+}
+
+.status-dot.unconfigured {
+  background: var(--color-warning);
+  box-shadow: 0 0 8px var(--color-warning);
+}
+
+.status-dot.invalid-key,
+.status-dot.disconnected {
+  background: var(--color-error);
+  box-shadow: 0 0 8px var(--color-error);
+}
+
+.status-label {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* ========================================
+   Status Panel - 点击弹出面板
+   ======================================== */
+
+.status-panel {
+  position: fixed;
+  width: 220px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  backdrop-filter: blur(20px);
+  z-index: 99999;
+  overflow: hidden;
+  pointer-events: auto;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--bg-subtle);
+}
+
+.panel-title {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.panel-close {
   width: 20px;
   height: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  font-size: 12px;
   transition: all var(--transition-fast);
 }
 
-.status-indicator.connected {
+.panel-close:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.panel-body {
+  padding: 10px 14px;
+}
+
+.status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.status-row:last-child {
+  border-bottom: none;
+}
+
+.row-label {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.row-value {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  font-family: var(--font-mono);
+}
+
+.row-value.success {
   color: var(--color-success);
 }
 
-.status-indicator.unconfigured {
+.row-value.warning {
   color: var(--color-warning);
 }
 
-.status-indicator.invalid-key {
+.row-value.error {
   color: var(--color-error);
 }
 
-.status-indicator.disconnected {
-  color: var(--text-tertiary);
+.row-value.model {
+  color: var(--text-primary);
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.status-svg {
-  width: 18px;
-  height: 18px;
+/* Panel 过渡动画 */
+.panel-fade-enter-active,
+.panel-fade-leave-active {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.panel-fade-enter-from,
+.panel-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
 }
 
 /* ========================================
-   Tooltips
+   Settings Tooltip
    ======================================== */
-
-.status-tooltip {
-  position: fixed;
-  transform: translateX(-50%);
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-md);
-  padding: var(--space-3) var(--space-4);
-  min-width: 180px;
-  z-index: 99999;
-  box-shadow: var(--shadow-lg);
-  backdrop-filter: blur(16px);
-  pointer-events: none;
-  animation: tooltipIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
 
 .settings-tooltip {
   position: fixed;
@@ -268,41 +393,6 @@ function hideSettingsTooltip() {
   font-size: var(--text-sm);
   line-height: 1.6;
   font-weight: 600;
-}
-
-.status-tooltip::before {
-  content: '';
-  position: absolute;
-  top: -6px;
-  left: 50%;
-  transform: translateX(-50%);
-  border-width: 0 6px 6px 6px;
-  border-style: solid;
-  border-color: transparent transparent var(--bg-elevated) transparent;
-}
-
-.tooltip-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: var(--space-2);
-  font-size: var(--text-sm);
-  white-space: nowrap;
-}
-
-.tooltip-row:last-child {
-  margin-bottom: 0;
-}
-
-.tooltip-label {
-  color: var(--text-muted);
-  margin-right: var(--space-4);
-}
-
-.tooltip-value {
-  color: var(--text-primary);
-  font-weight: 600;
-  font-family: var(--font-mono);
 }
 
 @keyframes tooltipIn {
