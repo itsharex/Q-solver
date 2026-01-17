@@ -77,8 +77,10 @@
                    class="tree-node"
                    :class="{ selected: selectedNodeId === node.id, highlighted: node.highlighted }"
                    @click="selectNode(node)">
-                  <circle r="8" />
-                  <text dy="20" text-anchor="middle">{{ truncate(node.title, 8) }}</text>
+                  <!-- 节点背景 -->
+                  <rect class="node-bg" x="-40" y="-14" width="80" height="28" rx="14" />
+                  <!-- 节点文字 -->
+                  <text class="node-text" dy="4" text-anchor="middle">{{ truncate(node.title, 6) }}</text>
                 </g>
               </g>
             </svg>
@@ -92,22 +94,38 @@
             点击树节点查看详情
           </div>
           <div v-else class="detail-content">
+            <!-- 路径导航 -->
             <div class="detail-path">
               <span v-for="(p, i) in selectedNodePath" :key="p.id" class="path-item">
                 {{ p.title }}
                 <span v-if="i < selectedNodePath.length - 1" class="path-sep">→</span>
               </span>
             </div>
-            <div class="detail-section">
-              <div class="detail-label">问题</div>
-              <div class="detail-text">{{ selectedNode.question }}</div>
+            
+            <!-- 问题卡片 -->
+            <div class="detail-card question-card">
+              <div class="card-header">
+                <span class="card-icon">❓</span>
+                <span class="card-title">问题</span>
+              </div>
+              <div class="card-body">{{ selectedNode.question }}</div>
             </div>
-            <div class="detail-section">
-              <div class="detail-label">回答</div>
-              <div class="detail-text markdown" v-html="renderMarkdown(selectedNode.answer)"></div>
+            
+            <!-- 解析卡片 -->
+            <div class="detail-card answer-card">
+              <div class="card-header">
+                <span class="card-icon">💡</span>
+                <span class="card-title">解析</span>
+              </div>
+              <div class="card-body markdown" v-html="renderMarkdown(selectedNode.answer)"></div>
             </div>
-            <div v-if="selectedNode.keyPoints?.length" class="detail-section">
-              <div class="detail-label">要点</div>
+            
+            <!-- 要点（如果有） -->
+            <div v-if="selectedNode.keyPoints?.length" class="detail-card keypoints-card">
+              <div class="card-header">
+                <span class="card-icon">📌</span>
+                <span class="card-title">要点</span>
+              </div>
               <ul class="key-points">
                 <li v-for="(point, i) in selectedNode.keyPoints" :key="i">{{ point }}</li>
               </ul>
@@ -161,8 +179,21 @@ const selectedNodePath = computed(() => {
 
 // 树布局计算
 const svgViewBox = computed(() => {
-  const width = Math.max(200, treeNodesPositioned.value.length * 60)
-  return `0 0 ${width} 180`
+  const positioned = treeNodesPositioned.value
+  if (positioned.length === 0) return '0 0 200 200'
+  
+  // 计算实际边界
+  const xs = positioned.map(n => n.x)
+  const ys = positioned.map(n => n.y)
+  const minX = Math.min(...xs) - 60
+  const maxX = Math.max(...xs) + 60
+  const minY = Math.min(...ys) - 40
+  const maxY = Math.max(...ys) + 50
+  
+  const width = Math.max(200, maxX - minX)
+  const height = Math.max(200, maxY - minY)
+  
+  return `${minX} ${minY} ${width} ${height}`
 })
 
 const treeNodesPositioned = computed(() => {
@@ -209,12 +240,12 @@ const treeNodesPositioned = computed(() => {
   
   Object.keys(levels).forEach(level => {
     const nodes = levels[level]
-    const y = 30 + parseInt(level) * 50
-    const startX = 100 - (nodes.length - 1) * 30
+    const y = 50 + parseInt(level) * 80  // 增大层级间距
+    const startX = 120 - (nodes.length - 1) * 50
     nodes.forEach((node, i) => {
       positioned.push({
         ...node,
-        x: startX + i * 60,
+        x: startX + i * 100,  // 增大节点间距
         y,
         highlighted: highlightedIds.has(node.id)
       })
@@ -234,7 +265,7 @@ const treeLinks = computed(() => {
       const parent = posMap[node.pid]
       links.push({
         id: `${parent.id}-${node.id}`,
-        path: `M${parent.x},${parent.y + 8} Q${parent.x},${(parent.y + node.y) / 2} ${node.x},${node.y - 8}`,
+        path: `M${parent.x},${parent.y + 16} Q${parent.x},${(parent.y + node.y) / 2} ${node.x},${node.y - 16}`,
         highlighted: node.highlighted && parent.highlighted
       })
     }
@@ -501,14 +532,19 @@ watch(messages, scrollToBottom, { deep: true })
 <style scoped>
 /* ===== 基础布局 ===== */
 .live-view {
+  flex: 1;  /* 占据剩余空间 */
   display: flex;
   flex-direction: column;
-  height: 100%;
+  min-height: 0;  /* 重要：允许flex子项收缩 */
+  overflow: hidden;  /* 防止整体滚动 */
   pointer-events: auto;
+  user-select: none;  /* 禁止文本选择 */
+  -webkit-user-select: none;
 }
 
 /* ===== 顶部栏 ===== */
 .live-header {
+  flex-shrink: 0;  /* 不收缩 */
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -603,6 +639,7 @@ watch(messages, scrollToBottom, { deep: true })
 
 /* ===== 错误提示 ===== */
 .error-banner {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -630,7 +667,7 @@ watch(messages, scrollToBottom, { deep: true })
   flex: 1;
   gap: 12px;
   padding: 12px 16px;
-  min-height: 0;
+  min-height: 0;  /* 重要：允许flex子项收缩 */
   overflow: hidden;
 }
 
@@ -638,8 +675,10 @@ watch(messages, scrollToBottom, { deep: true })
 .chat-column {
   flex: 1;
   min-width: 0;
+  min-height: 0;  /* 重要 */
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .chat-area {
@@ -649,6 +688,7 @@ watch(messages, scrollToBottom, { deep: true })
   flex-direction: column;
   gap: 8px;
   padding-right: 8px;
+  padding-bottom: 24px;  /* 底部留出间距 */
 }
 
 .chat-area::-webkit-scrollbar { width: 4px; }
@@ -763,11 +803,13 @@ watch(messages, scrollToBottom, { deep: true })
 
 /* ===== 右侧树栏 ===== */
 .tree-column {
-  width: 240px;
+  width: 300px;
   flex-shrink: 0;
+  min-height: 0;  /* 重要：允许收缩 */
   display: flex;
   flex-direction: column;
   gap: 10px;
+  overflow: hidden;
 }
 
 .panel-title {
@@ -785,23 +827,35 @@ watch(messages, scrollToBottom, { deep: true })
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 10px;
   padding: 12px;
+  height: 220px;  /* 固定高度而不是min/max */
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .tree-container {
-  min-height: 120px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  flex: 1;
+  overflow: auto;
+  min-height: 0;  /* 重要 */
 }
+
+.tree-container::-webkit-scrollbar { width: 4px; height: 4px; }
+.tree-container::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 2px; }
 
 .tree-empty {
   font-size: 12px;
   color: rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
 }
 
 .tree-svg {
-  width: 100%;
-  height: 150px;
+  display: block;
+  min-width: 250px;
+  min-height: 180px;
 }
 
 .tree-link {
@@ -821,43 +875,49 @@ watch(messages, scrollToBottom, { deep: true })
   transition: all 0.2s;
 }
 
-.tree-node circle {
-  fill: rgba(139, 92, 246, 0.3);
-  stroke: #8b5cf6;
+.tree-node .node-bg {
+  fill: rgba(55, 65, 81, 0.8);
+  stroke: rgba(139, 92, 246, 0.5);
   stroke-width: 2;
   transition: all 0.2s;
 }
 
-.tree-node text {
-  font-size: 9px;
-  fill: rgba(255, 255, 255, 0.6);
+.tree-node .node-text {
+  font-size: 11px;
+  font-weight: 500;
+  fill: rgba(255, 255, 255, 0.85);
+  pointer-events: none;
 }
 
-.tree-node:hover circle {
-  fill: rgba(139, 92, 246, 0.5);
-  transform: scale(1.2);
+.tree-node:hover .node-bg {
+  fill: rgba(139, 92, 246, 0.3);
+  stroke: #8b5cf6;
 }
 
-.tree-node.selected circle,
-.tree-node.highlighted circle {
-  fill: #10b981;
-  stroke: #34d399;
+.tree-node.selected .node-bg,
+.tree-node.highlighted .node-bg {
+  fill: rgba(16, 185, 129, 0.25);
+  stroke: #10b981;
+  stroke-width: 2.5;
 }
 
-.tree-node.selected text,
-.tree-node.highlighted text {
-  fill: rgba(255, 255, 255, 0.9);
+.tree-node.selected .node-text,
+.tree-node.highlighted .node-text {
+  fill: #fff;
+  font-weight: 600;
 }
 
 /* 详情面板 */
 .detail-panel {
   flex: 1;
+  min-height: 0;  /* 重要：允许收缩 */
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 10px;
   padding: 12px;
   overflow-y: auto;
-  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .detail-panel::-webkit-scrollbar { width: 4px; }
@@ -896,43 +956,93 @@ watch(messages, scrollToBottom, { deep: true })
 
 .path-sep { color: #10b981; }
 
-.detail-section {
+/* 详情卡片 */
+.detail-card {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.card-header {
   display: flex;
-  flex-direction: column;
+  align-items: center;
   gap: 6px;
-}
-
-.detail-label {
-  font-size: 10px;
+  padding: 8px 10px;
+  font-size: 11px;
   font-weight: 600;
-  color: #10b981;
-  text-transform: uppercase;
 }
 
-.detail-text {
+.card-icon {
+  font-size: 12px;
+}
+
+.card-title {
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.card-body {
+  padding: 10px;
   font-size: 12px;
   line-height: 1.6;
   color: rgba(255, 255, 255, 0.85);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.detail-text.markdown :deep(p) { margin: 0 0 8px; }
-.detail-text.markdown :deep(p:last-child) { margin: 0; }
-.detail-text.markdown :deep(code) {
+/* 问题卡片 */
+.question-card .card-header {
+  background: rgba(139, 92, 246, 0.15);
+  color: #a78bfa;
+}
+
+.question-card .card-body {
+  background: rgba(139, 92, 246, 0.05);
+}
+
+/* 解析卡片 */
+.answer-card .card-header {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+}
+
+.answer-card .card-body {
+  background: rgba(16, 185, 129, 0.05);
+}
+
+.card-body.markdown :deep(p) { margin: 0 0 8px; }
+.card-body.markdown :deep(p:last-child) { margin: 0; }
+.card-body.markdown :deep(code) {
   background: rgba(0, 0, 0, 0.3);
   padding: 1px 5px;
   border-radius: 3px;
   font-size: 11px;
 }
+.card-body.markdown :deep(ul),
+.card-body.markdown :deep(ol) {
+  margin: 4px 0;
+  padding-left: 18px;
+}
+
+/* 要点卡片 */
+.keypoints-card .card-header {
+  background: rgba(251, 191, 36, 0.15);
+  color: #fbbf24;
+}
 
 .key-points {
   margin: 0;
-  padding-left: 16px;
+  padding: 10px 10px 10px 26px;
   font-size: 11px;
   line-height: 1.8;
   color: rgba(255, 255, 255, 0.8);
+  background: rgba(251, 191, 36, 0.05);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .key-points li {
   margin-bottom: 2px;
+}
+.key-points li::marker {
+  color: #fbbf24;
 }
 </style>
