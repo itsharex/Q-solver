@@ -54,6 +54,7 @@ Designed for scenarios where you **need to focus without interruption**:
 ### 🎙️ Gemini Live API (Experimental)
 - **Real-time Voice Conversation**: Supports bidirectional real-time voice calls with Gemini models, providing an ultra-low latency interaction experience.
 - **Voice Transcription Mode**: Captures and transcribes the other party's voice in real-time, with AI providing instant answer suggestions to help you handle any conversation scenario.
+- **🗺️ Question Mind Map**: Automatically organizes conversation content into a visual mind map, clearly displaying question context and knowledge point relationships. Supports interactive features like node click for details and path highlighting.
 - **Note**: This feature is currently in an **experimental stage**. Connection instability may occur due to network conditions.
 - **Supported Models**: Please select `gemini-2.0-flash-exp`.
 
@@ -75,6 +76,7 @@ Designed for scenarios where you **need to focus without interruption**:
 |:---:|:---:|
 | <img src="assets/img1.png" style="border-radius: 8px; width: 100%;" /> | <img src="assets/img2.png" style="border-radius: 8px; width: 100%;" /> |
 | <img src="assets/img3.png" style="border-radius: 8px; width: 100%;" /> | <img src="assets/img4.png" style="border-radius: 8px; width: 100%;" /> |
+| <img src="assets/img6.png" style="border-radius: 8px; width: 100%;" /> | <img src="assets/img7.png" style="border-radius: 8px; width: 100%;" /> |
 
 ---
 

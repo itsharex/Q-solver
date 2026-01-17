@@ -55,6 +55,7 @@
 ### 🎙️ Gemini Live API (实验性)
 - **实时语音对话**：支持与 Gemini 模型进行实时双向语音通话，提供极低延迟的交互体验。
 - **语音转录模式**：实时捕获并转录对方语音，AI 同步提供即时回答建议，助您从容应对任何对话场景。
+- **🗺️ 问题导图**：自动将对话内容整理成可视化的思维导图，清晰展示问题脉络和知识点关联，支持节点点击查看详情、路径高亮等交互功能。
 - **注意**：该功能目前处于**实验性阶段**，可能会受网络环境影响导致连接不稳定。
 - **支持模型**：请选择gemini-2.0-flash-exp
 
@@ -71,6 +72,7 @@
 |:---:|:---:|
 | <img src="assets/img1.png" style="border-radius: 8px; width: 100%;" /> | <img src="assets/img2.png" style="border-radius: 8px; width: 100%;" /> |
 | <img src="assets/img3.png" style="border-radius: 8px; width: 100%;" /> | <img src="assets/img4.png" style="border-radius: 8px; width: 100%;" /> |
+| <img src="assets/img6.png" style="border-radius: 8px; width: 100%;" /> | <img src="assets/img7.png" style="border-radius: 8px; width: 100%;" /> |
 
 ---
 
