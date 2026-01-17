@@ -1,9 +1,9 @@
 package llm
 
 import (
-	"Q-Solver/pkg/config"
 	"Q-Solver/pkg/logger"
 	"context"
+	"sync/atomic"
 
 	"google.golang.org/genai"
 )
@@ -11,6 +11,10 @@ import (
 // GeminiLiveSession 封装 Gemini SDK 的 Live 会话
 type GeminiLiveSession struct {
 	session *genai.Session
+
+	// 会话恢复相关 (使用 atomic 避免锁竞争)
+	resumeToken atomic.Pointer[string] // 当前的 session handle
+	resumable   atomic.Bool            // 是否支持恢复
 }
 
 // ConnectLive 实现 LiveProvider 接口
@@ -26,7 +30,7 @@ func (a *GeminiAdapter) ConnectLive(ctx context.Context, cfg *LiveConfig) (LiveS
 		FunctionDeclarations: []*genai.FunctionDeclaration{
 			{
 				Name:        "get_screenshot",
-				Description: "获取用户当前屏幕截图，用于查看题目或界面内容",
+				Description: "获取用户当前屏幕截图，用于查看题目或屏幕上内容",
 			},
 		},
 	}
@@ -45,7 +49,9 @@ func (a *GeminiAdapter) ConnectLive(ctx context.Context, cfg *LiveConfig) (LiveS
 		RealtimeInputConfig: &genai.RealtimeInputConfig{
 			ActivityHandling: genai.ActivityHandlingNoInterruption,
 		},
-		SessionResumption: &genai.SessionResumptionConfig{},
+		SessionResumption: &genai.SessionResumptionConfig{
+			Handle: cfg.ResumeToken, // 如果有，使用之前的 session handle 恢复会话
+		},
 	}
 
 	instructionText := cfg.SystemInstruction
@@ -81,8 +87,19 @@ func (s *GeminiLiveSession) Receive() (*LiveMessage, error) {
 	if err != nil {
 		return &LiveMessage{Type: LiveMsgError, Text: err.Error()}, err
 	}
-	if msg.SessionResumptionUpdate!=nil{
-		logger.Println("是否支持续",msg.SessionResumptionUpdate.Resumable)
+
+	// 保存会话恢复信息
+	if msg.SessionResumptionUpdate != nil {
+		s.resumable.Store(msg.SessionResumptionUpdate.Resumable)
+		if msg.SessionResumptionUpdate.NewHandle != "" {
+			s.resumeToken.Store(&msg.SessionResumptionUpdate.NewHandle)
+			logger.Printf("LiveAPI: 收到新的 session handle (resumable=%v,handle=%s)", msg.SessionResumptionUpdate.Resumable, msg.SessionResumptionUpdate.NewHandle)
+		}
+	}
+		// GoAway 消息 - 服务器要求断开，需重连
+	if msg.GoAway != nil {
+		logger.Println("LiveAPI: 收到 GoAway 消息，需要重连.还有 %v秒断开", msg.GoAway.TimeLeft)
+		return &LiveMessage{Type: LiveMsgGoAway},nil
 	}
 	return s.convertMessage(msg), nil
 }
@@ -92,6 +109,7 @@ func (s *GeminiLiveSession) convertMessage(msg *genai.LiveServerMessage) *LiveMe
 	if msg == nil {
 		return nil
 	}
+
 	// 输入音频转录 (面试官说话的文字)
 	if msg.ServerContent != nil && msg.ServerContent.InputTranscription != nil {
 		text := msg.ServerContent.InputTranscription.Text
@@ -172,22 +190,21 @@ func (s *GeminiLiveSession) Close() error {
 	return s.session.Close()
 }
 
-// SupportsLive 检查是否支持 Live API
-func SupportsLive(p Provider) bool {
-	_, ok := p.(LiveProvider)
-	return ok
+// ==================== ResumableSession 接口实现 ====================
+
+// GetResumeToken 获取用于恢复会话的令牌 (无锁)
+func (s *GeminiLiveSession) GetResumeToken() string {
+	token := s.resumeToken.Load()
+	if token == nil {
+		return ""
+	}
+	return *token
 }
 
-// GetLiveConfig 从配置创建 LiveConfig
-func GetLiveConfig(cfg config.Config) *LiveConfig {
-	return &LiveConfig{
-		Model:             cfg.Model,
-		SystemInstruction: cfg.Prompt,
-		MaxTokens:         cfg.MaxTokens,
-		Temperature:       cfg.Temperature,
-		TopP:              cfg.TopP,
-		TopK:              cfg.TopK,
-	}
+// IsResumable 当前会话是否支持恢复 (无锁)
+func (s *GeminiLiveSession) IsResumable() bool {
+	token := s.resumeToken.Load()
+	return s.resumable.Load() && token != nil && *token != ""
 }
 
 func toFloat32Ptr(v float64) *float32 {
