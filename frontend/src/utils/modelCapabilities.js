@@ -1,92 +1,44 @@
 import modelData from '../config/model-capabilities.json'
 
 // 提供商Logo - 简洁清晰的图标设计
+// 提供商Logo
 export const PROVIDER_LOGOS = {
-    // Google Gemini - 四角星
-    google: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <rect width="24" height="24" rx="6" fill="#4285F4"/>
-        <path d="M12 4L14 10L20 12L14 14L12 20L10 14L4 12L10 10L12 4Z" fill="white"/>
-    </svg>`,
+    // Google Gemini
+    google: '/providers/google.svg',
 
-    // OpenAI - 简化的花形logo
-    openai: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <rect width="24" height="24" rx="6" fill="#10a37f"/>
-        <circle cx="12" cy="8" r="2.5" fill="white"/>
-        <circle cx="8" cy="14" r="2.5" fill="white"/>
-        <circle cx="16" cy="14" r="2.5" fill="white"/>
-        <circle cx="12" cy="12" r="1.5" fill="white"/>
-    </svg>`,
+    // OpenAI
+    openai: '/providers/openai.svg',
 
-    // Anthropic Claude - A字形
-    anthropic: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <rect width="24" height="24" rx="6" fill="#D4A27F"/>
-        <path d="M12 5L6 19H9L10 16H14L15 19H18L12 5ZM11 13L12 9L13 13H11Z" fill="white"/>
-    </svg>`,
+    // Anthropic Claude
+    anthropic: '/providers/anthropic.svg',
 
-    // DeepSeek - 眼睛图标
-    deepseek: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <rect width="24" height="24" rx="6" fill="#4D6BFE"/>
-        <ellipse cx="12" cy="12" rx="7" ry="4" stroke="white" stroke-width="2" fill="none"/>
-        <circle cx="12" cy="12" r="2" fill="white"/>
-    </svg>`,
+    // DeepSeek
+    deepseek: '/providers/deepseek.svg',
 
-    // Alibaba Qwen - Q字
-    alibaba: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <rect width="24" height="24" rx="6" fill="#FF6A00"/>
-        <circle cx="12" cy="11" r="5" stroke="white" stroke-width="2" fill="none"/>
-        <line x1="15" y1="14" x2="18" y2="18" stroke="white" stroke-width="2" stroke-linecap="round"/>
-    </svg>`,
+    // Alibaba Qwen
+    alibaba: '/providers/alibaba.svg',
 
-    // Zhipu GLM - Z字
-    zhipu: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <rect width="24" height="24" rx="6" fill="#2563EB"/>
-        <path d="M7 7H17L7 17H17" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-    </svg>`,
+    // Zhipu GLM
+    zhipu: '/providers/zhipu.svg',
 
-    // Moonshot Kimi - 月亮
-    moonshot: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <rect width="24" height="24" rx="6" fill="#1E3A8A"/>
-        <path d="M12 6C8.7 6 6 8.7 6 12S8.7 18 12 18C12 18 10 15 10 12S12 6 12 6Z" fill="white"/>
-        <circle cx="15" cy="9" r="1" fill="white"/>
-    </svg>`,
+    // Moonshot Kimi
+    moonshot: '/providers/moonshot.svg',
 
-    // Mistral AI - M字
-    mistral: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <rect width="24" height="24" rx="6" fill="#F97316"/>
-        <path d="M6 17V7L12 13L18 7V17" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-    </svg>`,
+    // xAI Grok
+    xai: '/providers/xai.svg',
 
-    // xAI Grok - X
-    xai: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <rect width="24" height="24" rx="6" fill="#000"/>
-        <path d="M7 7L17 17M17 7L7 17" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
-    </svg>`,
+    // Meta Llama
+    meta: '/providers/meta.svg',
 
-    // Meta Llama - 羊驼头
-    meta: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <rect width="24" height="24" rx="6" fill="#0668E1"/>
-        <ellipse cx="12" cy="14" rx="5" ry="4" fill="white"/>
-        <circle cx="10" cy="13" r="1" fill="#0668E1"/>
-        <circle cx="14" cy="13" r="1" fill="#0668E1"/>
-        <ellipse cx="9" cy="8" rx="2" ry="3" fill="white"/>
-        <ellipse cx="15" cy="8" rx="2" ry="3" fill="white"/>
-    </svg>`,
 
-    // 01.AI Yi - Yi文字
-    '01ai': `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <rect width="24" height="24" rx="6" fill="#8B5CF6"/>
-        <path d="M8 7L12 12L16 7" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-        <line x1="12" y1="12" x2="12" y2="18" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
-    </svg>`,
-
-    // 自定义 - 齿轮
+    // 自定义 - 齿轮 (保留 SVG 以防默认样式丢失)
     custom: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <rect width="24" height="24" rx="6" fill="#6B7280"/>
         <circle cx="12" cy="12" r="3" stroke="white" stroke-width="2" fill="none"/>
         <path d="M12 5V7M12 17V19M5 12H7M17 12H19M7.05 7.05L8.46 8.46M15.54 15.54L16.95 16.95M7.05 16.95L8.46 15.54M15.54 8.46L16.95 7.05" stroke="white" stroke-width="2" stroke-linecap="round"/>
     </svg>`,
 
-    // 默认 - 方块
+    // 默认 - 方块 (保留 SVG)
     default: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <rect width="24" height="24" rx="6" fill="#4B5563"/>
         <rect x="7" y="7" width="10" height="10" rx="2" stroke="white" stroke-width="2" fill="none"/>
@@ -99,21 +51,16 @@ const PROVIDER_NAMES = {
     google: 'Google Gemini',
     openai: 'OpenAI',
     anthropic: 'Anthropic',
-    deepseek: 'DeepSeek',
     alibaba: 'Alibaba Cloud (Qwen)',
-    zhipu: 'Zhipu AI (GLM)',
-    moonshot: 'Moonshot AI (Kimi)',
-    mistral: 'Mistral AI',
     xai: 'xAI (Grok)',
     meta: 'Meta (Llama)',
-    '01ai': '01.AI (Yi)'
 }
 
 export const PROVIDER_BASE_URLS = {
     google: 'https://generativelanguage.googleapis.com',
     openai: 'https://api.openai.com/v1',
-    deepseek: 'https://api.deepseek.com',
     anthropic: 'https://api.anthropic.com',
+    alibaba: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
     custom: ''
 }
 

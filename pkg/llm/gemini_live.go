@@ -45,6 +45,7 @@ func (a *GeminiAdapter) ConnectLive(ctx context.Context, cfg *LiveConfig) (LiveS
 		RealtimeInputConfig: &genai.RealtimeInputConfig{
 			ActivityHandling: genai.ActivityHandlingNoInterruption,
 		},
+		SessionResumption: &genai.SessionResumptionConfig{},
 	}
 
 	instructionText := cfg.SystemInstruction
@@ -79,6 +80,9 @@ func (s *GeminiLiveSession) Receive() (*LiveMessage, error) {
 	msg, err := s.session.Receive()
 	if err != nil {
 		return &LiveMessage{Type: LiveMsgError, Text: err.Error()}, err
+	}
+	if msg.SessionResumptionUpdate!=nil{
+		logger.Println("是否支持续",msg.SessionResumptionUpdate.Resumable)
 	}
 	return s.convertMessage(msg), nil
 }

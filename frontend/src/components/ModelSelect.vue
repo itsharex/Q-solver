@@ -5,7 +5,10 @@
             <!-- 选中项 -->
             <div class="selected-item">
                 <template v-if="modelValue">
-                    <div class="provider-logo" v-html="getProviderLogo(modelValue)"></div>
+                    <div class="provider-logo">
+                        <div v-if="getProviderLogo(modelValue) && getProviderLogo(modelValue).trim().startsWith('<svg')" v-html="getProviderLogo(modelValue)"></div>
+                        <img v-else-if="getProviderLogo(modelValue)" :src="getProviderLogo(modelValue)" alt="logo" />
+                    </div>
                     <div class="model-info">
                         <span class="model-name">{{ modelValue }}</span>
                         <span class="provider-name">{{ getProviderName(modelValue) }}</span>
@@ -34,7 +37,10 @@
                     <template v-else>
                         <div v-for="model in models" :key="model" class="dropdown-item"
                             :class="{ selected: modelValue === model }" @click.stop="selectModel(model)">
-                            <div class="provider-logo" v-html="getProviderLogo(model)"></div>
+                            <div class="provider-logo">
+                                <div v-if="getProviderLogo(model) && getProviderLogo(model).trim().startsWith('<svg')" v-html="getProviderLogo(model)"></div>
+                                <img v-else-if="getProviderLogo(model)" :src="getProviderLogo(model)" alt="logo" />
+                            </div>
                             <div class="model-info">
                                 <span class="model-name">{{ model }}</span>
                                 <span class="provider-name">{{ getProviderName(model) }}</span>

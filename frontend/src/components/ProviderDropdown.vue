@@ -5,7 +5,10 @@
             <!-- 选中项 -->
             <div class="selected-item">
                 <template v-if="modelValue">
-                    <div class="provider-logo" v-html="getLogo(modelValue)"></div>
+                    <div class="provider-logo">
+                        <div v-if="getLogo(modelValue) && getLogo(modelValue).trim().startsWith('<svg')" v-html="getLogo(modelValue)"></div>
+                        <img v-else-if="getLogo(modelValue)" :src="getLogo(modelValue)" alt="logo" />
+                    </div>
                     <div class="model-info">
                         <span class="model-name">{{ getName(modelValue) }}</span>
                     </div>
@@ -25,7 +28,10 @@
                     <div v-for="provider in providers" :key="provider.value" class="dropdown-item"
                         :class="{ selected: modelValue === provider.value }"
                         @click.stop="selectProvider(provider.value)">
-                        <div class="provider-logo" v-html="provider.logo"></div>
+                        <div class="provider-logo">
+                            <div v-if="provider.logo && provider.logo.trim().startsWith('<svg')" v-html="provider.logo"></div>
+                            <img v-else-if="provider.logo" :src="provider.logo" alt="logo" />
+                        </div>
                         <div class="model-info">
                             <span class="model-name">{{ provider.label }}</span>
                         </div>
@@ -62,7 +68,7 @@ const providers = [
     { value: 'google', label: 'Google Gemini', logo: PROVIDER_LOGOS.google },
     { value: 'openai', label: 'OpenAI', logo: PROVIDER_LOGOS.openai },
     { value: 'anthropic', label: 'Anthropic (Claude)', logo: PROVIDER_LOGOS.anthropic },
-    { value: 'deepseek', label: 'DeepSeek', logo: PROVIDER_LOGOS.deepseek },
+    { value: 'qwen', label: 'Qwen (阿里云)', logo: PROVIDER_LOGOS.alibaba },
     { value: 'custom', label: '自定义 (Custom)', logo: PROVIDER_LOGOS.custom }
 ]
 

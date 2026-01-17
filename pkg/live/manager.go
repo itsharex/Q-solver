@@ -219,7 +219,6 @@ func (m *LiveSessionManager) receiveLoop(session llm.LiveSession) {
 
 	logger.Println("Live: 接收循环已启动")
 
-	msgCount := 0
 	for {
 		msg, err := session.Receive()
 		if err != nil {
@@ -236,8 +235,6 @@ func (m *LiveSessionManager) receiveLoop(session llm.LiveSession) {
 			continue
 		}
 
-		msgCount++
-		logger.Printf("Live: 收到消息 #%d, Type=%d, Text=%q", msgCount, msg.Type, msg.Text)
 
 		switch msg.Type {
 		case llm.LiveInterrupted:
