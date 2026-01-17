@@ -9,9 +9,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
-	"sync"
 	"time"
 )
+
+// ChatRound 一轮对话
+type ChatRound struct {
+	Question string
+	Answer   string
+}
 
 // GraphNode 导图节点（发送给前端）
 type GraphNode struct {
@@ -29,20 +34,19 @@ type Graph struct {
 	llmService    *llm.Service
 	emitEvent     func(string, ...any)
 
-	// 消息缓冲
-	messages []llm.Message
-	mu       sync.Mutex
+	// channel 接收对话，无需加锁
+	roundChan chan ChatRound
+	stopChan  chan struct{}
 
 	// 配置
 	triggerRound int // 每多少轮触发一次总结
-	currentRound int // 当前轮数
 
-	// 已生成的节点
-	nodes []GraphNode
+	// 历史存储（只在消费协程中访问，无需加锁）
+	allRounds []ChatRound // 所有对话历史
+	nodes     []GraphNode // 已生成的节点
 }
 
 // NewGraph 创建问题导图处理器
-// triggerRound: 每多少轮对话触发一次总结
 func NewGraph(
 	ctx context.Context,
 	configManager *config.ConfigManager,
@@ -58,54 +62,78 @@ func NewGraph(
 		configManager: configManager,
 		llmService:    llmService,
 		emitEvent:     emitEvent,
-		messages:      make([]llm.Message, 0),
-		nodes:         make([]GraphNode, 0),
+		roundChan:     make(chan ChatRound, 100),
+		stopChan:      make(chan struct{}),
 		triggerRound:  triggerRound,
+		allRounds:     make([]ChatRound, 0),
+		nodes:         make([]GraphNode, 0),
 	}
+}
+
+// Start 启动消费协程
+func (g *Graph) Start() {
+	go g.consumeLoop()
+	logger.Println("Graph: 已启动")
+}
+
+// Stop 停止处理
+func (g *Graph) Stop() {
+	close(g.stopChan)
+	logger.Println("Graph: 已停止")
 }
 
 // Push 推送一轮对话（问题+回答）
 func (g *Graph) Push(question, answer string) {
-	g.mu.Lock()
-	defer g.mu.Unlock()
-
-	// 添加到消息缓冲
-	g.messages = append(g.messages,
-		llm.NewUserMessage(question),
-		llm.NewAssistantMessage(answer),
-	)
-	g.currentRound++
-
-	logger.Printf("Graph: 收到第 %d 轮对话", g.currentRound)
-
-	// 检查是否达到触发轮数
-	if g.currentRound >= g.triggerRound {
-		// 复制消息用于总结
-		msgs := make([]llm.Message, len(g.messages))
-		copy(msgs, g.messages)
-
-		// 清空缓冲
-		g.messages = make([]llm.Message, 0)
-		g.currentRound = 0
-
-		// 异步触发总结
-		go g.summarize(msgs)
+	select {
+	case g.roundChan <- ChatRound{Question: question, Answer: answer}:
+		logger.Printf("Graph: 推送对话成功")
+	default:
+		logger.Println("Graph: channel 已满，消息被丢弃")
 	}
 }
 
 // Clear 清空导图
 func (g *Graph) Clear() {
-	g.mu.Lock()
-	g.messages = make([]llm.Message, 0)
-	g.nodes = make([]GraphNode, 0)
-	g.currentRound = 0
-	g.mu.Unlock()
-
+	// 发送清空事件，实际清空在消费协程中处理
 	g.emitEvent("graph:clear", nil)
 }
 
+// consumeLoop 消费循环
+func (g *Graph) consumeLoop() {
+	pendingRounds := make([]ChatRound, 0, g.triggerRound)
+
+	for {
+		select {
+		case <-g.stopChan:
+			// 停止前处理剩余的对话
+			if len(pendingRounds) > 0 {
+				g.summarize(pendingRounds)
+			}
+			return
+
+		case round := <-g.roundChan:
+			// 存储到历史
+			g.allRounds = append(g.allRounds, round)
+			// 添加到待处理
+			pendingRounds = append(pendingRounds, round)
+
+			logger.Printf("Graph: 收到第 %d 轮对话，待处理: %d", len(g.allRounds), len(pendingRounds))
+
+			// 检查是否达到触发轮数
+			if len(pendingRounds) >= g.triggerRound {
+				// 复制待处理的对话
+				toProcess := make([]ChatRound, len(pendingRounds))
+				copy(toProcess, pendingRounds)
+				// 清空待处理
+				pendingRounds = make([]ChatRound, 0, g.triggerRound)
+				g.summarize(toProcess)
+			}
+		}
+	}
+}
+
 // summarize 调用辅助模型总结对话
-func (g *Graph) summarize(messages []llm.Message) {
+func (g *Graph) summarize(rounds []ChatRound) {
 	cfg := g.configManager.Get()
 
 	// 检查是否配置了辅助模型
@@ -114,13 +142,13 @@ func (g *Graph) summarize(messages []llm.Message) {
 		return
 	}
 
-	logger.Printf("Graph: 开始总结 %d 条消息", len(messages))
+	logger.Printf("Graph: 开始总结 %d 轮对话", len(rounds))
 
-	// 构建 prompt
-	prompt := g.buildPrompt(messages)
-
+	// 构建 prompt（包含已有节点信息）
+	prompt := g.buildPrompt(rounds)
+	logger.Println("生成导图的prompt: ",prompt)
 	// 调用模型
-	ctx, cancel := context.WithTimeout(g.ctx, 30*time.Second)
+	ctx, cancel := context.WithTimeout(g.ctx, 60*time.Second)
 	defer cancel()
 
 	provider := g.llmService.GetProvider()
@@ -131,34 +159,40 @@ func (g *Graph) summarize(messages []llm.Message) {
 		logger.Printf("Graph: 总结失败: %v", err)
 		return
 	}
-
+	logger.Println("导图总结回复 %s",response.Content)
 	// 解析并添加节点
-	nodes := g.parseResponse(response.Content, messages)
-	for _, node := range nodes {
-		g.mu.Lock()
+	newNodes := g.parseResponse(response.Content, rounds)
+	for _, node := range newNodes {
 		g.nodes = append(g.nodes, node)
-		g.mu.Unlock()
-
 		g.emitEvent("graph:add-node", node)
 		logger.Printf("Graph: 添加节点: %s", node.Title)
 	}
 }
 
 // buildPrompt 构建提示词
-func (g *Graph) buildPrompt(messages []llm.Message) string {
-	var sb strings.Builder
+func (g *Graph) buildPrompt(rounds []ChatRound) string {
+	var nodesSb strings.Builder
+	var dialogSb strings.Builder
 
-	for i := 0; i < len(messages); i += 2 {
-		if i+1 < len(messages) {
-			sb.WriteString(fmt.Sprintf("\n问题：%s\n回答：%s\n", messages[i].Content, messages[i+1].Content))
+	// 构建已有节点信息
+	if len(g.nodes) > 0 {
+		for _, node := range g.nodes {
+			nodesSb.WriteString(fmt.Sprintf("- NodeID: %s NodeTitle: %s NodeAnswer: %s \n", node.ID, node.Title,node.Answer))
 		}
+	} else {
+		nodesSb.WriteString("（暂无已有节点）\n")
 	}
 
-	return fmt.Sprintf(prompts.GraphSummarizePromptTemplate, sb.String())
+	// 构建对话内容
+	for i, round := range rounds {
+		dialogSb.WriteString(fmt.Sprintf("第%d轮：\n问：%s\n答：%s\n\n", i+1, round.Question, round.Answer))
+	}
+
+	return fmt.Sprintf(prompts.GraphSummarizePromptTemplate, nodesSb.String(), dialogSb.String())
 }
 
 // parseResponse 解析模型响应
-func (g *Graph) parseResponse(response string, messages []llm.Message) []GraphNode {
+func (g *Graph) parseResponse(response string, rounds []ChatRound) []GraphNode {
 	response = strings.TrimSpace(response)
 
 	// 移除 markdown 代码块
@@ -173,31 +207,43 @@ func (g *Graph) parseResponse(response string, messages []llm.Message) []GraphNo
 	}
 
 	var results []struct {
-		Title    string `json:"title"`
-		Question string `json:"question"`
-		Answer   string `json:"answer"`
+		Title    string  `json:"title"`
+		Question string  `json:"question"`
+		Answer   string  `json:"answer"`
+		PID      *string `json:"pid,omitempty"`
 	}
 
 	if err := json.Unmarshal([]byte(response), &results); err != nil {
 		logger.Printf("Graph: 解析JSON失败: %v", err)
 		// 解析失败，使用简单模式
-		return g.createSimpleNodes(messages)
+		return g.createSimpleNodes(rounds)
 	}
 
-	// 获取最后一个节点ID作为父节点
-	g.mu.Lock()
+	// 获取最后一个节点ID作为默认父节点
 	var lastNodeID string
 	if len(g.nodes) > 0 {
 		lastNodeID = g.nodes[len(g.nodes)-1].ID
 	}
-	g.mu.Unlock()
 
 	nodes := make([]GraphNode, 0, len(results))
 	for _, r := range results {
 		nodeID := fmt.Sprintf("node-%d", time.Now().UnixNano())
+
+		// 确定父节点：AI指定的 > 默认最后一个
+		pid := lastNodeID
+		if r.PID != nil && *r.PID != "" {
+			// 验证父节点是否存在
+			for _, n := range g.nodes {
+				if n.ID == *r.PID {
+					pid = *r.PID
+					break
+				}
+			}
+		}
+
 		nodes = append(nodes, GraphNode{
 			ID:       nodeID,
-			PID:      lastNodeID,
+			PID:      pid,
 			Title:    r.Title,
 			Question: r.Question,
 			Answer:   r.Answer,
@@ -209,25 +255,16 @@ func (g *Graph) parseResponse(response string, messages []llm.Message) []GraphNo
 }
 
 // createSimpleNodes 简单模式生成节点
-func (g *Graph) createSimpleNodes(messages []llm.Message) []GraphNode {
-	g.mu.Lock()
+func (g *Graph) createSimpleNodes(rounds []ChatRound) []GraphNode {
 	var lastNodeID string
 	if len(g.nodes) > 0 {
 		lastNodeID = g.nodes[len(g.nodes)-1].ID
 	}
-	g.mu.Unlock()
 
-	nodes := make([]GraphNode, 0)
-	for i := 0; i < len(messages); i += 2 {
-		if i+1 >= len(messages) {
-			break
-		}
-
-		question := messages[i].Content
-		answer := messages[i+1].Content
-
+	nodes := make([]GraphNode, 0, len(rounds))
+	for _, round := range rounds {
 		// 截取标题
-		title := question
+		title := round.Question
 		runes := []rune(title)
 		if len(runes) > 15 {
 			title = string(runes[:15]) + "..."
@@ -238,11 +275,21 @@ func (g *Graph) createSimpleNodes(messages []llm.Message) []GraphNode {
 			ID:       nodeID,
 			PID:      lastNodeID,
 			Title:    title,
-			Question: question,
-			Answer:   answer,
+			Question: round.Question,
+			Answer:   round.Answer,
 		})
 		lastNodeID = nodeID
 	}
 
 	return nodes
+}
+
+// GetAllRounds 获取所有对话历史
+func (g *Graph) GetAllRounds() []ChatRound {
+	return g.allRounds
+}
+
+// GetNodes 获取所有节点
+func (g *Graph) GetNodes() []GraphNode {
+	return g.nodes
 }

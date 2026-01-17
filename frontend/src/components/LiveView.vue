@@ -59,7 +59,11 @@
         <div class="tree-panel">
           <div class="panel-header">
             <div class="panel-title">🗺️ 问题导图</div>
-            <button class="reset-view-btn" @click="fitView" title="适应视图">⟲</button>
+            <div class="panel-controls">
+              <button class="control-btn" @click="handleZoomOut" title="缩小">−</button>
+              <button class="control-btn" @click="handleZoomIn" title="放大">+</button>
+              <button class="control-btn" @click="fitView" title="适应视图">⟲</button>
+            </div>
           </div>
           <div class="tree-container">
             <div v-show="flowNodes.length === 0" class="tree-empty">
@@ -67,12 +71,11 @@
             </div>
             <VueFlow
               v-show="flowNodes.length > 0"
-              ref="vueFlowRef"
               :nodes="flowNodes"
               :edges="flowEdges"
               :node-types="nodeTypes"
-              :default-viewport="{ x: 0, y: 0, zoom: 1 }"
-              :min-zoom="0.3"
+              :default-viewport="{ x: 0, y: 0, zoom: 0.8 }"
+              :min-zoom="0.2"
               :max-zoom="2"
               :fit-view-on-init="true"
               :nodes-draggable="false"
@@ -143,7 +146,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted, onUnmounted, watch, nextTick, markRaw } from 'vue'
 import { marked } from 'marked'
-import { VueFlow } from '@vue-flow/core'
+import { VueFlow, useVueFlow } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
 import { EventsOn, EventsOff } from '../../wailsjs/runtime/runtime'
 import { StartLiveSession, StopLiveSession } from '../../wailsjs/go/main/App'
@@ -154,16 +157,21 @@ const nodeTypes = {
   question: markRaw(QuestionNode)
 }
 
-// Vue Flow 实例引用
-const vueFlowRef = ref(null)
+// Vue Flow 实例和方法
+const { fitView: vfFitView, setCenter, getViewport, zoomIn, zoomOut } = useVueFlow()
 
 function fitView() {
-  // 通过事件或 nextTick 调用
   nextTick(() => {
-    if (vueFlowRef.value) {
-      vueFlowRef.value.fitView({ padding: 0.2 })
-    }
+    vfFitView({ padding: 0.2 })
   })
+}
+
+function handleZoomIn() {
+  zoomIn({ duration: 200 })
+}
+
+function handleZoomOut() {
+  zoomOut({ duration: 200 })
 }
 
 // ===== 状态 =====
@@ -199,6 +207,21 @@ const selectedNodePath = computed(() => {
     current = treeNodes.value.find(n => n.id === current.pid)
   }
   return path
+})
+
+// 选中节点的完整路径 ID 集合（用于高亮）
+const selectedPathIds = computed(() => {
+  return new Set(selectedNodePath.value.map(n => n.id))
+})
+
+// 选中路径上的边 ID 集合
+const selectedPathEdgeIds = computed(() => {
+  const edgeIds = new Set()
+  const path = selectedNodePath.value
+  for (let i = 1; i < path.length; i++) {
+    edgeIds.add(`e-${path[i-1].id}-${path[i].id}`)
+  }
+  return edgeIds
 })
 
 // Vue Flow 节点（从 treeNodes 转换）
@@ -246,7 +269,8 @@ const flowNodes = computed(() => {
         data: {
           title: truncate(node.title, 8),
           index: node.index,
-          selected: selectedNodeId.value === node.id
+          selected: selectedNodeId.value === node.id,
+          inPath: selectedPathIds.value.has(node.id) && selectedNodeId.value !== node.id
         }
       })
     })
@@ -257,19 +281,29 @@ const flowNodes = computed(() => {
 
 // Vue Flow 边（连接线）
 const flowEdges = computed(() => {
+  // 获取所有有效节点ID
+  const validNodeIds = new Set(treeNodes.value.map(n => n.id))
+  
   return treeNodes.value
-    .filter(n => n.pid)
-    .map(n => ({
-      id: `e-${n.pid}-${n.id}`,
-      source: n.pid,
-      target: n.id,
-      type: 'smoothstep',
-      animated: selectedNodeId.value === n.id,
-      style: {
-        stroke: selectedNodeId.value === n.id ? '#10b981' : 'rgba(99, 102, 241, 0.5)',
-        strokeWidth: selectedNodeId.value === n.id ? 2 : 1.5
+    .filter(n => n.pid && validNodeIds.has(n.pid)) // 确保 pid 指向的节点存在
+    .map(n => {
+      const edgeId = `e-${n.pid}-${n.id}`
+      const isInPath = selectedPathEdgeIds.value.has(edgeId)
+      const isDirectParent = selectedNodeId.value === n.id
+      
+      return {
+        id: edgeId,
+        source: n.pid,
+        target: n.id,
+        type: 'smoothstep',
+        animated: isDirectParent,
+        style: {
+          stroke: isInPath ? '#10b981' : 'rgba(99, 102, 241, 0.5)',
+          strokeWidth: isInPath ? 2.5 : 1.5,
+          opacity: isInPath ? 1 : 0.6
+        }
       }
-    }))
+    })
 })
 
 // ===== 方法 =====
@@ -342,6 +376,27 @@ function addNodeFromBackend(data) {
   }
   treeNodes.value.push(node)
   selectedNodeId.value = node.id
+  
+  // 自动跳转到新节点位置
+  nextTick(() => {
+    focusOnNode(node.id)
+  })
+}
+
+/**
+ * 跳转到指定节点，保持当前缩放，居中显示
+ * @param {string} nodeId - 节点ID
+ */
+function focusOnNode(nodeId) {
+  const flowNode = flowNodes.value.find(n => n.id === nodeId)
+  if (!flowNode) return
+
+  // 保持当前缩放级别，只平移让节点居中
+  const currentZoom = getViewport().zoom
+  setCenter(flowNode.position.x, flowNode.position.y, {
+    zoom: currentZoom,
+    duration: 400
+  })
 }
 
 /**
@@ -873,7 +928,12 @@ watch(messages, scrollToBottom, { deep: true })
   letter-spacing: 0.5px;
 }
 
-.reset-view-btn {
+.panel-controls {
+  display: flex;
+  gap: 4px;
+}
+
+.control-btn {
   width: 22px;
   height: 22px;
   display: flex;
@@ -888,7 +948,7 @@ watch(messages, scrollToBottom, { deep: true })
   transition: all 0.2s;
 }
 
-.reset-view-btn:hover {
+.control-btn:hover {
   background: rgba(255, 255, 255, 0.15);
   color: rgba(255, 255, 255, 0.8);
 }
@@ -938,15 +998,29 @@ watch(messages, scrollToBottom, { deep: true })
   cursor: grabbing;
 }
 
+/* 边的入场动画 */
+@keyframes edgeFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 .question-flow :deep(.vue-flow__edge-path) {
   stroke: rgba(99, 102, 241, 0.5);
   stroke-width: 2;
+  animation: edgeFadeIn 0.4s ease-out forwards;
+  animation-delay: 0.3s;
+  opacity: 0;
 }
 
 .question-flow :deep(.vue-flow__edge.animated .vue-flow__edge-path) {
   stroke: #10b981;
   stroke-dasharray: 5;
   animation: dashdraw 0.5s linear infinite;
+  opacity: 1;
 }
 
 @keyframes dashdraw {

@@ -1,5 +1,5 @@
 <template>
-  <div class="question-node" :class="{ selected: data.selected }">
+  <div class="question-node" :class="{ selected: data.selected, 'in-path': data.inPath, 'animate-in': true }">
     <div class="node-index">{{ data.index }}</div>
     <div class="node-content">
       <div class="node-title">{{ data.title }}</div>
@@ -21,6 +21,30 @@ defineProps({
 </script>
 
 <style scoped>
+/* 入场动画 */
+@keyframes nodePopIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) translateY(-20px);
+  }
+  50% {
+    transform: scale(1.05) translateY(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes nodePulse {
+  0%, 100% {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+  50% {
+    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.5);
+  }
+}
+
 .question-node {
   display: flex;
   align-items: center;
@@ -36,6 +60,12 @@ defineProps({
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
+/* 入场动画应用 */
+.question-node.animate-in {
+  animation: nodePopIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
+             nodePulse 0.6s ease-in-out 0.4s;
+}
+
 .question-node:hover {
   border-color: rgba(129, 140, 248, 1);
   box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
@@ -46,6 +76,13 @@ defineProps({
   background: linear-gradient(135deg, rgba(16, 185, 129, 0.8), rgba(5, 150, 105, 0.7));
   border-color: rgba(16, 185, 129, 1);
   box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4);
+}
+
+/* 路径上的节点（祖先节点）高亮 */
+.question-node.in-path {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.5), rgba(5, 150, 105, 0.4));
+  border-color: rgba(16, 185, 129, 0.7);
+  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.25);
 }
 
 .node-index {

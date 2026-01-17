@@ -140,8 +140,9 @@ func (m *LiveSessionManager) Start() error {
 	m.stopChan = make(chan struct{})
 	m.errorChan = make(chan error, 2)
 
-	// 初始化问题导图处理器（每3轮触发一次总结）
+	// 初始化并启动问题导图处理器（每3轮触发一次总结）
 	m.graph = NewGraph(m.ctx, m.configManager, m.llmService, m.emitEvent, 3)
+	m.graph.Start()
 
 	// 启动错误监听协程
 	go m.errorWatcher()
@@ -174,9 +175,9 @@ func (m *LiveSessionManager) Stop() {
 	}
 	m.mu.Unlock()
 
-	// 清空问题导图处理器
+	// 停止问题导图处理器
 	if m.graph != nil {
-		m.graph.Clear()
+		m.graph.Stop()
 		m.graph = nil
 	}
 
