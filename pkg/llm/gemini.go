@@ -20,9 +20,6 @@ type GeminiAdapter struct {
 
 // NewGeminiAdapter 创建 Gemini 适配器
 func NewGeminiAdapter(cfg *config.Config) (*GeminiAdapter, error) {
-	// os.Setenv("HTTP_PROXY", "http://127.0.0.1:8888")
-	// os.Setenv("HTTPS_PROXY", "http://127.0.0.1:8888")
-
 	clientConfig := &genai.ClientConfig{
 		APIKey:  cfg.APIKey,
 		Backend: genai.BackendGeminiAPI,
@@ -155,7 +152,15 @@ func parseBase64DataURL(dataURL string) (mimeType string, data []byte) {
 
 // GenerateContentStream 流式生成内容
 func (a *GeminiAdapter) GenerateContentStream(ctx context.Context, messages []Message, onChunk StreamCallback) (Message, error) {
+	// 检查 client 是否有效
+	if a.client == nil {
+		logger.Println("[Gemini] 错误: client 为 nil")
+		return Message{}, fmt.Errorf("gemini client is nil")
+	}
+
 	contents, systemInstruction := a.toGeminiContents(messages)
+
+	logger.Printf("[Gemini] 消息数量: %d, 内容数量: %d", len(messages), len(contents))
 
 	model := a.config.Model
 	if model == "" {
@@ -173,11 +178,18 @@ func (a *GeminiAdapter) GenerateContentStream(ctx context.Context, messages []Me
 		Temperature:     &temp,
 		TopP:            &topP,
 		TopK:            &topK,
-		ThinkingConfig: &genai.ThinkingConfig{
+	}
+
+	// 只有支持 thinking 的模型才启用 ThinkingConfig
+	// 目前只有 gemini-2.5-* 系列和带 -thinking 后缀的模型支持
+	if strings.Contains(model, "2.5") || strings.Contains(model, "thinking")|| strings.Contains(model, "pro") {
+		genConfig.ThinkingConfig = &genai.ThinkingConfig{
 			IncludeThoughts: true,
 			ThinkingBudget:  &thinkingBudget,
-		},
+		}
+		logger.Printf("[Gemini] 启用 ThinkingConfig，budget: %d", thinkingBudget)
 	}
+
 	if systemInstruction != "" {
 		genConfig.SystemInstruction = &genai.Content{
 			Parts: []*genai.Part{{Text: systemInstruction}},
@@ -186,14 +198,27 @@ func (a *GeminiAdapter) GenerateContentStream(ctx context.Context, messages []Me
 
 	var fullContent strings.Builder
 	var fullThinking strings.Builder
-	for resp := range a.client.Models.GenerateContentStream(ctx, model, contents, genConfig) {
+
+	logger.Printf("[Gemini] 调用 GenerateContentStream，模型: %s, maxTokens: %d", model, maxTokens)
+	streamIter := a.client.Models.GenerateContentStream(ctx, model, contents, genConfig)
+	logger.Printf("[Gemini] 开始流式请求，模型: %s", model)
+
+	chunkCount := 0
+	for resp := range streamIter {
 		if resp == nil {
+			logger.Println("[Gemini] 收到 nil 响应，可能是迭代器错误")
 			continue
+		}
+
+		// 检查是否有错误（通过 PromptFeedback 或其他方式）
+		if resp.PromptFeedback != nil && resp.PromptFeedback.BlockReason != "" {
+			logger.Printf("[Gemini] 请求被阻止: %s", resp.PromptFeedback.BlockReason)
 		}
 
 		// 遍历所有候选响应
 		for _, candidate := range resp.Candidates {
 			if candidate.Content == nil {
+				logger.Println("[Gemini] candidate.Content 为空")
 				continue
 			}
 
@@ -201,6 +226,8 @@ func (a *GeminiAdapter) GenerateContentStream(ctx context.Context, messages []Me
 				if part == nil {
 					continue
 				}
+
+				chunkCount++
 
 				if part.Thought {
 					fullThinking.WriteString(part.Text)
@@ -220,8 +247,15 @@ func (a *GeminiAdapter) GenerateContentStream(ctx context.Context, messages []Me
 					}
 				}
 			}
+
+			// 检查结束原因
+			if candidate.FinishReason != "" {
+				logger.Printf("[Gemini] 结束原因: %s", candidate.FinishReason)
+			}
 		}
 	}
+
+	logger.Printf("[Gemini] 流式请求完成，共收到 %d 个 chunk，内容长度: %d", chunkCount, fullContent.Len())
 
 	// 返回最终结果
 	return Message{

@@ -49,11 +49,11 @@ export function useSettings(shortcuts, tempShortcuts, uiState, callbacks) {
   // 监听透明度变化（仅更新 UI，不通知后端）
   watch(() => tempSettings.transparency, (newVal) => {
     const opacity = 1.0 - newVal
-    // 使用与设计系统搭配的深色调
+    // 直接使用用户设置的透明度值
     const app = document.getElementById('app')
     if (app) {
       // 基础色使用设计系统的 bg-base 颜色 (rgb(17, 24, 39))
-      app.style.backgroundColor = `rgba(17, 24, 39, ${0.85 + opacity * 0.15})`
+      app.style.backgroundColor = `rgba(17, 24, 39, ${opacity})`
     }
   })
 
@@ -128,11 +128,11 @@ export function useSettings(shortcuts, tempShortcuts, uiState, callbacks) {
     const opacity = config.opacity !== undefined ? config.opacity : 1.0
     settings.transparency = 1.0 - opacity
 
-    // 应用透明度到 UI
+    // 应用透明度到 UI - 直接使用用户设置的透明度值
     const app = document.getElementById('app')
     if (app) {
       // 基础色使用设计系统的 bg-base 颜色 (rgb(17, 24, 39))
-      app.style.backgroundColor = `rgba(17, 24, 39, ${0.85 + opacity * 0.15})`
+      app.style.backgroundColor = `rgba(17, 24, 39, ${opacity})`
     }
 
     // 同步到 tempSettings，确保设置面板显示正确的值
@@ -277,12 +277,12 @@ export function useSettings(shortcuts, tempShortcuts, uiState, callbacks) {
    */
   function resetTempSettings() {
     Object.assign(tempSettings, settings)
-    // 恢复 UI 透明度 - 使用与 applyConfig 和 watch 一致的逻辑
+    // 恢复 UI 透明度 - 直接使用用户设置的透明度值
     const opacity = 1.0 - settings.transparency
     const app = document.getElementById('app')
     if (app) {
       // 基础色使用设计系统的 bg-base 颜色 (rgb(17, 24, 39))
-      app.style.backgroundColor = `rgba(17, 24, 39, ${0.85 + opacity * 0.15})`
+      app.style.backgroundColor = `rgba(17, 24, 39, ${opacity})`
     }
   }
 

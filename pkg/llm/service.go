@@ -71,7 +71,11 @@ func DetectProviderType(Provider string) ProviderType {
 func CreateProvider(providerType ProviderType, cfg *config.Config) Provider {
 	switch providerType {
 	case ProviderGemini:
-		adapter, _ := NewGeminiAdapter(cfg)
+		adapter, err := NewGeminiAdapter(cfg)
+		if err != nil {
+			logger.Printf("创建GeminiAdapter失败: %v", err)
+			return nil
+		}
 		logger.Println("创建GeminiAdapter")
 		return adapter
 	case ProviderClaude:

@@ -125,6 +125,19 @@ func (s *Solver) Solve(ctx context.Context, req Request, cb Callbacks) bool {
 	}
 
 	// 6. 处理结果
+	logger.Printf("[解题] 模型返回内容长度: %d", len(response.Content))
+	logger.Printf("[解题] 模型返回内容: %s", response.Content)
+	logger.Printf("[解题] 模型返回思考链长度: %d", len(response.Thinking))
+
+	// 检查模型是否返回空内容
+	if response.Content == "" && response.Thinking == "" {
+		logger.Println("[解题] 警告: 模型返回内容为空")
+		if cb.EmitEvent != nil {
+			cb.EmitEvent("solution-error", "模型返回内容为空，请检查模型配置或稍后重试")
+		}
+		return false
+	}
+
 	if cb.EmitEvent != nil {
 		cb.EmitEvent("solution", response.Content)
 	}
