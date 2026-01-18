@@ -29,14 +29,13 @@ type GraphNode struct {
 
 // Graph 问题导图处理器
 type Graph struct {
-	ctx           context.Context
+	cancelCtx     context.Context
 	configManager *config.ConfigManager
 	llmService    *llm.Service
 	emitEvent     func(string, ...any)
 
 	// channel 接收对话，无需加锁
 	roundChan chan ChatRound
-	stopChan  chan struct{}
 
 	// 配置
 	triggerRound int // 每多少轮触发一次总结
@@ -48,7 +47,7 @@ type Graph struct {
 
 // NewGraph 创建问题导图处理器
 func NewGraph(
-	ctx context.Context,
+	cancelCtx context.Context,
 	configManager *config.ConfigManager,
 	llmService *llm.Service,
 	emitEvent func(string, ...any),
@@ -58,12 +57,11 @@ func NewGraph(
 		triggerRound = 3
 	}
 	return &Graph{
-		ctx:           ctx,
+		cancelCtx:     cancelCtx,
 		configManager: configManager,
 		llmService:    llmService,
 		emitEvent:     emitEvent,
 		roundChan:     make(chan ChatRound, 100),
-		stopChan:      make(chan struct{}),
 		triggerRound:  triggerRound,
 		allRounds:     make([]ChatRound, 0),
 		nodes:         make([]GraphNode, 0),
@@ -76,10 +74,9 @@ func (g *Graph) Start() {
 	logger.Println("Graph: 已启动")
 }
 
-// Stop 停止处理
+// Stop 停止处理（实际由 cancelCtx 控制）
 func (g *Graph) Stop() {
-	close(g.stopChan)
-	logger.Println("Graph: 已停止")
+	logger.Println("[Graph] Graph: Stop 调用")
 }
 
 // Push 推送一轮对话（问题+回答）
@@ -104,11 +101,8 @@ func (g *Graph) consumeLoop() {
 
 	for {
 		select {
-		case <-g.stopChan:
-			// 停止前处理剩余的对话
-			if len(pendingRounds) > 0 {
-				g.summarize(pendingRounds)
-			}
+		case <-g.cancelCtx.Done():
+			logger.Println("[Graph] Graph: 收到停止信号，退出消费循环")
 			return
 
 		case round := <-g.roundChan:
@@ -146,9 +140,9 @@ func (g *Graph) summarize(rounds []ChatRound) {
 
 	// 构建 prompt（包含已有节点信息）
 	prompt := g.buildPrompt(rounds)
-	logger.Println("生成导图的prompt: ",prompt)
+	logger.Println("生成导图的prompt: ", prompt)
 	// 调用模型
-	ctx, cancel := context.WithTimeout(g.ctx, 60*time.Second)
+	ctx, cancel := context.WithTimeout(g.cancelCtx, 60*time.Second)
 	defer cancel()
 
 	provider := g.llmService.GetProvider()
@@ -159,7 +153,7 @@ func (g *Graph) summarize(rounds []ChatRound) {
 		logger.Printf("Graph: 总结失败: %v", err)
 		return
 	}
-	logger.Println("导图总结回复 %s",response.Content)
+	logger.Println("导图总结回复 %s", response.Content)
 	// 解析并添加节点
 	newNodes := g.parseResponse(response.Content, rounds)
 	for _, node := range newNodes {
@@ -177,7 +171,7 @@ func (g *Graph) buildPrompt(rounds []ChatRound) string {
 	// 构建已有节点信息
 	if len(g.nodes) > 0 {
 		for _, node := range g.nodes {
-			nodesSb.WriteString(fmt.Sprintf("- NodeID: %s NodeTitle: %s NodeAnswer: %s \n", node.ID, node.Title,node.Answer))
+			nodesSb.WriteString(fmt.Sprintf("- NodeID: %s NodeTitle: %s NodeAnswer: %s \n", node.ID, node.Title, node.Answer))
 		}
 	} else {
 		nodesSb.WriteString("（暂无已有节点）\n")

@@ -54,13 +54,26 @@ function onResize(e) {
   WindowSetSize(newWidth, newHeight)
 }
 
-function stopResize() {
+import { UpdateSettings, GetSettings } from '../../wailsjs/go/main/App'
+
+async function stopResize() {
   document.removeEventListener('mousemove', onResize)
   document.removeEventListener('mouseup', stopResize)
   
   // 恢复样式
   document.body.style.cursor = ''
   document.body.style.userSelect = ''
+  
+  // 保存窗口尺寸到配置
+  try {
+    const size = await WindowGetSize()
+    const settings = await GetSettings()
+    settings.windowWidth = size.w
+    settings.windowHeight = size.h
+    await UpdateSettings(JSON.stringify(settings))
+  } catch (e) {
+    console.error('保存窗口尺寸失败:', e)
+  }
 }
 </script>
 

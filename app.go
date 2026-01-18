@@ -61,6 +61,13 @@ func (a *App) Startup(ctx context.Context) {
 		logger.Printf("加载配置失败: %v", err)
 	}
 
+	// 应用保存的窗口尺寸
+	cfg := a.configManager.Get()
+	if cfg.WindowWidth > 0 && cfg.WindowHeight > 0 {
+		runtime.WindowSetSize(ctx, cfg.WindowWidth, cfg.WindowHeight)
+		logger.Printf("应用保存的窗口尺寸: %dx%d", cfg.WindowWidth, cfg.WindowHeight)
+	}
+
 	// 初始化状态管理器
 	a.stateManager.Startup(ctx, a.EmitEvent)
 

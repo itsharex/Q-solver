@@ -83,9 +83,3 @@ func GetLiveConfig(cfg config.Config) *LiveConfig {
 		TopK:              cfg.TopK,
 	}
 }
-
-// SupportsLive 检查是否支持 Live API
-func SupportsLive(p Provider) bool {
-	_, ok := p.(LiveProvider)
-	return ok
-}

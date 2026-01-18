@@ -25,6 +25,8 @@ export namespace config {
 	    thinkingBudget?: number;
 	    assistantModel?: string;
 	    useLiveApi?: boolean;
+	    windowWidth?: number;
+	    windowHeight?: number;
 	
 	    static createFrom(source: any = {}) {
 	        return new Config(source);
@@ -56,6 +58,8 @@ export namespace config {
 	        this.thinkingBudget = source["thinkingBudget"];
 	        this.assistantModel = source["assistantModel"];
 	        this.useLiveApi = source["useLiveApi"];
+	        this.windowWidth = source["windowWidth"];
+	        this.windowHeight = source["windowHeight"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

@@ -38,6 +38,10 @@ type Config struct {
 
 	// Live API
 	UseLiveApi bool `json:"useLiveApi,omitempty"`
+
+	// 窗口尺寸
+	WindowWidth  int `json:"windowWidth,omitempty"`
+	WindowHeight int `json:"windowHeight,omitempty"`
 }
 
 const DefaultModel = "gemini-2.5-flash"
@@ -76,6 +80,10 @@ func NewDefaultConfig() Config {
 
 		// Live API
 		UseLiveApi: false,
+
+		// 窗口尺寸默认值
+		WindowWidth:  0,
+		WindowHeight: 0,
 	}
 }
 

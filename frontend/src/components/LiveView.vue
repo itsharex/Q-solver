@@ -255,17 +255,19 @@ const flowNodes = computed(() => {
   
   // 生成 Vue Flow 节点
   const nodes = []
+  const nodeSpacingX = 180  // 水平间距
+  const nodeSpacingY = 120  // 垂直间距
   Object.keys(levels).forEach(level => {
     const levelNodes = levels[level]
-    const y = parseInt(level) * 100 + 50
-    const totalWidth = levelNodes.length * 140
-    const startX = -totalWidth / 2 + 70
+    const y = parseInt(level) * nodeSpacingY + 50
+    const totalWidth = levelNodes.length * nodeSpacingX
+    const startX = -totalWidth / 2 + nodeSpacingX / 2
     
     levelNodes.forEach((node, i) => {
       nodes.push({
         id: node.id,
         type: 'question',
-        position: { x: startX + i * 140, y },
+        position: { x: startX + i * nodeSpacingX, y },
         data: {
           title: truncate(node.title, 8),
           index: node.index,
@@ -289,14 +291,13 @@ const flowEdges = computed(() => {
     .map(n => {
       const edgeId = `e-${n.pid}-${n.id}`
       const isInPath = selectedPathEdgeIds.value.has(edgeId)
-      const isDirectParent = selectedNodeId.value === n.id
       
       return {
         id: edgeId,
         source: n.pid,
         target: n.id,
         type: 'smoothstep',
-        animated: isDirectParent,
+        animated: isInPath,
         style: {
           stroke: isInPath ? '#10b981' : 'rgba(99, 102, 241, 0.5)',
           strokeWidth: isInPath ? 2.5 : 1.5,

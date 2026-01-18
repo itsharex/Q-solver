@@ -204,6 +204,7 @@ export function useSolution(settings) {
 
   function handleSolution(data) {
     isLoading.value = false
+    isAppending.value = false
 
     // 记录最终思考时长
     if (isThinking.value && thinkingStartTime > 0 && history.value.length > 0) {

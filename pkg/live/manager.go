@@ -16,8 +16,9 @@ import (
 
 // 重连相关常量
 const (
-	maxReconnectAttempts = 3           // 最大重连尝试次数
-	reconnectDelay       = time.Second // 重连间隔
+	maxReconnectAttempts = 3                // 最大重连尝试次数
+	reconnectDelay       = time.Second      // 重连间隔
+	connectTimeout       = 3 * time.Second // 连接超时时间
 )
 
 // SessionState 会话状态类型
@@ -58,10 +59,11 @@ type LiveSessionManager struct {
 	state       atomic.Int32 // 当前状态 (SessionState)
 	reconnectMu sync.Mutex   // 保证只有一个协程执行重连
 
-	// 协程管理
-	stopChan  chan struct{}
-	errorChan chan error
-	wg        sync.WaitGroup
+	// 协程管理 - 使用 context 控制生命周期
+	cancelCtx  context.Context
+	cancelFunc context.CancelFunc
+	errorChan  chan error
+	wg         sync.WaitGroup
 }
 
 // NewLiveSessionManager 创建 Live Session 管理器
@@ -92,8 +94,7 @@ func (m *LiveSessionManager) Start() error {
 	provider := m.llmService.GetProvider()
 	liveProvider, ok := provider.(llm.LiveProvider)
 	if !ok {
-		m.emitEvent("live:error", "当前模型不支持 Live API")
-		return nil
+		return &liveError{"当前模型不支持 Live API"}
 	}
 
 	m.emitEvent("live:status", "connecting")
@@ -102,9 +103,8 @@ func (m *LiveSessionManager) Start() error {
 	liveCfg := llm.GetLiveConfig(cfg)
 	session, err := liveProvider.ConnectLive(m.ctx, liveCfg)
 	if err != nil {
-		logger.Println("liveApi连接服务器失败", err)
+		logger.Println("[Start] liveApi连接服务器失败", err)
 		m.emitEvent("live:status", "error")
-		m.emitEvent("live:error", err.Error())
 		return err
 	}
 
@@ -117,34 +117,33 @@ func (m *LiveSessionManager) Start() error {
 	// 初始化音频采集
 	m.audioCapture, err = audio.NewLoopbackCapture(nil)
 	if err != nil {
-		logger.Printf("音频采集初始化失败: %v", err)
-		m.emitEvent("live:error", "音频采集初始化失败: "+err.Error())
+		logger.Printf("[Start] 音频采集初始化失败: %v", err)
 		session.Close()
 		m.session.Store(nil)
 		m.emitEvent("live:status", "error")
-		return err
+		return &liveError{"音频采集初始化失败: " + err.Error()}
 	}
 
 	if err := m.audioCapture.Start(); err != nil {
-		logger.Printf("音频采集启动失败: %v", err)
-		m.emitEvent("live:error", "音频采集启动失败: "+err.Error())
+		logger.Printf("[Start] 音频采集启动失败: %v", err)
 		m.audioCapture.Close()
 		m.audioCapture = nil
 		session.Close()
 		m.session.Store(nil)
 		m.emitEvent("live:status", "error")
-		return err
+		return &liveError{"音频采集启动失败: " + err.Error()}
 	}
 
-	// 初始化通道
-	m.stopChan = make(chan struct{})
-	m.errorChan = make(chan error, 2)
+	// 初始化 context 和 errorChan
+	m.cancelCtx, m.cancelFunc = context.WithCancel(m.ctx)
+	m.errorChan = make(chan error, 4)
 
-	// 初始化并启动问题导图处理器（每3轮触发一次总结）
-	m.graph = NewGraph(m.ctx, m.configManager, m.llmService, m.emitEvent, 3)
+	// 初始化并启动问题导图处理器（每3轮触发一次总结，使用 cancelCtx 统一控制）
+	m.graph = NewGraph(m.cancelCtx, m.configManager, m.llmService, m.emitEvent, 3)
 	m.graph.Start()
 
 	// 启动错误监听协程
+	m.wg.Add(1)
 	go m.errorWatcher()
 
 	// 启动音频发送协程 (不再传入 session，而是动态获取)
@@ -163,17 +162,15 @@ func (m *LiveSessionManager) Stop() {
 	// 设置停止状态
 	m.state.Store(int32(StateStopped))
 
-	// 发送停止信号
+	// 通过 context 取消通知所有协程退出
 	m.mu.Lock()
-	if m.stopChan != nil {
-		select {
-		case <-m.stopChan:
-			// 已关闭
-		default:
-			close(m.stopChan)
-		}
+	if m.cancelFunc != nil {
+		m.cancelFunc()
 	}
 	m.mu.Unlock()
+
+	// 等待协程结束
+	m.wg.Wait()
 
 	// 停止问题导图处理器
 	if m.graph != nil {
@@ -190,9 +187,6 @@ func (m *LiveSessionManager) Stop() {
 	// 执行清理
 	m.cleanup()
 
-	// 等待协程结束
-	m.wg.Wait()
-
 	m.emitEvent("live:status", "disconnected")
 }
 
@@ -201,33 +195,53 @@ func (m *LiveSessionManager) cleanup() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	logger.Println("Live: cleanup 调用")
+	logger.Println("[cleanup] Live: cleanup 调用")
 
 	// 停止音频采集
 	if m.audioCapture != nil {
-		logger.Println("Live: 停止音频采集")
+		logger.Println("[cleanup] Live: 停止音频采集")
 		m.audioCapture.Close()
 		m.audioCapture = nil
 	}
 
 	// 关闭会话
 	if session := m.session.Load(); session != nil {
-		logger.Println("Live: 关闭会话")
+		logger.Println("[cleanup] Live: 关闭会话")
 		(*session).Close()
 		m.session.Store(nil)
 	}
 }
 
-// errorWatcher 监听错误通道
+// errorWatcher 监听错误通道，统一处理所有不可恢复的错误
+// 这是唯一的错误处理入口，所有运行时错误都通过 errorChan 发送到这里
 func (m *LiveSessionManager) errorWatcher() {
-	select {
-	case err := <-m.errorChan:
-		logger.Printf("Live: errorWatcher 收到错误: %v", err)
-		m.cleanup()
-		m.emitEvent("live:status", "error")
-		m.emitEvent("live:error", err.Error())
-	case <-m.stopChan:
-		logger.Println("Live: errorWatcher 正常退出")
+	defer m.wg.Done()
+
+	for {
+		select {
+		case err := <-m.errorChan:
+			logger.Printf("[errorWatcher] Live: errorWatcher 收到错误: %v", err)
+
+			// 检查是否已经停止，避免重复处理
+			if m.state.Load() == int32(StateStopped) {
+				logger.Println("[errorWatcher] Live: 已停止，忽略错误")
+				continue
+			}
+
+			// 统一错误处理：设置停止状态 -> 取消 context -> 清理资源 -> 通知前端
+			m.state.Store(int32(StateStopped))
+			if m.cancelFunc != nil {
+				m.cancelFunc()
+			}
+			m.cleanup()
+			m.emitEvent("live:status", "error")
+			m.emitEvent("live:error", err.Error())
+			return
+
+		case <-m.cancelCtx.Done():
+			logger.Println("[errorWatcher] Live: errorWatcher 正常退出")
+			return
+		}
 	}
 }
 
@@ -240,91 +254,93 @@ func (m *LiveSessionManager) IsActive() bool {
 func (m *LiveSessionManager) audioSender(audioChan <-chan []byte) {
 	defer m.wg.Done()
 
-	logger.Println("Live: 音频发送协程已启动")
+	logger.Println("[audioSender] Live: 音频发送协程已启动")
 	failCount := 0
 
-	for audioData := range audioChan {
-		// 检查是否已停止
-		if m.state.Load() == int32(StateStopped) {
+	for {
+		select {
+		case <-m.cancelCtx.Done():
+			logger.Println("[audioSender] Live: 音频发送协程收到停止信号")
 			return
-		}
 
-		// 如果正在重连，等待重连完成
-		for m.state.Load() == int32(StateReconnecting) {
-			failCount = 0 // 重连时重置失败计数
-			select {
-			case <-m.stopChan:
+		case audioData, ok := <-audioChan:
+			if !ok {
+				logger.Println("[audioSender] Live: 音频通道已关闭")
 				return
-			case <-time.After(10 * time.Millisecond):
-				// 短暂等待后重试
 			}
-		}
 
-		// 再次检查是否已停止（可能在等待期间被停止）
-		if m.state.Load() == int32(StateStopped) {
-			return
-		}
-
-		// 获取当前 session (无锁)
-		session := m.session.Load()
-		if session == nil {
-			continue
-		}
-
-		if err := (*session).SendAudio(audioData); err != nil {
-			failCount++
-			logger.Printf("Live: 发送音频失败 (%d/3): %v", failCount, err)
-
-			if failCount >= 3 {
-				// 检查配置是否仍然启用 LiveAPI
-				cfg := m.configManager.Get()
-				if !cfg.UseLiveApi {
-					logger.Println("Live: 配置已禁用 LiveAPI，不再重连")
-					m.state.Store(int32(StateStopped))
+			// 如果正在重连，等待重连完成
+			for m.state.Load() == int32(StateReconnecting) {
+				failCount = 0 // 重连时重置失败计数
+				select {
+				case <-m.cancelCtx.Done():
 					return
+				case <-time.After(10 * time.Millisecond):
+					// 短暂等待后重试
 				}
+			}
 
-				logger.Println("Live: 连续 3 次发送失败，触发重连")
-				// 主动触发重连（如果还没有的话）
-				go m.handleGoAway(*session)
+			// 获取当前 session (无锁)
+			session := m.session.Load()
+			if session == nil {
+				continue
+			}
+
+			if err := (*session).SendAudio(audioData); err != nil {
+				failCount++
+				logger.Printf("[audioSender] Live: 发送音频失败 (%d/3): %v", failCount, err)
+
+				if failCount >= 3 {
+					logger.Println("[audioSender] Live: 连续 3 次发送失败，触发重连")
+					// 主动触发重连（如果还没有的话）
+					go m.handleGoAway(*session)
+					failCount = 0
+				}
+				// 继续循环等待重连完成或重试
+				continue
+			}
+
+			// 发送成功，重置计数
+			if failCount > 0 {
 				failCount = 0
 			}
-			// 继续循环等待重连完成或重试
-			continue
-		}
-
-		// 发送成功，重置计数
-		if failCount > 0 {
-			failCount = 0
 		}
 	}
-	logger.Println("Live: 音频发送协程已结束")
 }
 
 // receiveLoop 接收 Live 消息的循环
 func (m *LiveSessionManager) receiveLoop() {
 	defer m.wg.Done()
 
-	logger.Println("Live: 接收循环已启动")
+	logger.Println("[receiveLoop] Live: 接收循环已启动")
 
 	for {
-		// 检查是否已停止
-		if m.state.Load() == int32(StateStopped) {
+		// 检查是否已取消
+		select {
+		case <-m.cancelCtx.Done():
+			logger.Println("[receiveLoop] Live: 接收循环收到停止信号")
 			return
+		default:
 		}
 
 		session := m.session.Load()
 		if session == nil {
 			// 可能在重连中，等待
-			time.Sleep(50 * time.Millisecond)
-			continue
+			select {
+			case <-m.cancelCtx.Done():
+				return
+			case <-time.After(50 * time.Millisecond):
+				continue
+			}
 		}
 
 		msg, err := (*session).Receive()
 		if err != nil {
-			// 检查是否已停止
-			if m.state.Load() == int32(StateStopped) {
+			// 检查是否已取消
+			select {
+			case <-m.cancelCtx.Done():
 				return
+			default:
 			}
 
 			// 检查是否正在重连
@@ -333,19 +349,16 @@ func (m *LiveSessionManager) receiveLoop() {
 				continue
 			}
 
-			logger.Printf("Live: 接收错误: %v", err)
-
-			// 检查配置是否仍然启用 LiveAPI
-			cfg := m.configManager.Get()
-			if !cfg.UseLiveApi {
-				logger.Println("Live: 配置已禁用 LiveAPI，不再重连")
-				m.state.Store(int32(StateStopped))
+			// 如果已经停止则直接退出，避免后续重连日志
+			if m.state.Load() == int32(StateStopped) {
 				return
 			}
 
+			logger.Printf("[receiveLoop] Live: 接收错误: %v", err)
+
 			// 连接断开（可能没有 GoAway），尝试重连
 			// 不直接报错，而是触发重连机制
-			logger.Println("Live: 连接断开，尝试重连...")
+			logger.Println("[receiveLoop] Live: 连接断开，尝试重连...")
 			m.handleGoAway(*session)
 			continue
 		}
@@ -355,23 +368,19 @@ func (m *LiveSessionManager) receiveLoop() {
 
 		switch msg.Type {
 		case llm.LiveMsgGoAway:
-			// 检查是否已停止或配置已禁用
-			if m.state.Load() == int32(StateStopped) {
+			// 检查是否已取消
+			select {
+			case <-m.cancelCtx.Done():
 				return
-			}
-			cfg := m.configManager.Get()
-			if !cfg.UseLiveApi {
-				logger.Println("Live: 配置已禁用 LiveAPI，不处理 GoAway")
-				m.state.Store(int32(StateStopped))
-				return
+			default:
 			}
 			// 收到 goaway，触发重连
-			logger.Println("Live: 收到 GoAway，开始重连")
+			logger.Println("[receiveLoop] Live: 收到 GoAway，开始重连")
 			m.handleGoAway(*session)
 			continue
 
 		case llm.LiveInterrupted:
-			logger.Println("检测到打断")
+			logger.Println("[receiveLoop] 检测到打断")
 			m.emitEvent("live:Interrupted", msg.Text)
 			// 打断时，清空当前轮次缓存
 			m.roundMu.Lock()
@@ -387,7 +396,7 @@ func (m *LiveSessionManager) receiveLoop() {
 			m.roundMu.Unlock()
 
 		case llm.LiveMsgInterviewerDone:
-			logger.Println("Live: 面试官说话结束")
+			logger.Println("[receiveLoop] Live: 面试官说话结束")
 			m.emitEvent("live:interviewer-done")
 
 		case llm.LiveMsgAIText:
@@ -398,13 +407,13 @@ func (m *LiveSessionManager) receiveLoop() {
 			m.roundMu.Unlock()
 
 		case llm.LiveMsgToolCall:
-			logger.Printf("Live: 工具调用 %s (ID=%s)", msg.ToolName, msg.ToolID)
+			logger.Printf("[receiveLoop] Live: 工具调用 %s (ID=%s)", msg.ToolName, msg.ToolID)
 			if msg.ToolName == "get_screenshot" {
 				m.handleScreenshot(*session, msg.ToolID)
 			}
 
 		case llm.LiveMsgDone:
-			logger.Println("Live: 对话轮完成")
+			logger.Println("[receiveLoop] Live: 对话轮完成")
 			m.emitEvent("live:done")
 			// 一轮对话完成，推送给 Graph
 			m.roundMu.Lock()
@@ -419,8 +428,10 @@ func (m *LiveSessionManager) receiveLoop() {
 			}
 
 		case llm.LiveMsgError:
-			logger.Printf("Live: 错误: %s", msg.Text)
-			m.emitEvent("live:error", msg.Text)
+			// 服务端返回的错误，发送到 errorChan 统一处理
+			logger.Printf("[receiveLoop] Live: 服务端错误: %s", msg.Text)
+			m.errorChan <- &liveError{msg.Text}
+			return
 		}
 	}
 }
@@ -434,9 +445,11 @@ func (m *LiveSessionManager) handleGoAway(oldSession llm.LiveSession) {
 	}
 	defer m.reconnectMu.Unlock()
 
-	// 检查是否已停止
-	if m.state.Load() == int32(StateStopped) {
+	// 检查是否已取消
+	select {
+	case <-m.cancelCtx.Done():
 		return
+	default:
 	}
 
 	// 设置重连状态
@@ -448,7 +461,7 @@ func (m *LiveSessionManager) handleGoAway(oldSession llm.LiveSession) {
 	var resumeToken string
 	if rs, ok := oldSession.(llm.ResumableSession); ok && rs.IsResumable() {
 		resumeToken = rs.GetResumeToken()
-		logger.Printf("Live: 使用 session handle 恢复会话")
+		logger.Printf("[handleGoAway] Live: 使用 session handle 恢复会话")
 	}
 
 	// 关闭旧会话
@@ -458,8 +471,7 @@ func (m *LiveSessionManager) handleGoAway(oldSession llm.LiveSession) {
 	provider := m.llmService.GetProvider()
 	liveProvider, ok := provider.(llm.LiveProvider)
 	if !ok {
-		m.state.Store(int32(StateNormal))
-		m.errorChan <- &reconnectError{"Provider 不支持 Live API"}
+		m.errorChan <- &liveError{"Provider 不支持 Live API"}
 		return
 	}
 
@@ -468,23 +480,17 @@ func (m *LiveSessionManager) handleGoAway(oldSession llm.LiveSession) {
 	var err error
 
 	for attempt := 1; attempt <= maxReconnectAttempts; attempt++ {
-		// 每次循环都检查是否已停止
-		if m.state.Load() == int32(StateStopped) {
-			logger.Println("Live: 重连被取消（已停止）")
+		// 每次循环都检查是否已取消
+		select {
+		case <-m.cancelCtx.Done():
+			logger.Println("Live: 重连被取消")
 			return
+		default:
 		}
 
-		logger.Printf("Live: 重连尝试 %d/%d", attempt, maxReconnectAttempts)
+		logger.Printf("[handleGoAway] Live: 重连尝试 %d/%d", attempt, maxReconnectAttempts)
 
 		cfg := m.configManager.Get()
-
-		// 检查配置是否仍然启用 LiveAPI
-		if !cfg.UseLiveApi {
-			logger.Println("Live: 重连被取消（配置已禁用 LiveAPI）")
-			m.state.Store(int32(StateStopped))
-			return
-		}
-
 		liveCfg := llm.GetLiveConfig(cfg)
 		liveCfg.ResumeToken = resumeToken // 使用恢复令牌
 
@@ -493,12 +499,12 @@ func (m *LiveSessionManager) handleGoAway(oldSession llm.LiveSession) {
 			break
 		}
 
-		logger.Printf("Live: 重连失败: %v", err)
+		logger.Printf("[handleGoAway] Live: 重连失败: %v", err)
 		if attempt < maxReconnectAttempts {
 			// 使用 select 等待，这样可以响应停止信号
 			select {
-			case <-m.stopChan:
-				logger.Println("Live: 重连被取消（收到停止信号）")
+			case <-m.cancelCtx.Done():
+				logger.Println("[handleGoAway] Live: 重连被取消（收到停止信号）")
 				return
 			case <-time.After(reconnectDelay):
 				// 继续下一次尝试
@@ -506,18 +512,20 @@ func (m *LiveSessionManager) handleGoAway(oldSession llm.LiveSession) {
 		}
 	}
 
-	// 最后再检查一次是否已停止
-	if m.state.Load() == int32(StateStopped) {
-		logger.Println("Live: 重连完成前被取消")
+	// 最后再检查一次是否已取消
+	select {
+	case <-m.cancelCtx.Done():
+		logger.Println("[handleGoAway] Live: 重连完成前被取消")
 		if newSession != nil {
 			newSession.Close()
 		}
 		return
+	default:
 	}
 
 	if err != nil {
-		logger.Printf("Live: 重连失败，已达最大尝试次数")
-		m.state.Store(int32(StateNormal))
+		logger.Printf("[handleGoAway] Live: 重连失败，已达最大尝试次数")
+		// 发送错误到 errorChan，由 errorWatcher 统一处理
 		m.errorChan <- err
 		return
 	}
@@ -526,16 +534,16 @@ func (m *LiveSessionManager) handleGoAway(oldSession llm.LiveSession) {
 	m.session.Store(&newSession)
 	m.state.Store(int32(StateNormal))
 
-	logger.Println("Live: 重连成功")
+	logger.Println("[handleGoAway] Live: 重连成功")
 	m.emitEvent("live:status", "connected")
 }
 
-// reconnectError 重连错误
-type reconnectError struct {
+// liveError 统一的 Live API 错误类型
+type liveError struct {
 	msg string
 }
 
-func (e *reconnectError) Error() string {
+func (e *liveError) Error() string {
 	return e.msg
 }
 
@@ -551,7 +559,7 @@ func (m *LiveSessionManager) handleScreenshot(session llm.LiveSession, toolID st
 		cfg.ScreenshotMode,
 	)
 	if err != nil {
-		logger.Printf("Live 截图失败: %v", err)
+		logger.Printf("[handleScreenshot] Live 截图失败: %v", err)
 		_ = session.SendToolResponse(toolID, "截图失败: "+err.Error())
 		return
 	}
@@ -569,15 +577,15 @@ func (m *LiveSessionManager) handleScreenshot(session llm.LiveSession, toolID st
 
 	imageData, err := base64.StdEncoding.DecodeString(base64Str)
 	if err != nil {
-		logger.Printf("Live Base64解码失败: %v", err)
+		logger.Printf("[handleScreenshot] Live Base64解码失败: %v", err)
 		_ = session.SendToolResponse(toolID, "图片解码失败")
 		return
 	}
 
 	err = session.SendToolResponseWithImage(toolID, imageData, mimeType)
 	if err != nil {
-		logger.Printf("Live 发送截图失败: %v", err)
+		logger.Printf("[handleScreenshot] Live 发送截图失败: %v", err)
 	} else {
-		logger.Printf("Live: 已发送屏幕截图给模型 (%d bytes, %s)", len(imageData), mimeType)
+		logger.Printf("[handleScreenshot] Live: 已发送屏幕截图给模型 (%d bytes, %s)", len(imageData), mimeType)
 	}
 }
