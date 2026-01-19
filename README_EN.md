@@ -8,9 +8,9 @@
   <p><i>🎯 Screenshot → Think → Answer — Your invisible AI co-pilot</i></p>
 
   <p>
-    <a href="https://github.com/jym66/Q-Solver/releases"><img src="https://img.shields.io/github/v/release/jym66/Q-Solver?color=blueviolet&label=Latest&style=for-the-badge" alt="Release"></a>
-    <a href="https://github.com/jym66/Q-Solver/stargazers"><img src="https://img.shields.io/github/stars/jym66/Q-Solver?color=yellow&style=for-the-badge" alt="Stars"></a>
-    <a href="https://github.com/jym66/Q-Solver/releases"><img src="https://img.shields.io/github/downloads/jym66/Q-Solver/total?color=green&style=for-the-badge" alt="Downloads"></a>
+    <a href="https://github.com/jym66/Q-solver/releases"><img src="https://img.shields.io/github/v/release/jym66/Q-solver?color=blueviolet&label=Latest&style=for-the-badge" alt="Release"></a>
+    <a href="https://github.com/jym66/Q-solver/stargazers"><img src="https://img.shields.io/github/stars/jym66/Q-solver?color=yellow&style=for-the-badge" alt="Stars"></a>
+    <a href="https://github.com/jym66/Q-solver/releases"><img src="https://img.shields.io/github/downloads/jym66/Q-solver/total?color=green&style=for-the-badge" alt="Downloads"></a>
   </p>
   
   <p>
@@ -138,7 +138,7 @@ Live audio capture with instant AI responses:
 
 ### Option 1: Download Release (Recommended)
 
-<a href="https://github.com/jym66/Q-Solver/releases">
+<a href="https://github.com/jym66/Q-solver/releases">
   <img src="https://img.shields.io/badge/Download-Latest%20Release-blue?style=for-the-badge&logo=github" alt="Download">
 </a>
 
@@ -154,7 +154,7 @@ Live audio capture with instant AI responses:
 go install github.com/wailsapp/wails/v2/cmd/wails@latest
 
 # Clone & Run
-git clone https://github.com/jym66/Q-Solver.git
+git clone https://github.com/jym66/Q-solver.git
 cd Q-Solver
 wails dev
 
@@ -279,11 +279,11 @@ Then configure in **Audio MIDI Setup**:
 ## ⭐ Star History
 
 <div align="center">
-  <a href="https://star-history.com/#jym66/Q-Solver&Date">
+  <a href="https://star-history.com/#jym66/Q-solver&Date">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=jym66/Q-Solver&type=Date&theme=dark" />
-      <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=jym66/Q-Solver&type=Date" />
-      <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=jym66/Q-Solver&type=Date" />
+      <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=jym66/Q-solver&type=Date&theme=dark" />
+      <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=jym66/Q-solver&type=Date" />
+      <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=jym66/Q-solver&type=Date" />
     </picture>
   </a>
 </div>
