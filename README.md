@@ -8,15 +8,13 @@
   <p><i>🎯 一键截图 → 深度思考 → 即刻解答 —— 你的隐形 AI 搭档</i></p>
 
   <p>
-    <a href="https://github.com/jym66/Q-solver/releases"><img src="https://img.shields.io/github/v/release/jym66/Q-solver?color=blueviolet&label=最新版本&style=for-the-badge" alt="Release"></a>
     <a href="https://github.com/jym66/Q-solver/stargazers"><img src="https://img.shields.io/github/stars/jym66/Q-solver?color=yellow&style=for-the-badge" alt="Stars"></a>
-    <a href="https://github.com/jym66/Q-solver/releases"><img src="https://img.shields.io/github/downloads/jym66/Q-solver/total?color=green&label=下载量&style=for-the-badge" alt="Downloads"></a>
+    <img src="https://img.shields.io/badge/Go-1.25+-00ADD8?style=for-the-badge&logo=go&logoColor=white" alt="Go">
+    <img src="https://img.shields.io/badge/Vue-3.x-4FC08D?style=for-the-badge&logo=vue.js&logoColor=white" alt="Vue">
+    <img src="https://img.shields.io/badge/Wails-v2-E30613?style=for-the-badge&logo=wails&logoColor=white" alt="Wails">
   </p>
   
   <p>
-    <img src="https://img.shields.io/badge/Go-1.25+-00ADD8?logo=go&logoColor=white" alt="Go">
-    <img src="https://img.shields.io/badge/Vue-3.x-4FC08D?logo=vue.js&logoColor=white" alt="Vue">
-    <img src="https://img.shields.io/badge/Wails-v2-E30613?logo=wails&logoColor=white" alt="Wails">
     <img src="https://img.shields.io/badge/平台-Windows%20|%20macOS-0078D6?logo=windows&logoColor=white" alt="Platform">
   </p>
 
@@ -40,7 +38,11 @@
 
 <br>
 
+<div align="center">
+
 ## 🔥 为什么选择 Q-Solver？
+
+</div>
 
 <table>
 <tr>
@@ -69,9 +71,15 @@
 
 <br>
 
+<div align="center">
+
 ## ✨ 核心功能
 
+</div>
+
 ### 🛡️ 隐身模式 — "幽灵窗口"
+
+<div align="center">
 
 | 特性 | 说明 |
 |:---:|:---|
@@ -79,6 +87,8 @@
 | 👆 **鼠标穿透** | 可开启鼠标穿透，操作窗口后方的应用 |
 | 📌 **始终置顶** | 可设置悬浮在其他窗口之上 |
 | 🎯 **不抢焦点** | 尽量避免打断你正在进行的工作 |
+
+</div>
 
 > ⚠️ 以上功能在不同系统/软件环境下效果可能不同，**请务必在实际使用前自行测试确认**。
 
@@ -88,6 +98,8 @@
 
 > 💡 **使用场景**：实时捕获对方语音，AI 同步生成回答建议
 
+<div align="center">
+
 | 特性 | 说明 |
 |:---:|:---|
 | 🗣️ **语音转录** | 实时捕获系统音频并转为文字 |
@@ -95,9 +107,13 @@
 | 🗺️ **问题导图** | 自动将对话整理成可视化思维导图 |
 | 📤 **笔记导出** | 一键导出 Markdown 格式的对话笔记 |
 
+</div>
+
 ---
 
 ### 🔌 多模型支持 — 灵活选择你的 AI
+
+<div align="center">
 
 | 提供商 | 模型示例 | 特色 |
 |:---:|:---|:---|
@@ -106,17 +122,27 @@
 | **Claude** | Claude 3.5 Sonnet | 长文本理解出色 |
 | **自定义** | 任意 OpenAI 兼容 API | 支持 OneAPI 等聚合服务 |
 
+</div>
+
 ---
 
 ### 📄 上下文增强 — 个性化回答
+
+<div align="center">
 
 - **📑 简历导入**：支持 PDF / Markdown 格式，AI 结合你的背景给出针对性回答
 - **🧠 多轮记忆**：保持对话上下文，追问不用重复背景信息
 - **✨ 智能解析**：一键将 PDF 简历解析为结构化 Markdown
 
+</div>
+
 <br>
 
+<div align="center">
+
 ## 📸 功能演示
+
+
 
 | 截图解题 | 实时语音 | 问题导图 |
 |:---:|:---:|:---:|

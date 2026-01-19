@@ -8,15 +8,13 @@
   <p><i>🎯 Screenshot → Think → Answer — Your invisible AI co-pilot</i></p>
 
   <p>
-    <a href="https://github.com/jym66/Q-solver/releases"><img src="https://img.shields.io/github/v/release/jym66/Q-solver?color=blueviolet&label=Latest&style=for-the-badge" alt="Release"></a>
     <a href="https://github.com/jym66/Q-solver/stargazers"><img src="https://img.shields.io/github/stars/jym66/Q-solver?color=yellow&style=for-the-badge" alt="Stars"></a>
-    <a href="https://github.com/jym66/Q-solver/releases"><img src="https://img.shields.io/github/downloads/jym66/Q-solver/total?color=green&style=for-the-badge" alt="Downloads"></a>
+    <img src="https://img.shields.io/badge/Go-1.25+-00ADD8?style=for-the-badge&logo=go&logoColor=white" alt="Go">
+    <img src="https://img.shields.io/badge/Vue-3.x-4FC08D?style=for-the-badge&logo=vue.js&logoColor=white" alt="Vue">
+    <img src="https://img.shields.io/badge/Wails-v2-E30613?style=for-the-badge&logo=wails&logoColor=white" alt="Wails">
   </p>
   
   <p>
-    <img src="https://img.shields.io/badge/Go-1.25+-00ADD8?logo=go&logoColor=white" alt="Go">
-    <img src="https://img.shields.io/badge/Vue-3.x-4FC08D?logo=vue.js&logoColor=white" alt="Vue">
-    <img src="https://img.shields.io/badge/Wails-v2-E30613?logo=wails&logoColor=white" alt="Wails">
     <img src="https://img.shields.io/badge/Platform-Windows%20|%20macOS-0078D6?logo=windows&logoColor=white" alt="Platform">
   </p>
 
@@ -40,7 +38,11 @@
 
 <br>
 
+<div align="center">
+
 ## 🔥 Why Q-Solver?
+
+</div>
 
 <table>
 <tr>
@@ -69,9 +71,15 @@ Live audio capture with instant AI responses:
 
 <br>
 
+<div align="center">
+
 ## ✨ Features
 
+</div>
+
 ### 🛡️ Stealth Mode — "Ghost Window"
+
+<div align="center">
 
 | Feature | Description |
 |:---:|:---|
@@ -79,6 +87,8 @@ Live audio capture with instant AI responses:
 | 👆 **Click-through** | Can enable click-through to interact with apps behind the window |
 | 📌 **Always on Top** | Can be set to float above other windows |
 | 🎯 **No Focus Stealing** | Tries to avoid interrupting your current work |
+
+</div>
 
 > ⚠️ These features may behave differently depending on your system/software environment. **Please test thoroughly before actual use.**
 
@@ -88,6 +98,8 @@ Live audio capture with instant AI responses:
 
 > 💡 **Use Case**: Capture the other party's voice in real-time, AI generates answer suggestions simultaneously
 
+<div align="center">
+
 | Feature | Description |
 |:---:|:---|
 | 🗣️ **Voice Transcription** | Real-time system audio capture and transcription |
@@ -95,9 +107,13 @@ Live audio capture with instant AI responses:
 | 🗺️ **Mind Map** | Automatically organize conversations into visual mind maps |
 | 📤 **Export Notes** | One-click export to Markdown format |
 
+</div>
+
 ---
 
 ### 🔌 Multi-Model Support — Choose Your AI
+
+<div align="center">
 
 | Provider | Example Models | Highlights |
 |:---:|:---|:---|
@@ -106,17 +122,26 @@ Live audio capture with instant AI responses:
 | **Claude** | Claude 3.5 Sonnet | Excellent long-text understanding |
 | **Custom** | Any OpenAI-compatible API | Supports OneAPI and similar services |
 
+</div>
+
 ---
 
 ### 📄 Context Enhancement — Personalized Answers
+
+<div align="center">
 
 - **📑 Resume Import**: PDF / Markdown format, AI gives targeted answers based on your background
 - **🧠 Multi-turn Memory**: Maintains conversation context, no need to repeat background info
 - **✨ Smart Parsing**: One-click parse PDF resume into structured Markdown
 
+</div>
+
 <br>
 
+<div align="center">
+
 ## 📸 Demo
+
 
 | Screenshot Analysis | Real-time Voice | Mind Map |
 |:---:|:---:|:---:|
