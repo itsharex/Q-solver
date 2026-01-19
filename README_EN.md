@@ -48,7 +48,7 @@
 
 <div align="center">
 
-## 🌟 Why Q-Solver?
+## 🌟 Core Highlights
 
 </div>
 
@@ -100,21 +100,12 @@ Designed for privacy and multitasking, offering a "Ghost Window" experience.
 
 ### 🧠 Model Ecosystem
 
-Flexible model switching to suit your specific needs.
+**Supports OpenAI / Gemini / Claude / DeepSeek (Custom) and more.**
 
-| Model Series | Best For | Live API |
-|:---|:---|:---:|
-| **Google Gemini 2.0** | ⚡️ Speed & Real-time Voice (Live API) | ✅ |
-| **OpenAI GPT-4o / o1** | 🎓 Complex Logic, Math, & Coding | ❌ |
-| **Claude 3.5 Sonnet** | 📝 Long Context & Code Review | ❌ |
-| **Custom OpenAI** | 🛠️ OneAPI / Local LLMs | ❌ |
+- **Live API**: Experience millisecond-latency voice chat with Gemini 2.0.
+- **Custom Models**: Compatible with any OpenAI format API.
 
 ---
-
-### 🎨 Context & Personalization
-
-- **📄 Resume/Context Injection**: Upload your PDF Resume. The AI will tailor answers (e.g., mock interviews, code explanations) based on your background.
-- **💾 Long-term Memory**: Maintains conversation context so you don't have to repeat yourself.
 
 <br>
 
