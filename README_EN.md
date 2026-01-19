@@ -87,9 +87,11 @@ Integrated with Google Gemini Live API for a seamless real-time conversation exp
 
 Designed for privacy and multitasking, offering a "Ghost Window" experience.
 
+> ⚠️ **Note**: Please test the actual effect yourself.
+
 | Feature | Description |
 |:---|:---|
-| **🚫 Recording Proof** | Invisible to most screen recording/sharing software (Best on macOS 14+). |
+| **🚫 Recording Proof** | Invisible to most screen recording/sharing software. |
 | **👻 Click-Through** | Enable to interact with content behind the window seamlessly. |
 | **📌 Always on Top** | Floats above all other windows for quick reference. |
 | **🔕 Focus Guard** | Intelligently manages window focus to avoid stealing keystrokes. |
@@ -165,7 +167,7 @@ wails build -ldflags "-s -w" -tags prod
 
 ## ⌨️ Shortcuts
 
-> 💡 **Tip**: Shortcuts are currently fixed on macOS but will be customizable on Windows soon.
+> 💡 **Tip**: Shortcuts are currently fixed on macOS. Windows supports custom shortcuts (defaults below).
 
 | Action | Windows | macOS |
 |:---|:---:|:---:|
