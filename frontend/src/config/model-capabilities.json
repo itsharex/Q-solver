@@ -3434,6 +3434,19 @@
       "text"
     ]
   },
+  "magnum-v4-72b": {
+    "provider": "anthracite-org",
+    "name": "Magnum v4 72B",
+    "description": "This is a series of models designed to replicate the prose quality of the Claude 3 models, specifically Sonnet(https://openrouter.ai/anthropic/claude-3.5-sonnet) and Opus(https://openrouter.ai/anthropic/claude-3-opus).\n\nThe model is fine-tuned on top of [Qwen2.5 72B](https://openrouter.ai/qwen/qwen-2.5-72b-instruct).",
+    "supports_image": false,
+    "context_length": 16384,
+    "inputs": [
+      "text"
+    ],
+    "outputs": [
+      "text"
+    ]
+  },
   "claude-3.5-sonnet": {
     "provider": "anthropic",
     "name": "Anthropic: Claude 3.5 Sonnet",
@@ -3449,12 +3462,12 @@
       "text"
     ]
   },
-  "magnum-v4-72b": {
-    "provider": "anthracite-org",
-    "name": "Magnum v4 72B",
-    "description": "This is a series of models designed to replicate the prose quality of the Claude 3 models, specifically Sonnet(https://openrouter.ai/anthropic/claude-3.5-sonnet) and Opus(https://openrouter.ai/anthropic/claude-3-opus).\n\nThe model is fine-tuned on top of [Qwen2.5 72B](https://openrouter.ai/qwen/qwen-2.5-72b-instruct).",
+  "ministral-8b": {
+    "provider": "mistralai",
+    "name": "Mistral: Ministral 8B",
+    "description": "Ministral 8B is an 8B parameter model featuring a unique interleaved sliding-window attention pattern for faster, memory-efficient inference. Designed for edge use cases, it supports up to 128k context length and excels in knowledge and reasoning tasks. It outperforms peers in the sub-10B category, making it perfect for low-latency, privacy-first applications.",
     "supports_image": false,
-    "context_length": 16384,
+    "context_length": 131072,
     "inputs": [
       "text"
     ],
@@ -3466,19 +3479,6 @@
     "provider": "mistralai",
     "name": "Mistral: Ministral 3B",
     "description": "Ministral 3B is a 3B parameter model optimized for on-device and edge computing. It excels in knowledge, commonsense reasoning, and function-calling, outperforming larger models like Mistral 7B on most benchmarks. Supporting up to 128k context length, it’s ideal for orchestrating agentic workflows and specialist tasks with efficient inference.",
-    "supports_image": false,
-    "context_length": 131072,
-    "inputs": [
-      "text"
-    ],
-    "outputs": [
-      "text"
-    ]
-  },
-  "ministral-8b": {
-    "provider": "mistralai",
-    "name": "Mistral: Ministral 8B",
-    "description": "Ministral 8B is an 8B parameter model featuring a unique interleaved sliding-window attention pattern for faster, memory-efficient inference. Designed for edge use cases, it supports up to 128k context length and excels in knowledge and reasoning tasks. It outperforms peers in the sub-10B category, making it perfect for low-latency, privacy-first applications.",
     "supports_image": false,
     "context_length": 131072,
     "inputs": [
@@ -3566,6 +3566,19 @@
       "text"
     ]
   },
+  "llama-3.2-1b-instruct": {
+    "provider": "meta-llama",
+    "name": "Meta: Llama 3.2 1B Instruct",
+    "description": "Llama 3.2 1B is a 1-billion-parameter language model focused on efficiently performing natural language tasks, such as summarization, dialogue, and multilingual text analysis. Its smaller size allows it to operate efficiently in low-resource environments while maintaining strong task performance.\n\nSupporting eight core languages and fine-tunable for more, Llama 1.3B is ideal for businesses or developers seeking lightweight yet powerful AI solutions that can operate in diverse multilingual settings without the high computational demand of larger models.\n\nClick here for the [original model card](https://github.com/meta-llama/llama-models/blob/main/models/llama3_2/MODEL_CARD.md).\n\nUsage of this model is subject to [Meta's Acceptable Use Policy](https://www.llama.com/llama3/use-policy/).",
+    "supports_image": false,
+    "context_length": 60000,
+    "inputs": [
+      "text"
+    ],
+    "outputs": [
+      "text"
+    ]
+  },
   "llama-3.2-11b-vision-instruct": {
     "provider": "meta-llama",
     "name": "Meta: Llama 3.2 11B Vision Instruct",
@@ -3575,19 +3588,6 @@
     "inputs": [
       "text",
       "image"
-    ],
-    "outputs": [
-      "text"
-    ]
-  },
-  "llama-3.2-1b-instruct": {
-    "provider": "meta-llama",
-    "name": "Meta: Llama 3.2 1B Instruct",
-    "description": "Llama 3.2 1B is a 1-billion-parameter language model focused on efficiently performing natural language tasks, such as summarization, dialogue, and multilingual text analysis. Its smaller size allows it to operate efficiently in low-resource environments while maintaining strong task performance.\n\nSupporting eight core languages and fine-tunable for more, Llama 1.3B is ideal for businesses or developers seeking lightweight yet powerful AI solutions that can operate in diverse multilingual settings without the high computational demand of larger models.\n\nClick here for the [original model card](https://github.com/meta-llama/llama-models/blob/main/models/llama3_2/MODEL_CARD.md).\n\nUsage of this model is subject to [Meta's Acceptable Use Policy](https://www.llama.com/llama3/use-policy/).",
-    "supports_image": false,
-    "context_length": 60000,
-    "inputs": [
-      "text"
     ],
     "outputs": [
       "text"
@@ -3659,6 +3659,19 @@
       "text"
     ]
   },
+  "l3.1-euryale-70b": {
+    "provider": "sao10k",
+    "name": "Sao10K: Llama 3.1 Euryale 70B v2.2",
+    "description": "Euryale L3.1 70B v2.2 is a model focused on creative roleplay from [Sao10k](https://ko-fi.com/sao10k). It is the successor of [Euryale L3 70B v2.1](/models/sao10k/l3-euryale-70b).",
+    "supports_image": false,
+    "context_length": 32768,
+    "inputs": [
+      "text"
+    ],
+    "outputs": [
+      "text"
+    ]
+  },
   "qwen-2.5-vl-7b-instruct": {
     "provider": "qwen",
     "name": "Qwen: Qwen2.5-VL 7B Instruct",
@@ -3668,19 +3681,6 @@
     "inputs": [
       "text",
       "image"
-    ],
-    "outputs": [
-      "text"
-    ]
-  },
-  "l3.1-euryale-70b": {
-    "provider": "sao10k",
-    "name": "Sao10K: Llama 3.1 Euryale 70B v2.2",
-    "description": "Euryale L3.1 70B v2.2 is a model focused on creative roleplay from [Sao10k](https://ko-fi.com/sao10k). It is the successor of [Euryale L3 70B v2.1](/models/sao10k/l3-euryale-70b).",
-    "supports_image": false,
-    "context_length": 32768,
-    "inputs": [
-      "text"
     ],
     "outputs": [
       "text"
@@ -3888,19 +3888,6 @@
       "text"
     ]
   },
-  "mistral-7b-instruct-v0.3": {
-    "provider": "mistralai",
-    "name": "Mistral: Mistral 7B Instruct v0.3",
-    "description": "A high-performing, industry-standard 7.3B parameter model, with optimizations for speed and context length.\n\nAn improved version of [Mistral 7B Instruct v0.2](/models/mistralai/mistral-7b-instruct-v0.2), with the following changes:\n\n- Extended vocabulary to 32768\n- Supports v3 Tokenizer\n- Supports function calling\n\nNOTE: Support for function calling depends on the provider.",
-    "supports_image": false,
-    "context_length": 32768,
-    "inputs": [
-      "text"
-    ],
-    "outputs": [
-      "text"
-    ]
-  },
   "hermes-2-pro-llama-3-8b": {
     "provider": "nousresearch",
     "name": "NousResearch: Hermes 2 Pro - Llama-3 8B",
@@ -3927,16 +3914,14 @@
       "text"
     ]
   },
-  "gpt-4o-2024-05-13": {
-    "provider": "openai",
-    "name": "OpenAI: GPT-4o (2024-05-13)",
-    "description": "GPT-4o (\"o\" for \"omni\") is OpenAI's latest AI model, supporting both text and image inputs with text outputs. It maintains the intelligence level of [GPT-4 Turbo](/models/openai/gpt-4-turbo) while being twice as fast and 50% more cost-effective. GPT-4o also offers improved performance in processing non-English languages and enhanced visual capabilities.\n\nFor benchmarking against other models, it was briefly called [\"im-also-a-good-gpt2-chatbot\"](https://twitter.com/LiamFedus/status/1790064963966370209)\n\n#multimodal",
-    "supports_image": true,
-    "context_length": 128000,
+  "mistral-7b-instruct-v0.3": {
+    "provider": "mistralai",
+    "name": "Mistral: Mistral 7B Instruct v0.3",
+    "description": "A high-performing, industry-standard 7.3B parameter model, with optimizations for speed and context length.\n\nAn improved version of [Mistral 7B Instruct v0.2](/models/mistralai/mistral-7b-instruct-v0.2), with the following changes:\n\n- Extended vocabulary to 32768\n- Supports v3 Tokenizer\n- Supports function calling\n\nNOTE: Support for function calling depends on the provider.",
+    "supports_image": false,
+    "context_length": 32768,
     "inputs": [
-      "text",
-      "image",
-      "file"
+      "text"
     ],
     "outputs": [
       "text"
@@ -3950,6 +3935,21 @@
     "context_length": 8192,
     "inputs": [
       "text"
+    ],
+    "outputs": [
+      "text"
+    ]
+  },
+  "gpt-4o-2024-05-13": {
+    "provider": "openai",
+    "name": "OpenAI: GPT-4o (2024-05-13)",
+    "description": "GPT-4o (\"o\" for \"omni\") is OpenAI's latest AI model, supporting both text and image inputs with text outputs. It maintains the intelligence level of [GPT-4 Turbo](/models/openai/gpt-4-turbo) while being twice as fast and 50% more cost-effective. GPT-4o also offers improved performance in processing non-English languages and enhanced visual capabilities.\n\nFor benchmarking against other models, it was briefly called [\"im-also-a-good-gpt2-chatbot\"](https://twitter.com/LiamFedus/status/1790064963966370209)\n\n#multimodal",
+    "supports_image": true,
+    "context_length": 128000,
+    "inputs": [
+      "text",
+      "image",
+      "file"
     ],
     "outputs": [
       "text"
@@ -4180,12 +4180,12 @@
       "text"
     ]
   },
-  "mistral-7b-instruct-v0.1": {
-    "provider": "mistralai",
-    "name": "Mistral: Mistral 7B Instruct v0.1",
-    "description": "A 7.3B parameter model that outperforms Llama 2 13B on all benchmarks, with optimizations for speed and context length.",
+  "gpt-3.5-turbo-instruct": {
+    "provider": "openai",
+    "name": "OpenAI: GPT-3.5 Turbo Instruct",
+    "description": "This model is a variant of GPT-3.5 Turbo tuned for instructional prompts and omitting chat-related optimizations. Training data: up to Sep 2021.",
     "supports_image": false,
-    "context_length": 2824,
+    "context_length": 4095,
     "inputs": [
       "text"
     ],
@@ -4193,12 +4193,12 @@
       "text"
     ]
   },
-  "gpt-3.5-turbo-instruct": {
-    "provider": "openai",
-    "name": "OpenAI: GPT-3.5 Turbo Instruct",
-    "description": "This model is a variant of GPT-3.5 Turbo tuned for instructional prompts and omitting chat-related optimizations. Training data: up to Sep 2021.",
+  "mistral-7b-instruct-v0.1": {
+    "provider": "mistralai",
+    "name": "Mistral: Mistral 7B Instruct v0.1",
+    "description": "A 7.3B parameter model that outperforms Llama 2 13B on all benchmarks, with optimizations for speed and context length.",
     "supports_image": false,
-    "context_length": 4095,
+    "context_length": 2824,
     "inputs": [
       "text"
     ],
@@ -4258,19 +4258,6 @@
       "text"
     ]
   },
-  "gpt-3.5-turbo": {
-    "provider": "openai",
-    "name": "OpenAI: GPT-3.5 Turbo",
-    "description": "GPT-3.5 Turbo is OpenAI's fastest model. It can understand and generate natural language or code, and is optimized for chat and traditional completion tasks.\n\nTraining data up to Sep 2021.",
-    "supports_image": false,
-    "context_length": 16385,
-    "inputs": [
-      "text"
-    ],
-    "outputs": [
-      "text"
-    ]
-  },
   "gpt-4-0314": {
     "provider": "openai",
     "name": "OpenAI: GPT-4 (older v0314)",
@@ -4290,6 +4277,19 @@
     "description": "OpenAI's flagship model, GPT-4 is a large-scale multimodal language model capable of solving difficult problems with greater accuracy than previous models due to its broader general knowledge and advanced reasoning capabilities. Training data: up to Sep 2021.",
     "supports_image": false,
     "context_length": 8191,
+    "inputs": [
+      "text"
+    ],
+    "outputs": [
+      "text"
+    ]
+  },
+  "gpt-3.5-turbo": {
+    "provider": "openai",
+    "name": "OpenAI: GPT-3.5 Turbo",
+    "description": "GPT-3.5 Turbo is OpenAI's fastest model. It can understand and generate natural language or code, and is optimized for chat and traditional completion tasks.\n\nTraining data up to Sep 2021.",
+    "supports_image": false,
+    "context_length": 16385,
     "inputs": [
       "text"
     ],
