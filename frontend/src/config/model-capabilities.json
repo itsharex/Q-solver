@@ -1,7 +1,7 @@
 {
   "free": {
     "provider": "openrouter",
-    "name": "Free Router",
+    "name": "Free Models Router",
     "description": "The simplest way to get free inference. openrouter/free is a router that selects free models at random from the models available on OpenRouter. The router smartly filters for models that support features needed for your request such as image understanding, tool calling, structured outputs and more. ",
     "supports_image": true,
     "context_length": 200000,
