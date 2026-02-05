@@ -190,7 +190,7 @@
   },
   "molmo-2-8b": {
     "provider": "allenai",
-    "name": "AllenAI: Molmo2 8B (free)",
+    "name": "AllenAI: Molmo2 8B",
     "description": "Molmo2-8B is an open vision-language model developed by the Allen Institute for AI (Ai2) as part of the Molmo2 family, supporting image, video, and multi-image understanding and grounding. It is based on Qwen3-8B and uses SigLIP 2 as its vision backbone, outperforming other open-weight, open-data models on short videos, counting, and captioning, while remaining competitive on long-video tasks.",
     "supports_image": true,
     "context_length": 36864,
@@ -950,19 +950,6 @@
       "text"
     ]
   },
-  "cogito-v2-preview-llama-405b": {
-    "provider": "deepcogito",
-    "name": "Deep Cogito: Cogito V2 Preview Llama 405B",
-    "description": "Cogito v2 405B is a dense hybrid reasoning model that combines direct answering capabilities with advanced self-reflection. It represents a significant step toward frontier intelligence with dense architecture delivering performance competitive with leading closed models. This advanced reasoning system combines policy improvement with massive scale for exceptional capabilities.\n",
-    "supports_image": false,
-    "context_length": 32768,
-    "inputs": [
-      "text"
-    ],
-    "outputs": [
-      "text"
-    ]
-  },
   "gpt-5-image-mini": {
     "provider": "openai",
     "name": "OpenAI: GPT-5 Image Mini",
@@ -1459,33 +1446,6 @@
     "supports_image": false,
     "context_length": 262144,
     "inputs": [
-      "text"
-    ],
-    "outputs": [
-      "text"
-    ]
-  },
-  "cogito-v2-preview-llama-70b": {
-    "provider": "deepcogito",
-    "name": "Deep Cogito: Cogito V2 Preview Llama 70B",
-    "description": "Cogito v2 70B is a dense hybrid reasoning model that combines direct answering capabilities with advanced self-reflection. Built with iterative policy improvement, it delivers strong performance across reasoning tasks while maintaining efficiency through shorter reasoning chains and improved intuition.",
-    "supports_image": false,
-    "context_length": 32768,
-    "inputs": [
-      "text"
-    ],
-    "outputs": [
-      "text"
-    ]
-  },
-  "cogito-v2-preview-llama-109b-moe": {
-    "provider": "deepcogito",
-    "name": "Cogito V2 Preview Llama 109B",
-    "description": "An instruction-tuned, hybrid-reasoning Mixture-of-Experts model built on Llama-4-Scout-17B-16E. Cogito v2 can answer directly or engage an extended “thinking” phase, with alignment guided by Iterated Distillation & Amplification (IDA). It targets coding, STEM, instruction following, and general helpfulness, with stronger multilingual, tool-calling, and reasoning performance than size-equivalent baselines. The model supports long-context use (up to 10M tokens) and standard Transformers workflows. Users can control the reasoning behaviour with the `reasoning` `enabled` boolean. [Learn more in our docs](https://openrouter.ai/docs/use-cases/reasoning-tokens#enable-reasoning-with-default-config)",
-    "supports_image": true,
-    "context_length": 32767,
-    "inputs": [
-      "image",
       "text"
     ],
     "outputs": [
@@ -2839,7 +2799,7 @@
     "name": "Google: Gemma 3 27B",
     "description": "Gemma 3 introduces multimodality, supporting vision-language input and text outputs. It handles context windows up to 128k tokens, understands over 140 languages, and offers improved math, reasoning, and chat capabilities, including structured outputs and function calling. Gemma 3 27B is Google's latest open source model, successor to [Gemma 2](google/gemma-2-27b-it)",
     "supports_image": true,
-    "context_length": 96000,
+    "context_length": 128000,
     "inputs": [
       "text",
       "image"
