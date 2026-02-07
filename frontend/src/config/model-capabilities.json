@@ -1,4 +1,17 @@
 {
+  "pony-alpha": {
+    "provider": "openrouter",
+    "name": "Pony Alpha",
+    "description": "Pony is a cutting-edge foundation model with strong performance in coding, agentic workflows, reasoning, and roleplay, making it well suited for hands-on coding and real-world use.\n\n**Note:** All prompts and completions for this model are logged by the provider and may be used to improve the model.",
+    "supports_image": false,
+    "context_length": 200000,
+    "inputs": [
+      "text"
+    ],
+    "outputs": [
+      "text"
+    ]
+  },
   "claude-opus-4.6": {
     "provider": "anthropic",
     "name": "Anthropic: Claude Opus 4.6",
@@ -180,7 +193,7 @@
     "name": "Z.AI: GLM 4.7 Flash",
     "description": "As a 30B-class SOTA model, GLM-4.7-Flash offers a new option that balances performance and efficiency. It is further optimized for agentic coding use cases, strengthening coding capabilities, long-horizon task planning, and tool collaboration, and has achieved leading performance among open-source models of the same size on several current public benchmark leaderboards.",
     "supports_image": false,
-    "context_length": 200000,
+    "context_length": 202752,
     "inputs": [
       "text"
     ],
