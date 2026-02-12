@@ -1,4 +1,17 @@
 {
+  "glm-5": {
+    "provider": "z-ai",
+    "name": "Z.ai: GLM 5",
+    "description": "GLM-5 is Z.ai’s flagship open-source foundation model engineered for complex systems design and long-horizon agent workflows. Built for expert developers, it delivers production-grade performance on large-scale programming tasks, rivaling leading closed-source models. With advanced agentic planning, deep backend reasoning, and iterative self-correction, GLM-5 moves beyond code generation to full-system construction and autonomous execution.",
+    "supports_image": false,
+    "context_length": 202752,
+    "inputs": [
+      "text"
+    ],
+    "outputs": [
+      "text"
+    ]
+  },
   "qwen3-max-thinking": {
     "provider": "qwen",
     "name": "Qwen: Qwen3 Max Thinking",
@@ -18,19 +31,6 @@
     "description": "This is a cloaked model provided to the community to gather feedback. A reasoning model designed for speed. It is built for coding assistants, real-time conversational applications, and agentic workflows.\n\nDefault reasoning effort is set to medium for fast responses. For agentic coding use cases, we recommend changing effort to high. \n\nNote: All prompts and completions for this model are logged by the provider and may be used to improve the model.",
     "supports_image": false,
     "context_length": 128000,
-    "inputs": [
-      "text"
-    ],
-    "outputs": [
-      "text"
-    ]
-  },
-  "pony-alpha": {
-    "provider": "openrouter",
-    "name": "Pony Alpha",
-    "description": "Pony is a cutting-edge foundation model with strong performance in coding, agentic workflows, reasoning, and roleplay, making it well suited for hands-on coding and real-world use.\n\n**Note:** All prompts and completions for this model are logged by the provider and may be used to improve the model.",
-    "supports_image": false,
-    "context_length": 200000,
     "inputs": [
       "text"
     ],
@@ -81,7 +81,7 @@
   },
   "step-3.5-flash": {
     "provider": "stepfun",
-    "name": "StepFun: Step 3.5 Flash (free)",
+    "name": "StepFun: Step 3.5 Flash",
     "description": "Step 3.5 Flash is StepFun's most capable open-source foundation model. Built on a sparse Mixture of Experts (MoE) architecture, it selectively activates only 11B of its 196B parameters per token. It is a reasoning model that is incredibly speed efficient even at long contexts.",
     "supports_image": false,
     "context_length": 256000,
@@ -216,7 +216,7 @@
   },
   "glm-4.7-flash": {
     "provider": "z-ai",
-    "name": "Z.AI: GLM 4.7 Flash",
+    "name": "Z.ai: GLM 4.7 Flash",
     "description": "As a 30B-class SOTA model, GLM-4.7-Flash offers a new option that balances performance and efficiency. It is further optimized for agentic coding use cases, strengthening coding capabilities, long-horizon task planning, and tool collaboration, and has achieved leading performance among open-source models of the same size on several current public benchmark leaderboards.",
     "supports_image": false,
     "context_length": 202752,
@@ -314,8 +314,8 @@
   },
   "glm-4.7": {
     "provider": "z-ai",
-    "name": "Z.AI: GLM 4.7",
-    "description": "GLM-4.7 is Z.AI’s latest flagship model, featuring upgrades in two key areas: enhanced programming capabilities and more stable multi-step reasoning/execution. It demonstrates significant improvements in executing complex agent tasks while delivering more natural conversational experiences and superior front-end aesthetics.",
+    "name": "Z.ai: GLM 4.7",
+    "description": "GLM-4.7 is Z.ai’s latest flagship model, featuring upgrades in two key areas: enhanced programming capabilities and more stable multi-step reasoning/execution. It demonstrates significant improvements in executing complex agent tasks while delivering more natural conversational experiences and superior front-end aesthetics.",
     "supports_image": false,
     "context_length": 202752,
     "inputs": [
@@ -467,7 +467,7 @@
   },
   "glm-4.6v": {
     "provider": "z-ai",
-    "name": "Z.AI: GLM 4.6V",
+    "name": "Z.ai: GLM 4.6V",
     "description": "GLM-4.6V is a large multimodal model designed for high-fidelity visual understanding and long-context reasoning across images, documents, and mixed media. It supports up to 128K tokens, processes complex page layouts and charts directly as visual inputs, and integrates native multimodal function calling to connect perception with downstream tool execution. The model also enables interleaved image-text generation and UI reconstruction workflows, including screenshot-to-HTML synthesis and iterative visual editing.",
     "supports_image": true,
     "context_length": 131072,
@@ -1193,7 +1193,7 @@
   },
   "glm-4.6": {
     "provider": "z-ai",
-    "name": "Z.AI: GLM 4.6 (exacto)",
+    "name": "Z.ai: GLM 4.6 (exacto)",
     "description": "Compared with GLM-4.5, this generation brings several key improvements:\n\nLonger context window: The context window has been expanded from 128K to 200K tokens, enabling the model to handle more complex agentic tasks.\nSuperior coding performance: The model achieves higher scores on code benchmarks and demonstrates better real-world performance in applications such as Claude Code、Cline、Roo Code and Kilo Code, including improvements in generating visually polished front-end pages.\nAdvanced reasoning: GLM-4.6 shows a clear improvement in reasoning performance and supports tool use during inference, leading to stronger overall capability.\nMore capable agents: GLM-4.6 exhibits stronger performance in tool using and search-based agents, and integrates more effectively within agent frameworks.\nRefined writing: Better aligns with human preferences in style and readability, and performs more naturally in role-playing scenarios.",
     "supports_image": false,
     "context_length": 204800,
@@ -1628,7 +1628,7 @@
   },
   "glm-4.5v": {
     "provider": "z-ai",
-    "name": "Z.AI: GLM 4.5V",
+    "name": "Z.ai: GLM 4.5V",
     "description": "GLM-4.5V is a vision-language foundation model for multimodal agent applications. Built on a Mixture-of-Experts (MoE) architecture with 106B parameters and 12B activated parameters, it achieves state-of-the-art results in video understanding, image Q&A, OCR, and document parsing, with strong gains in front-end web coding, grounding, and spatial reasoning. It offers a hybrid inference mode: a \"thinking mode\" for deep reasoning and a \"non-thinking mode\" for fast responses. Reasoning behavior can be toggled via the `reasoning` `enabled` boolean. [Learn more in our docs](https://openrouter.ai/docs/use-cases/reasoning-tokens#enable-reasoning-with-default-config)",
     "supports_image": true,
     "context_length": 65536,
@@ -1795,7 +1795,7 @@
   },
   "glm-4.5": {
     "provider": "z-ai",
-    "name": "Z.AI: GLM 4.5",
+    "name": "Z.ai: GLM 4.5",
     "description": "GLM-4.5 is our latest flagship foundation model, purpose-built for agent-based applications. It leverages a Mixture-of-Experts (MoE) architecture and supports a context length of up to 128k tokens. GLM-4.5 delivers significantly enhanced capabilities in reasoning, code generation, and agent alignment. It supports a hybrid inference mode with two options, a \"thinking mode\" designed for complex reasoning and tool use, and a \"non-thinking mode\" optimized for instant responses. Users can control the reasoning behaviour with the `reasoning` `enabled` boolean. [Learn more in our docs](https://openrouter.ai/docs/use-cases/reasoning-tokens#enable-reasoning-with-default-config)",
     "supports_image": false,
     "context_length": 131072,
@@ -1808,7 +1808,7 @@
   },
   "glm-4.5-air": {
     "provider": "z-ai",
-    "name": "Z.AI: GLM 4.5 Air",
+    "name": "Z.ai: GLM 4.5 Air",
     "description": "GLM-4.5-Air is the lightweight variant of our latest flagship model family, also purpose-built for agent-centric applications. Like GLM-4.5, it adopts the Mixture-of-Experts (MoE) architecture but with a more compact parameter size. GLM-4.5-Air also supports hybrid inference modes, offering a \"thinking mode\" for advanced reasoning and tool use, and a \"non-thinking mode\" for real-time interaction. Users can control the reasoning behaviour with the `reasoning` `enabled` boolean. [Learn more in our docs](https://openrouter.ai/docs/use-cases/reasoning-tokens#enable-reasoning-with-default-config)",
     "supports_image": false,
     "context_length": 131072,
@@ -1834,7 +1834,7 @@
   },
   "glm-4-32b": {
     "provider": "z-ai",
-    "name": "Z.AI: GLM 4 32B ",
+    "name": "Z.ai: GLM 4 32B ",
     "description": "GLM 4 32B is a cost-effective foundation language model.\n\nIt can efficiently perform complex tasks and has significantly enhanced capabilities in tool use, online search, and code-related intelligent tasks.\n\nIt is made by the same lab behind the thudm models.",
     "supports_image": false,
     "context_length": 128000,
@@ -3461,32 +3461,6 @@
       "text"
     ]
   },
-  "ministral-8b": {
-    "provider": "mistralai",
-    "name": "Mistral: Ministral 8B",
-    "description": "Ministral 8B is an 8B parameter model featuring a unique interleaved sliding-window attention pattern for faster, memory-efficient inference. Designed for edge use cases, it supports up to 128k context length and excels in knowledge and reasoning tasks. It outperforms peers in the sub-10B category, making it perfect for low-latency, privacy-first applications.",
-    "supports_image": false,
-    "context_length": 131072,
-    "inputs": [
-      "text"
-    ],
-    "outputs": [
-      "text"
-    ]
-  },
-  "ministral-3b": {
-    "provider": "mistralai",
-    "name": "Mistral: Ministral 3B",
-    "description": "Ministral 3B is a 3B parameter model optimized for on-device and edge computing. It excels in knowledge, commonsense reasoning, and function-calling, outperforming larger models like Mistral 7B on most benchmarks. Supporting up to 128k context length, it’s ideal for orchestrating agentic workflows and specialist tasks with efficient inference.",
-    "supports_image": false,
-    "context_length": 131072,
-    "inputs": [
-      "text"
-    ],
-    "outputs": [
-      "text"
-    ]
-  },
   "qwen-2.5-7b-instruct": {
     "provider": "qwen",
     "name": "Qwen: Qwen2.5 7B Instruct",
@@ -4013,7 +3987,7 @@
     "name": "WizardLM-2 8x22B",
     "description": "WizardLM-2 8x22B is Microsoft AI's most advanced Wizard model. It demonstrates highly competitive performance compared to leading proprietary models, and it consistently outperforms all existing state-of-the-art opensource models.\n\nIt is an instruct finetune of [Mixtral 8x22B](/models/mistralai/mixtral-8x22b).\n\nTo read more about the model release, [click here](https://wizardlm.github.io/WizardLM2/).\n\n#moe",
     "supports_image": false,
-    "context_length": 65536,
+    "context_length": 65535,
     "inputs": [
       "text"
     ],
@@ -4081,19 +4055,6 @@
     "description": "The preview GPT-4 model with improved instruction following, JSON mode, reproducible outputs, parallel function calling, and more. Training data: up to Dec 2023.\n\n**Note:** heavily rate limited by OpenAI while in preview.",
     "supports_image": false,
     "context_length": 128000,
-    "inputs": [
-      "text"
-    ],
-    "outputs": [
-      "text"
-    ]
-  },
-  "mistral-tiny": {
-    "provider": "mistralai",
-    "name": "Mistral Tiny",
-    "description": "Note: This model is being deprecated. Recommended replacement is the newer [Ministral 8B](/mistral/ministral-8b)\n\nThis model is currently powered by Mistral-7B-v0.2, and incorporates a \"better\" fine-tuning than [Mistral 7B](/models/mistralai/mistral-7b-instruct-v0.1), inspired by community work. It's best used for large batch processing tasks where cost is a significant factor but reasoning capabilities are not crucial.",
-    "supports_image": false,
-    "context_length": 32768,
     "inputs": [
       "text"
     ],
