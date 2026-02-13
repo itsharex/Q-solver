@@ -1,4 +1,17 @@
 {
+  "minimax-m2.5": {
+    "provider": "minimax",
+    "name": "MiniMax: MiniMax M2.5",
+    "description": "MiniMax-M2.5 is a SOTA large language model designed for real-world productivity. Trained in a diverse range of complex real-world digital working environments, M2.5 builds upon the coding expertise of M2.1 to extend into general office work, reaching fluency in generating and operating Word, Excel, and Powerpoint files, context switching between diverse software environments, and working across different agent and human teams. Scoring 80.2% on SWE-Bench Verified, 51.3% on Multi-SWE-Bench, and 76.3% on BrowseComp, M2.5 is also more token efficient than previous generations, having been trained to optimize its actions and output through planning.",
+    "supports_image": false,
+    "context_length": 204800,
+    "inputs": [
+      "text"
+    ],
+    "outputs": [
+      "text"
+    ]
+  },
   "glm-5": {
     "provider": "z-ai",
     "name": "Z.ai: GLM 5",
@@ -955,7 +968,7 @@
     "name": "Qwen: Qwen3 VL 32B Instruct",
     "description": "Qwen3-VL-32B-Instruct is a large-scale multimodal vision-language model designed for high-precision understanding and reasoning across text, images, and video. With 32 billion parameters, it combines deep visual perception with advanced text comprehension, enabling fine-grained spatial reasoning, document and scene analysis, and long-horizon video understanding.Robust OCR in 32 languages, and enhanced multimodal fusion through Interleaved-MRoPE and DeepStack architectures. Optimized for agentic interaction and visual tool use, Qwen3-VL-32B delivers state-of-the-art performance for complex real-world multimodal tasks.",
     "supports_image": true,
-    "context_length": 262144,
+    "context_length": 131072,
     "inputs": [
       "text",
       "image"
@@ -1167,7 +1180,7 @@
     "name": "Qwen: Qwen3 VL 30B A3B Instruct",
     "description": "Qwen3-VL-30B-A3B-Instruct is a multimodal model that unifies strong text generation with visual understanding for images and videos. Its Instruct variant optimizes instruction-following for general multimodal tasks. It excels in perception of real-world/synthetic categories, 2D/3D spatial grounding, and long-form visual comprehension, achieving competitive multimodal benchmark results. For agentic use, it handles multi-image multi-turn instructions, video timeline alignments, GUI automation, and visual coding from sketches to debugged UI. Text performance matches flagship Qwen3 models, suiting document AI, OCR, UI assistance, spatial tasks, and agent research.",
     "supports_image": true,
-    "context_length": 262144,
+    "context_length": 131072,
     "inputs": [
       "text",
       "image"
@@ -1297,7 +1310,7 @@
     "name": "Qwen: Qwen3 VL 235B A22B Thinking",
     "description": "Qwen3-VL-235B-A22B Thinking is a multimodal model that unifies strong text generation with visual understanding across images and video. The Thinking model is optimized for multimodal reasoning in STEM and math. The series emphasizes robust perception (recognition of diverse real-world and synthetic categories), spatial understanding (2D/3D grounding), and long-form visual comprehension, with competitive results on public multimodal benchmarks for both perception and reasoning.\n\nBeyond analysis, Qwen3-VL supports agentic interaction and tool use: it can follow complex instructions over multi-image, multi-turn dialogues; align text to video timelines for precise temporal queries; and operate GUI elements for automation tasks. The models also enable visual coding workflows, turning sketches or mockups into code and assisting with UI debugging, while maintaining strong text-only performance comparable to the flagship Qwen3 language models. This makes Qwen3-VL suitable for production scenarios spanning document AI, multilingual OCR, software/UI assistance, spatial/embodied tasks, and research on vision-language agents.",
     "supports_image": true,
-    "context_length": 262144,
+    "context_length": 131072,
     "inputs": [
       "text",
       "image"
@@ -2454,7 +2467,7 @@
     "name": "Qwen: Qwen3 235B A22B",
     "description": "Qwen3-235B-A22B is a 235B parameter mixture-of-experts (MoE) model developed by Qwen, activating 22B parameters per forward pass. It supports seamless switching between a \"thinking\" mode for complex reasoning, math, and code tasks, and a \"non-thinking\" mode for general conversational efficiency. The model demonstrates strong reasoning ability, multilingual support (100+ languages and dialects), advanced instruction-following, and agent tool-calling capabilities. It natively handles a 32K token context window and extends up to 131K tokens using YaRN-based scaling.",
     "supports_image": false,
-    "context_length": 131072,
+    "context_length": 40960,
     "inputs": [
       "text"
     ],
@@ -3587,20 +3600,6 @@
     "context_length": 32768,
     "inputs": [
       "text"
-    ],
-    "outputs": [
-      "text"
-    ]
-  },
-  "pixtral-12b": {
-    "provider": "mistralai",
-    "name": "Mistral: Pixtral 12B",
-    "description": "The first multi-modal, text+image-to-text model from Mistral AI. Its weights were launched via torrent: https://x.com/mistralai/status/1833758285167722836.",
-    "supports_image": true,
-    "context_length": 32768,
-    "inputs": [
-      "text",
-      "image"
     ],
     "outputs": [
       "text"
