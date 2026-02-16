@@ -4,7 +4,7 @@
     "name": "MiniMax: MiniMax M2.5",
     "description": "MiniMax-M2.5 is a SOTA large language model designed for real-world productivity. Trained in a diverse range of complex real-world digital working environments, M2.5 builds upon the coding expertise of M2.1 to extend into general office work, reaching fluency in generating and operating Word, Excel, and Powerpoint files, context switching between diverse software environments, and working across different agent and human teams. Scoring 80.2% on SWE-Bench Verified, 51.3% on Multi-SWE-Bench, and 76.3% on BrowseComp, M2.5 is also more token efficient than previous generations, having been trained to optimize its actions and output through planning.",
     "supports_image": false,
-    "context_length": 204800,
+    "context_length": 196608,
     "inputs": [
       "text"
     ],
@@ -17,7 +17,7 @@
     "name": "Z.ai: GLM 5",
     "description": "GLM-5 is Z.ai’s flagship open-source foundation model engineered for complex systems design and long-horizon agent workflows. Built for expert developers, it delivers production-grade performance on large-scale programming tasks, rivaling leading closed-source models. With advanced agentic planning, deep backend reasoning, and iterative self-correction, GLM-5 moves beyond code generation to full-system construction and autonomous execution.",
     "supports_image": false,
-    "context_length": 202752,
+    "context_length": 204800,
     "inputs": [
       "text"
     ],
