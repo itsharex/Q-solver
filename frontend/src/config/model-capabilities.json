@@ -1,4 +1,94 @@
 {
+  "qwen3.5-35b-a3b": {
+    "provider": "qwen",
+    "name": "Qwen: Qwen3.5-35B-A3B",
+    "description": "The Qwen3.5 Series 35B-A3B is a native vision-language model designed with a hybrid architecture that integrates linear attention mechanisms and a sparse mixture-of-experts model, achieving higher inference efficiency. Its overall performance is comparable to that of the Qwen3.5-27B.",
+    "supports_image": true,
+    "context_length": 262144,
+    "inputs": [
+      "text",
+      "image",
+      "video"
+    ],
+    "outputs": [
+      "text"
+    ]
+  },
+  "qwen3.5-27b": {
+    "provider": "qwen",
+    "name": "Qwen: Qwen3.5-27B",
+    "description": "The Qwen3.5 27B native vision-language Dense model incorporates a linear attention mechanism, delivering fast response times while balancing inference speed and performance. Its overall capabilities are comparable to those of the Qwen3.5-122B-A10B.",
+    "supports_image": true,
+    "context_length": 262144,
+    "inputs": [
+      "text",
+      "image",
+      "video"
+    ],
+    "outputs": [
+      "text"
+    ]
+  },
+  "qwen3.5-122b-a10b": {
+    "provider": "qwen",
+    "name": "Qwen: Qwen3.5-122B-A10B",
+    "description": "The Qwen3.5 122B-A10B native vision-language model is built on a hybrid architecture that integrates a linear attention mechanism with a sparse mixture-of-experts model, achieving higher inference efficiency. In terms of overall performance, this model is second only to Qwen3.5-397B-A17B. Its text capabilities significantly outperform those of Qwen3-235B-2507, and its visual capabilities surpass those of Qwen3-VL-235B.",
+    "supports_image": true,
+    "context_length": 262144,
+    "inputs": [
+      "text",
+      "image",
+      "video"
+    ],
+    "outputs": [
+      "text"
+    ]
+  },
+  "qwen3.5-flash-02-23": {
+    "provider": "qwen",
+    "name": "Qwen: Qwen3.5-Flash",
+    "description": "The Qwen3.5 native vision-language Flash models are built on a hybrid architecture that integrates a linear attention mechanism with a sparse mixture-of-experts model, achieving higher inference efficiency. Compared to the 3 series, these models deliver a leap forward in performance for both pure text and multimodal tasks, offering fast response times while balancing inference speed and overall performance.",
+    "supports_image": true,
+    "context_length": 1000000,
+    "inputs": [
+      "text",
+      "image",
+      "video"
+    ],
+    "outputs": [
+      "text"
+    ]
+  },
+  "lfm-2-24b-a2b": {
+    "provider": "liquid",
+    "name": "LiquidAI: LFM2-24B-A2B",
+    "description": "LFM2-24B-A2B is the largest model in the LFM2 family of hybrid architectures designed for efficient on-device deployment. Built as a 24B parameter Mixture-of-Experts model with only 2B active parameters per token, it delivers high-quality generation while maintaining low inference costs. The model fits within 32 GB of RAM, making it practical to run on consumer laptops and desktops without sacrificing capability.",
+    "supports_image": false,
+    "context_length": 32768,
+    "inputs": [
+      "text"
+    ],
+    "outputs": [
+      "text"
+    ]
+  },
+  "gemini-3.1-pro-preview-customtools": {
+    "provider": "google",
+    "name": "Google: Gemini 3.1 Pro Preview Custom Tools",
+    "description": "Gemini 3.1 Pro Preview Custom Tools is a variant of Gemini 3.1 Pro that improves tool selection behavior by preventing overuse of a general bash tool when more efficient third-party or user-defined functions are available. This specialized preview endpoint significantly increases function calling reliability and ensures the model selects the most appropriate tool in coding agents and complex, multi-tool workflows.\n\nIt retains the core strengths of Gemini 3.1 Pro, including multimodal reasoning across text, image, video, audio, and code, a 1M-token context window, and strong software engineering performance.",
+    "supports_image": true,
+    "context_length": 1048576,
+    "inputs": [
+      "text",
+      "audio",
+      "image",
+      "video",
+      "file"
+    ],
+    "outputs": [
+      "text"
+    ]
+  },
   "gpt-5.3-codex": {
     "provider": "openai",
     "name": "OpenAI: GPT-5.3-Codex",
@@ -1526,7 +1616,7 @@
   },
   "qwen-plus-2025-07-28": {
     "provider": "qwen",
-    "name": "Qwen: Qwen Plus 0728 (thinking)",
+    "name": "Qwen: Qwen Plus 0728",
     "description": "Qwen Plus 0728, based on the Qwen3 foundation model, is a 1 million context hybrid reasoning model with a balanced performance, speed, and cost combination.",
     "supports_image": false,
     "context_length": 1000000,
@@ -2653,19 +2743,6 @@
     "provider": "x-ai",
     "name": "xAI: Grok 3 Beta",
     "description": "Grok 3 is the latest model from xAI. It's their flagship model that excels at enterprise use cases like data extraction, coding, and text summarization. Possesses deep domain knowledge in finance, healthcare, law, and science.\n\nExcels in structured tasks and benchmarks like GPQA, LCB, and MMLU-Pro where it outperforms Grok 3 Mini even on high thinking. \n\nNote: That there are two xAI endpoints for this model. By default when using this model we will always route you to the base endpoint. If you want the fast endpoint you can add `provider: { sort: throughput}`, to sort by throughput instead. \n",
-    "supports_image": false,
-    "context_length": 131072,
-    "inputs": [
-      "text"
-    ],
-    "outputs": [
-      "text"
-    ]
-  },
-  "llama-3.1-nemotron-ultra-253b-v1": {
-    "provider": "nvidia",
-    "name": "NVIDIA: Llama 3.1 Nemotron Ultra 253B v1",
-    "description": "Llama-3.1-Nemotron-Ultra-253B-v1 is a large language model (LLM) optimized for advanced reasoning, human-interactive chat, retrieval-augmented generation (RAG), and tool-calling tasks. Derived from Meta’s Llama-3.1-405B-Instruct, it has been significantly customized using Neural Architecture Search (NAS), resulting in enhanced efficiency, reduced memory usage, and improved inference latency. The model supports a context length of up to 128K tokens and can operate efficiently on an 8x NVIDIA H100 node.\n\nNote: you must include `detailed thinking on` in the system prompt to enable reasoning. Please see [Usage Recommendations](https://huggingface.co/nvidia/Llama-3_1-Nemotron-Ultra-253B-v1#quick-start-and-usage-recommendations) for more.",
     "supports_image": false,
     "context_length": 131072,
     "inputs": [
