@@ -1,4 +1,34 @@
 {
+  "seed-2.0-mini": {
+    "provider": "bytedance-seed",
+    "name": "ByteDance Seed: Seed-2.0-Mini",
+    "description": "Seed-2.0-mini targets latency-sensitive, high-concurrency, and cost-sensitive scenarios, emphasizing fast response and flexible inference deployment. It delivers performance comparable to ByteDance-Seed-1.6, supports 256k context, four reasoning effort modes (minimal/low/medium/high), multimodal understanding, and is optimized for lightweight tasks where cost and speed take priority.",
+    "supports_image": true,
+    "context_length": 262144,
+    "inputs": [
+      "text",
+      "image",
+      "video"
+    ],
+    "outputs": [
+      "text"
+    ]
+  },
+  "gemini-3.1-flash-image-preview": {
+    "provider": "google",
+    "name": "Google: Nano Banana 2 (Gemini 3.1 Flash Image Preview)",
+    "description": "Gemini 3.1 Flash Image Preview, a.k.a. \"Nano Banana 2,\" is Google’s latest state of the art image generation and editing model, delivering Pro-level visual quality at Flash speed. It combines advanced contextual understanding with fast, cost-efficient inference, making complex image generation and iterative edits significantly more accessible. Aspect ratios can be controlled with the [image_config API Parameter](https://openrouter.ai/docs/features/multimodal/image-generation#image-aspect-ratio-configuration)",
+    "supports_image": true,
+    "context_length": 65536,
+    "inputs": [
+      "image",
+      "text"
+    ],
+    "outputs": [
+      "image",
+      "text"
+    ]
+  },
   "qwen3.5-35b-a3b": {
     "provider": "qwen",
     "name": "Qwen: Qwen3.5-35B-A3B",
@@ -1300,7 +1330,7 @@
   },
   "gemini-2.5-flash-image": {
     "provider": "google",
-    "name": "Google: Gemini 2.5 Flash Image (Nano Banana)",
+    "name": "Google: Nano Banana (Gemini 2.5 Flash Image)",
     "description": "Gemini 2.5 Flash Image, a.k.a. \"Nano Banana,\" is now generally available. It is a state of the art image generation model with contextual understanding. It is capable of image generation, edits, and multi-turn conversations. Aspect ratios can be controlled with the [image_config API Parameter](https://openrouter.ai/docs/features/multimodal/image-generation#image-aspect-ratio-configuration)",
     "supports_image": true,
     "context_length": 32768,
@@ -2068,7 +2098,7 @@
     "name": "MoonshotAI: Kimi K2 0711",
     "description": "Kimi K2 Instruct is a large-scale Mixture-of-Experts (MoE) language model developed by Moonshot AI, featuring 1 trillion total parameters with 32 billion active per forward pass. It is optimized for agentic capabilities, including advanced tool use, reasoning, and code synthesis. Kimi K2 excels across a broad range of benchmarks, particularly in coding (LiveCodeBench, SWE-bench), reasoning (ZebraLogic, GPQA), and tool-use (Tau2, AceBench) tasks. It supports long-context inference up to 128K tokens and is designed with a novel training stack that includes the MuonClip optimizer for stable large-scale MoE training.",
     "supports_image": false,
-    "context_length": 131072,
+    "context_length": 131000,
     "inputs": [
       "text"
     ],
@@ -4136,19 +4166,6 @@
     "description": "The preview GPT-4 model with improved instruction following, JSON mode, reproducible outputs, parallel function calling, and more. Training data: up to Dec 2023.\n\n**Note:** heavily rate limited by OpenAI while in preview.",
     "supports_image": false,
     "context_length": 128000,
-    "inputs": [
-      "text"
-    ],
-    "outputs": [
-      "text"
-    ]
-  },
-  "mistral-7b-instruct-v0.2": {
-    "provider": "mistralai",
-    "name": "Mistral: Mistral 7B Instruct v0.2",
-    "description": "A high-performing, industry-standard 7.3B parameter model, with optimizations for speed and context length.\n\nAn improved version of [Mistral 7B Instruct](/modelsmistralai/mistral-7b-instruct-v0.1), with the following changes:\n\n- 32k context window (vs 8k context in v0.1)\n- Rope-theta = 1e6\n- No Sliding-Window Attention",
-    "supports_image": false,
-    "context_length": 32768,
     "inputs": [
       "text"
     ],
