@@ -563,19 +563,6 @@
       "text"
     ]
   },
-  "olmo-3.1-32b-think": {
-    "provider": "allenai",
-    "name": "AllenAI: Olmo 3.1 32B Think",
-    "description": "Olmo 3.1 32B Think is a large-scale, 32-billion-parameter model designed for deep reasoning, complex multi-step logic, and advanced instruction following. Building on the Olmo 3 series, version 3.1 delivers refined reasoning behavior and stronger performance across demanding evaluations and nuanced conversational tasks. Developed by Ai2 under the Apache 2.0 license, Olmo 3.1 32B Think continues the Olmo initiative’s commitment to openness, providing full transparency across model weights, code, and training methodology.",
-    "supports_image": false,
-    "context_length": 65536,
-    "inputs": [
-      "text"
-    ],
-    "outputs": [
-      "text"
-    ]
-  },
   "mimo-v2-flash": {
     "provider": "xiaomi",
     "name": "Xiaomi: MiMo-V2-Flash",
@@ -592,7 +579,7 @@
   "nemotron-3-nano-30b-a3b": {
     "provider": "nvidia",
     "name": "NVIDIA: Nemotron 3 Nano 30B A3B",
-    "description": "NVIDIA Nemotron 3 Nano 30B A3B is a small language MoE model with highest compute efficiency and accuracy for developers to build specialized agentic AI systems.\n\nThe model is fully open with open-weights, datasets and recipes so developers can easily\ncustomize, optimize, and deploy the model on their infrastructure for maximum privacy and\nsecurity.\n\nNote: For the free endpoint, all prompts and output are logged to improve the provider's model and its product and services. Please do not upload any personal, confidential, or otherwise sensitive information. This is a trial use only. Do not use for production or business-critical systems.",
+    "description": "NVIDIA Nemotron 3 Nano 30B A3B is a small language MoE model with highest compute efficiency and accuracy for developers to build specialized agentic AI systems.\n\nThe model is fully open with open-weights, datasets and recipes so developers can easily\ncustomize, optimize, and deploy the model on their infrastructure for maximum privacy and\nsecurity.",
     "supports_image": false,
     "context_length": 262144,
     "inputs": [
@@ -2580,7 +2567,7 @@
     "name": "Qwen: Qwen3 8B",
     "description": "Qwen3-8B is a dense 8.2B parameter causal language model from the Qwen3 series, designed for both reasoning-heavy tasks and efficient dialogue. It supports seamless switching between \"thinking\" mode for math, coding, and logical inference, and \"non-thinking\" mode for general conversation. The model is fine-tuned for instruction-following, agent integration, creative writing, and multilingual use across 100+ languages and dialects. It natively supports a 32K token context window and can extend to 131K tokens with YaRN scaling.",
     "supports_image": false,
-    "context_length": 32000,
+    "context_length": 40960,
     "inputs": [
       "text"
     ],
