@@ -1,4 +1,34 @@
 {
+  "seed-2.0-lite": {
+    "provider": "bytedance-seed",
+    "name": "ByteDance Seed: Seed-2.0-Lite",
+    "description": "Seed-2.0-Lite is a balanced model designed for high-frequency enterprise workloads, optimizing for both capability and cost. Its overall performance surpasses the previous-generation Seed-1.8. It is well-suited for production tasks such as unstructured information processing, text content creation, search and recommendation, and data analysis. The model supports long-context processing, multi-source information fusion, multi-step instruction execution, and high-fidelity structured outputs—delivering stable quality while significantly reducing cost.",
+    "supports_image": true,
+    "context_length": 262144,
+    "inputs": [
+      "text",
+      "image",
+      "video"
+    ],
+    "outputs": [
+      "text"
+    ]
+  },
+  "qwen3.5-9b": {
+    "provider": "qwen",
+    "name": "Qwen: Qwen3.5-9B",
+    "description": "Qwen3.5-9B is a multimodal foundation model from the Qwen3.5 family, designed to deliver strong reasoning, coding, and visual understanding in an efficient 9B-parameter architecture. It uses a unified vision-language design with early fusion of multimodal tokens, allowing the model to process and reason across text and images within the same context.",
+    "supports_image": true,
+    "context_length": 262144,
+    "inputs": [
+      "text",
+      "image",
+      "video"
+    ],
+    "outputs": [
+      "text"
+    ]
+  },
   "gpt-5.4-pro": {
     "provider": "openai",
     "name": "OpenAI: GPT-5.4 Pro",
@@ -1463,7 +1493,7 @@
   },
   "glm-4.6": {
     "provider": "z-ai",
-    "name": "Z.ai: GLM 4.6 (exacto)",
+    "name": "Z.ai: GLM 4.6",
     "description": "Compared with GLM-4.5, this generation brings several key improvements:\n\nLonger context window: The context window has been expanded from 128K to 200K tokens, enabling the model to handle more complex agentic tasks.\nSuperior coding performance: The model achieves higher scores on code benchmarks and demonstrates better real-world performance in applications such as Claude Code、Cline、Roo Code and Kilo Code, including improvements in generating visually polished front-end pages.\nAdvanced reasoning: GLM-4.6 shows a clear improvement in reasoning performance and supports tool use during inference, leading to stronger overall capability.\nMore capable agents: GLM-4.6 exhibits stronger performance in tool using and search-based agents, and integrates more effectively within agent frameworks.\nRefined writing: Better aligns with human preferences in style and readability, and performs more naturally in role-playing scenarios.",
     "supports_image": false,
     "context_length": 204800,
@@ -1733,10 +1763,10 @@
   },
   "kimi-k2-0905": {
     "provider": "moonshotai",
-    "name": "MoonshotAI: Kimi K2 0905 (exacto)",
+    "name": "MoonshotAI: Kimi K2 0905",
     "description": "Kimi K2 0905 is the September update of [Kimi K2 0711](moonshotai/kimi-k2). It is a large-scale Mixture-of-Experts (MoE) language model developed by Moonshot AI, featuring 1 trillion total parameters with 32 billion active per forward pass. It supports long-context inference up to 256k tokens, extended from the previous 128k.\n\nThis update improves agentic coding with higher accuracy and better generalization across scaffolds, and enhances frontend coding with more aesthetic and functional outputs for web, 3D, and related tasks. Kimi K2 is optimized for agentic capabilities, including advanced tool use, reasoning, and code synthesis. It excels across coding (LiveCodeBench, SWE-bench), reasoning (ZebraLogic, GPQA), and tool-use (Tau2, AceBench) benchmarks. The model is trained with a novel stack incorporating the MuonClip optimizer for stable large-scale MoE training.",
     "supports_image": false,
-    "context_length": 262144,
+    "context_length": 131072,
     "inputs": [
       "text"
     ],
@@ -1954,7 +1984,7 @@
   },
   "gpt-oss-120b": {
     "provider": "openai",
-    "name": "OpenAI: gpt-oss-120b (exacto)",
+    "name": "OpenAI: gpt-oss-120b",
     "description": "gpt-oss-120b is an open-weight, 117B-parameter Mixture-of-Experts (MoE) language model from OpenAI designed for high-reasoning, agentic, and general-purpose production use cases. It activates 5.1B parameters per forward pass and is optimized to run on a single H100 GPU with native MXFP4 quantization. The model supports configurable reasoning depth, full chain-of-thought access, and native tool use, including function calling, browsing, and structured output generation.",
     "supports_image": false,
     "context_length": 131072,
@@ -2086,7 +2116,7 @@
   },
   "qwen3-coder": {
     "provider": "qwen",
-    "name": "Qwen: Qwen3 Coder 480B A35B (exacto)",
+    "name": "Qwen: Qwen3 Coder 480B A35B",
     "description": "Qwen3-Coder-480B-A35B-Instruct is a Mixture-of-Experts (MoE) code generation model developed by the Qwen team. It is optimized for agentic coding tasks such as function calling, tool use, and long-context reasoning over repositories. The model features 480 billion total parameters, with 35 billion active per forward pass (8 out of 160 experts).\n\nPricing for the Alibaba endpoints varies by context length. Once a request is greater than 128k input tokens, the higher pricing is used.",
     "supports_image": false,
     "context_length": 262144,
@@ -3593,19 +3623,6 @@
       "text"
     ]
   },
-  "sorcererlm-8x22b": {
-    "provider": "raifle",
-    "name": "SorcererLM 8x22B",
-    "description": "SorcererLM is an advanced RP and storytelling model, built as a Low-rank 16-bit LoRA fine-tuned on [WizardLM-2 8x22B](/microsoft/wizardlm-2-8x22b).\n\n- Advanced reasoning and emotional intelligence for engaging and immersive interactions\n- Vivid writing capabilities enriched with spatial and contextual awareness\n- Enhanced narrative depth, promoting creative and dynamic storytelling",
-    "supports_image": false,
-    "context_length": 16000,
-    "inputs": [
-      "text"
-    ],
-    "outputs": [
-      "text"
-    ]
-  },
   "unslopnemo-12b": {
     "provider": "thedrummer",
     "name": "TheDrummer: UnslopNemo 12B",
@@ -3779,19 +3796,6 @@
       "text"
     ]
   },
-  "llama-3.1-lumimaid-8b": {
-    "provider": "neversleep",
-    "name": "NeverSleep: Lumimaid v0.2 8B",
-    "description": "Lumimaid v0.2 8B is a finetune of [Llama 3.1 8B](/models/meta-llama/llama-3.1-8b-instruct) with a \"HUGE step up dataset wise\" compared to Lumimaid v0.1. Sloppy chats output were purged.\n\nUsage of this model is subject to [Meta's Acceptable Use Policy](https://llama.meta.com/llama3/use-policy/).",
-    "supports_image": false,
-    "context_length": 32768,
-    "inputs": [
-      "text"
-    ],
-    "outputs": [
-      "text"
-    ]
-  },
   "command-r-08-2024": {
     "provider": "cohere",
     "name": "Cohere: Command R (08-2024)",
@@ -3823,7 +3827,7 @@
     "name": "Sao10K: Llama 3.1 Euryale 70B v2.2",
     "description": "Euryale L3.1 70B v2.2 is a model focused on creative roleplay from [Sao10k](https://ko-fi.com/sao10k). It is the successor of [Euryale L3 70B v2.1](/models/sao10k/l3-euryale-70b).",
     "supports_image": false,
-    "context_length": 32768,
+    "context_length": 131072,
     "inputs": [
       "text"
     ],
@@ -3850,7 +3854,7 @@
     "name": "Nous: Hermes 3 70B Instruct",
     "description": "Hermes 3 is a generalist language model with many improvements over [Hermes 2](/models/nousresearch/nous-hermes-2-mistral-7b-dpo), including advanced agentic capabilities, much better roleplaying, reasoning, multi-turn conversation, long context coherence, and improvements across the board.\n\nHermes 3 70B is a competitive, if not superior finetune of the [Llama-3.1 70B foundation model](/models/meta-llama/llama-3.1-70b-instruct), focused on aligning LLMs to the user, with powerful steering capabilities and control given to the end user.\n\nThe Hermes 3 series builds and expands on the Hermes 2 set of capabilities, including more powerful and reliable function calling and structured output capabilities, generalist assistant capabilities, and improved code generation skills.",
     "supports_image": false,
-    "context_length": 65536,
+    "context_length": 131072,
     "inputs": [
       "text"
     ],
@@ -4046,19 +4050,6 @@
       "text"
     ]
   },
-  "llama-guard-2-8b": {
-    "provider": "meta-llama",
-    "name": "Meta: LlamaGuard 2 8B",
-    "description": "This safeguard model has 8B parameters and is based on the Llama 3 family. Just like is predecessor, [LlamaGuard 1](https://huggingface.co/meta-llama/LlamaGuard-7b), it can do both prompt and response classification.\n\nLlamaGuard 2 acts as a normal LLM would, generating text that indicates whether the given input/output is safe/unsafe. If deemed unsafe, it will also share the content categories violated.\n\nFor best results, please use raw prompt input or the `/completions` endpoint, instead of the chat API.\n\nIt has demonstrated strong performance compared to leading closed-source models in human evaluations.\n\nTo read more about the model release, [click here](https://ai.meta.com/blog/meta-llama-3/). Usage of this model is subject to [Meta's Acceptable Use Policy](https://llama.meta.com/llama3/use-policy/).",
-    "supports_image": false,
-    "context_length": 8192,
-    "inputs": [
-      "text"
-    ],
-    "outputs": [
-      "text"
-    ]
-  },
   "gpt-4o-2024-05-13": {
     "provider": "openai",
     "name": "OpenAI: GPT-4o (2024-05-13)",
@@ -4214,19 +4205,6 @@
     "description": "Mixtral 8x7B Instruct is a pretrained generative Sparse Mixture of Experts, by Mistral AI, for chat and instruction use. Incorporates 8 experts (feed-forward networks) for a total of 47 billion parameters.\n\nInstruct model fine-tuned by Mistral. #moe",
     "supports_image": false,
     "context_length": 32768,
-    "inputs": [
-      "text"
-    ],
-    "outputs": [
-      "text"
-    ]
-  },
-  "noromaid-20b": {
-    "provider": "neversleep",
-    "name": "Noromaid 20B",
-    "description": "A collab between IkariDev and Undi. This merge is suitable for RP, ERP, and general knowledge.\n\n#merge #uncensored",
-    "supports_image": false,
-    "context_length": 4096,
     "inputs": [
       "text"
     ],
