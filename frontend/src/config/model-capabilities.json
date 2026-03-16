@@ -1,4 +1,17 @@
 {
+  "glm-5-turbo": {
+    "provider": "z-ai",
+    "name": "Z.ai: GLM 5 Turbo",
+    "description": "GLM-5 Turbo is a new model from Z.ai designed for fast inference and strong performance in agent-driven environments such as OpenClaw scenarios. It is deeply optimized for real-world agent workflows involving long execution chains, with improved complex instruction decomposition, tool use, scheduled and persistent execution, and overall stability across extended tasks.",
+    "supports_image": false,
+    "context_length": 202752,
+    "inputs": [
+      "text"
+    ],
+    "outputs": [
+      "text"
+    ]
+  },
   "grok-4.20-multi-agent-beta": {
     "provider": "x-ai",
     "name": "xAI: Grok 4.20 Multi-Agent Beta",
@@ -31,10 +44,11 @@
     "provider": "openrouter",
     "name": "Hunter Alpha",
     "description": "Hunter Alpha is a 1 Trillion parameter + 1M token context frontier intelligence model built for agentic use. It excels at long-horizon planning, complex reasoning, and sustained multi-step task execution, with the reliability and instruction-following precision that frameworks like OpenClaw need.\n\n**Note:** All prompts and completions for this model are logged by the provider and may be used to improve the model.",
-    "supports_image": false,
+    "supports_image": true,
     "context_length": 1048576,
     "inputs": [
-      "text"
+      "text",
+      "image"
     ],
     "outputs": [
       "text"
