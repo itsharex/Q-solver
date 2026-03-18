@@ -1,4 +1,48 @@
 {
+  "gpt-5.4-nano": {
+    "provider": "openai",
+    "name": "OpenAI: GPT-5.4 Nano",
+    "description": "GPT-5.4 nano is the most lightweight and cost-efficient variant of the GPT-5.4 family, optimized for speed-critical and high-volume tasks. It supports text and image inputs and is designed for low-latency use cases such as classification, data extraction, ranking, and sub-agent execution.\n\nThe model prioritizes responsiveness and efficiency over deep reasoning, making it ideal for pipelines that require fast, reliable outputs at scale. GPT-5.4 nano is well suited for background tasks, real-time systems, and distributed agent architectures where minimizing cost and latency is essential.",
+    "supports_image": true,
+    "context_length": 400000,
+    "inputs": [
+      "file",
+      "image",
+      "text"
+    ],
+    "outputs": [
+      "text"
+    ]
+  },
+  "gpt-5.4-mini": {
+    "provider": "openai",
+    "name": "OpenAI: GPT-5.4 Mini",
+    "description": "GPT-5.4 mini brings the core capabilities of GPT-5.4 to a faster, more efficient model optimized for high-throughput workloads. It supports text and image inputs with strong performance across reasoning, coding, and tool use, while reducing latency and cost for large-scale deployments.\n\nThe model is designed for production environments that require a balance of capability and efficiency, making it well suited for chat applications, coding assistants, and agent workflows that operate at scale. GPT-5.4 mini delivers reliable instruction following, solid multi-step reasoning, and consistent performance across diverse tasks with improved cost efficiency.",
+    "supports_image": true,
+    "context_length": 400000,
+    "inputs": [
+      "file",
+      "image",
+      "text"
+    ],
+    "outputs": [
+      "text"
+    ]
+  },
+  "mistral-small-2603": {
+    "provider": "mistralai",
+    "name": "Mistral: Mistral Small 4",
+    "description": "Mistral Small 4 is the next major release in the Mistral Small family, unifying the capabilities of several flagship Mistral models into a single system. It combines strong reasoning from Magistral, multimodal understanding from Pixtral, and agentic coding capabilities from Devstral, enabling one model to handle complex analysis, software development, and visual tasks within the same workflow.",
+    "supports_image": true,
+    "context_length": 262144,
+    "inputs": [
+      "text",
+      "image"
+    ],
+    "outputs": [
+      "text"
+    ]
+  },
   "glm-5-turbo": {
     "provider": "z-ai",
     "name": "Z.ai: GLM 5 Turbo",
@@ -415,7 +459,7 @@
     "name": "Z.ai: GLM 5",
     "description": "GLM-5 is Z.ai’s flagship open-source foundation model engineered for complex systems design and long-horizon agent workflows. Built for expert developers, it delivers production-grade performance on large-scale programming tasks, rivaling leading closed-source models. With advanced agentic planning, deep backend reasoning, and iterative self-correction, GLM-5 moves beyond code generation to full-system construction and autonomous execution.",
     "supports_image": false,
-    "context_length": 202752,
+    "context_length": 80000,
     "inputs": [
       "text"
     ],
