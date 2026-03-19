@@ -1,4 +1,46 @@
 {
+  "mimo-v2-omni": {
+    "provider": "xiaomi",
+    "name": "Xiaomi: MiMo-V2-Omni",
+    "description": "MiMo-V2-Omni is a frontier omni-modal model that natively processes image, video, and audio inputs within a unified architecture. It combines strong multimodal perception with agentic capability - visual grounding, multi-step planning, tool use, and code execution - making it well-suited for complex real-world tasks that span modalities. 256K context window.",
+    "supports_image": true,
+    "context_length": 262144,
+    "inputs": [
+      "text",
+      "audio",
+      "image",
+      "video"
+    ],
+    "outputs": [
+      "text"
+    ]
+  },
+  "mimo-v2-pro": {
+    "provider": "xiaomi",
+    "name": "Xiaomi: MiMo-V2-Pro",
+    "description": "MiMo-V2-Pro is Xiaomi's flagship foundation model, featuring over 1T total parameters and a 1M context length, deeply optimized for agentic scenarios. It is highly adaptable to general agent frameworks like OpenClaw. It ranks among the global top tier in the standard PinchBench and ClawBench benchmarks, with perceived performance approaching that of Opus 4.6. MiMo-V2-Pro is designed to serve as the brain of agent systems, orchestrating complex workflows, driving production engineering tasks, and delivering results reliably.",
+    "supports_image": false,
+    "context_length": 1048576,
+    "inputs": [
+      "text"
+    ],
+    "outputs": [
+      "text"
+    ]
+  },
+  "minimax-m2.7": {
+    "provider": "minimax",
+    "name": "MiniMax: MiniMax M2.7",
+    "description": "MiniMax-M2.7 is a next-generation large language model designed for autonomous, real-world productivity and continuous improvement. Built to actively participate in its own evolution, M2.7 integrates advanced agentic capabilities through multi-agent collaboration, enabling it to plan, execute, and refine complex tasks across dynamic environments.\n\nTrained for production-grade performance, M2.7 handles workflows such as live debugging, root cause analysis, financial modeling, and full document generation across Word, Excel, and PowerPoint. It delivers strong results on benchmarks including 56.2% on SWE-Pro and 57.0% on Terminal Bench 2, while achieving a 1495 ELO on GDPval-AA, setting a new standard for multi-agent systems operating in real-world digital workflows.",
+    "supports_image": false,
+    "context_length": 204800,
+    "inputs": [
+      "text"
+    ],
+    "outputs": [
+      "text"
+    ]
+  },
   "gpt-5.4-nano": {
     "provider": "openai",
     "name": "OpenAI: GPT-5.4 Nano",
@@ -84,39 +126,9 @@
       "text"
     ]
   },
-  "hunter-alpha": {
-    "provider": "openrouter",
-    "name": "Hunter Alpha",
-    "description": "Hunter Alpha is a 1 Trillion parameter + 1M token context frontier intelligence model built for agentic use. It excels at long-horizon planning, complex reasoning, and sustained multi-step task execution, with the reliability and instruction-following precision that frameworks like OpenClaw need.\n\n**Note:** All prompts and completions for this model are logged by the provider and may be used to improve the model.",
-    "supports_image": true,
-    "context_length": 1048576,
-    "inputs": [
-      "text",
-      "image"
-    ],
-    "outputs": [
-      "text"
-    ]
-  },
-  "healer-alpha": {
-    "provider": "openrouter",
-    "name": "Healer Alpha",
-    "description": "Healer Alpha is a frontier omni-modal model with vision, hearing, reasoning, and action capabilities. It brings the full power of agentic intelligence into the real world: natively perceiving visual and audio inputs, reasoning across modalities, and executing complex multi-step tasks with precision and reliability.\n\n**Note:** All prompts and completions for this model are logged by the provider and may be used to improve the model.",
-    "supports_image": true,
-    "context_length": 262144,
-    "inputs": [
-      "text",
-      "image",
-      "audio",
-      "video"
-    ],
-    "outputs": [
-      "text"
-    ]
-  },
   "nemotron-3-super-120b-a12b": {
     "provider": "nvidia",
-    "name": "NVIDIA: Nemotron 3 Super (free)",
+    "name": "NVIDIA: Nemotron 3 Super",
     "description": "NVIDIA Nemotron 3 Super is a 120B-parameter open hybrid MoE model, activating just 12B parameters for maximum compute efficiency and accuracy in complex multi-agent applications. Built on a hybrid Mamba-Transformer Mixture-of-Experts architecture with multi-token prediction (MTP), it delivers over 50% higher token generation compared to leading open models.\n \nThe model features a 1M token context window for long-term agent coherence, cross-document reasoning, and multi-step task planning. Latent MoE enables calling 4 experts for the inference cost of only one, improving intelligence and generalization. Multi-environment RL training across 10+ environments delivers leading accuracy on benchmarks including AIME 2025, TerminalBench, and SWE-Bench Verified.\n \nFully open with weights, datasets, and recipes under the NVIDIA Open License, Nemotron 3 Super allows easy customization and secure deployment anywhere — from workstation to cloud.",
     "supports_image": false,
     "context_length": 262144,
@@ -1843,7 +1855,7 @@
     "name": "Qwen: Qwen3 Next 80B A3B Instruct",
     "description": "Qwen3-Next-80B-A3B-Instruct is an instruction-tuned chat model in the Qwen3-Next series optimized for fast, stable responses without “thinking” traces. It targets complex tasks across reasoning, code generation, knowledge QA, and multilingual use, while remaining robust on alignment and formatting. Compared with prior Qwen3 instruct variants, it focuses on higher throughput and stability on ultra-long inputs and multi-turn dialogues, making it well-suited for RAG, tool use, and agentic workflows that require consistent final answers rather than visible chain-of-thought.\n\nThe model employs scaling-efficient training and decoding to improve parameter efficiency and inference speed, and has been validated on a broad set of public benchmarks where it reaches or approaches larger Qwen3 systems in several categories while outperforming earlier mid-sized baselines. It is best used as a general assistant, code helper, and long-context task solver in production settings where deterministic, instruction-following outputs are preferred.",
     "supports_image": false,
-    "context_length": 131072,
+    "context_length": 262144,
     "inputs": [
       "text"
     ],
@@ -1908,7 +1920,7 @@
     "name": "Qwen: Qwen3 30B A3B Thinking 2507",
     "description": "Qwen3-30B-A3B-Thinking-2507 is a 30B parameter Mixture-of-Experts reasoning model optimized for complex tasks requiring extended multi-step thinking. The model is designed specifically for “thinking mode,” where internal reasoning traces are separated from final answers.\n\nCompared to earlier Qwen3-30B releases, this version improves performance across logical reasoning, mathematics, science, coding, and multilingual benchmarks. It also demonstrates stronger instruction following, tool use, and alignment with human preferences. With higher reasoning efficiency and extended output budgets, it is best suited for advanced research, competitive problem solving, and agentic applications requiring structured long-context reasoning.",
     "supports_image": false,
-    "context_length": 32768,
+    "context_length": 131072,
     "inputs": [
       "text"
     ],
@@ -2222,7 +2234,7 @@
     "name": "Qwen: Qwen3 235B A22B Thinking 2507",
     "description": "Qwen3-235B-A22B-Thinking-2507 is a high-performance, open-weight Mixture-of-Experts (MoE) language model optimized for complex reasoning tasks. It activates 22B of its 235B parameters per forward pass and natively supports up to 262,144 tokens of context. This \"thinking-only\" variant enhances structured logical reasoning, mathematics, science, and long-form generation, showing strong benchmark performance across AIME, SuperGPQA, LiveCodeBench, and MMLU-Redux. It enforces a special reasoning mode (</think>) and is designed for high-token outputs (up to 81,920 tokens) in challenging domains.\n\nThe model is instruction-tuned and excels at step-by-step reasoning, tool use, agentic workflows, and multilingual tasks. This release represents the most capable open-source variant in the Qwen3-235B series, surpassing many closed models in structured reasoning use cases.",
     "supports_image": false,
-    "context_length": 262144,
+    "context_length": 131072,
     "inputs": [
       "text"
     ],
@@ -2489,7 +2501,7 @@
     "name": "Mistral: Mistral Small 3.2 24B",
     "description": "Mistral-Small-3.2-24B-Instruct-2506 is an updated 24B parameter model from Mistral optimized for instruction following, repetition reduction, and improved function calling. Compared to the 3.1 release, version 3.2 significantly improves accuracy on WildBench and Arena Hard, reduces infinite generations, and delivers gains in tool use and structured output tasks.\n\nIt supports image and text inputs with structured outputs, function/tool calling, and strong performance across coding (HumanEval+, MBPP), STEM (MMLU, MATH, GPQA), and vision benchmarks (ChartQA, DocVQA).",
     "supports_image": true,
-    "context_length": 131072,
+    "context_length": 128000,
     "inputs": [
       "image",
       "text"
@@ -3171,7 +3183,7 @@
     "name": "Google: Gemma 3 27B",
     "description": "Gemma 3 introduces multimodality, supporting vision-language input and text outputs. It handles context windows up to 128k tokens, understands over 140 languages, and offers improved math, reasoning, and chat capabilities, including structured outputs and function calling. Gemma 3 27B is Google's latest open source model, successor to [Gemma 2](google/gemma-2-27b-it)",
     "supports_image": true,
-    "context_length": 128000,
+    "context_length": 131072,
     "inputs": [
       "text",
       "image"
@@ -3239,7 +3251,7 @@
     "name": "Qwen: QwQ 32B",
     "description": "QwQ is the reasoning model of the Qwen series. Compared with conventional instruction-tuned models, QwQ, which is capable of thinking and reasoning, can achieve significantly enhanced performance in downstream tasks, especially hard problems. QwQ-32B is the medium-sized reasoning model, which is capable of achieving competitive performance against state-of-the-art reasoning models, e.g., DeepSeek-R1, o1-mini.",
     "supports_image": false,
-    "context_length": 32768,
+    "context_length": 131072,
     "inputs": [
       "text"
     ],
