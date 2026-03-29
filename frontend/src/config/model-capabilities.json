@@ -2737,19 +2737,6 @@
       "text"
     ]
   },
-  "qwen3-4b": {
-    "provider": "qwen",
-    "name": "Qwen: Qwen3 4B (free)",
-    "description": "Qwen3-4B is a 4 billion parameter dense language model from the Qwen3 series, designed to support both general-purpose and reasoning-intensive tasks. It introduces a dual-mode architecture—thinking and non-thinking—allowing dynamic switching between high-precision logical reasoning and efficient dialogue generation. This makes it well-suited for multi-turn chat, instruction following, and complex agent workflows.",
-    "supports_image": false,
-    "context_length": 40960,
-    "inputs": [
-      "text"
-    ],
-    "outputs": [
-      "text"
-    ]
-  },
   "llama-guard-4-12b": {
     "provider": "meta-llama",
     "name": "Meta: Llama Guard 4 12B",
