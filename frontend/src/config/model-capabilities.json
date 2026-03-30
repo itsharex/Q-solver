@@ -3761,19 +3761,6 @@
       "text"
     ]
   },
-  "magnum-v4-72b": {
-    "provider": "anthracite-org",
-    "name": "Magnum v4 72B",
-    "description": "This is a series of models designed to replicate the prose quality of the Claude 3 models, specifically Sonnet(https://openrouter.ai/anthropic/claude-3.5-sonnet) and Opus(https://openrouter.ai/anthropic/claude-3-opus).\n\nThe model is fine-tuned on top of [Qwen2.5 72B](https://openrouter.ai/qwen/qwen-2.5-72b-instruct).",
-    "supports_image": false,
-    "context_length": 16384,
-    "inputs": [
-      "text"
-    ],
-    "outputs": [
-      "text"
-    ]
-  },
   "claude-3.5-sonnet": {
     "provider": "anthropic",
     "name": "Anthropic: Claude 3.5 Sonnet",
@@ -3784,6 +3771,19 @@
       "text",
       "image",
       "file"
+    ],
+    "outputs": [
+      "text"
+    ]
+  },
+  "magnum-v4-72b": {
+    "provider": "anthracite-org",
+    "name": "Magnum v4 72B",
+    "description": "This is a series of models designed to replicate the prose quality of the Claude 3 models, specifically Sonnet(https://openrouter.ai/anthropic/claude-3.5-sonnet) and Opus(https://openrouter.ai/anthropic/claude-3-opus).\n\nThe model is fine-tuned on top of [Qwen2.5 72B](https://openrouter.ai/qwen/qwen-2.5-72b-instruct).",
+    "supports_image": false,
+    "context_length": 16384,
+    "inputs": [
+      "text"
     ],
     "outputs": [
       "text"
@@ -4039,9 +4039,9 @@
       "text"
     ]
   },
-  "gpt-4o-mini": {
+  "gpt-4o-mini-2024-07-18": {
     "provider": "openai",
-    "name": "OpenAI: GPT-4o-mini",
+    "name": "OpenAI: GPT-4o-mini (2024-07-18)",
     "description": "GPT-4o mini is OpenAI's newest model after [GPT-4 Omni](/models/openai/gpt-4o), supporting both text and image inputs with text outputs.\n\nAs their most advanced small model, it is many multiples more affordable than other recent frontier models, and more than 60% cheaper than [GPT-3.5 Turbo](/models/openai/gpt-3.5-turbo). It maintains SOTA intelligence, while being significantly more cost-effective.\n\nGPT-4o mini achieves an 82% score on MMLU and presently ranks higher than GPT-4 on chat preferences [common leaderboards](https://arena.lmsys.org/).\n\nCheck out the [launch announcement](https://openai.com/index/gpt-4o-mini-advancing-cost-efficient-intelligence/) to learn more.\n\n#multimodal",
     "supports_image": true,
     "context_length": 128000,
@@ -4054,9 +4054,9 @@
       "text"
     ]
   },
-  "gpt-4o-mini-2024-07-18": {
+  "gpt-4o-mini": {
     "provider": "openai",
-    "name": "OpenAI: GPT-4o-mini (2024-07-18)",
+    "name": "OpenAI: GPT-4o-mini",
     "description": "GPT-4o mini is OpenAI's newest model after [GPT-4 Omni](/models/openai/gpt-4o), supporting both text and image inputs with text outputs.\n\nAs their most advanced small model, it is many multiples more affordable than other recent frontier models, and more than 60% cheaper than [GPT-3.5 Turbo](/models/openai/gpt-3.5-turbo). It maintains SOTA intelligence, while being significantly more cost-effective.\n\nGPT-4o mini achieves an 82% score on MMLU and presently ranks higher than GPT-4 on chat preferences [common leaderboards](https://arena.lmsys.org/).\n\nCheck out the [launch announcement](https://openai.com/index/gpt-4o-mini-advancing-cost-efficient-intelligence/) to learn more.\n\n#multimodal",
     "supports_image": true,
     "context_length": 128000,
@@ -4121,9 +4121,9 @@
       "text"
     ]
   },
-  "gpt-4o": {
+  "gpt-4o-2024-05-13": {
     "provider": "openai",
-    "name": "OpenAI: GPT-4o (extended)",
+    "name": "OpenAI: GPT-4o (2024-05-13)",
     "description": "GPT-4o (\"o\" for \"omni\") is OpenAI's latest AI model, supporting both text and image inputs with text outputs. It maintains the intelligence level of [GPT-4 Turbo](/models/openai/gpt-4-turbo) while being twice as fast and 50% more cost-effective. GPT-4o also offers improved performance in processing non-English languages and enhanced visual capabilities.\n\nFor benchmarking against other models, it was briefly called [\"im-also-a-good-gpt2-chatbot\"](https://twitter.com/LiamFedus/status/1790064963966370209)\n\n#multimodal",
     "supports_image": true,
     "context_length": 128000,
@@ -4136,9 +4136,9 @@
       "text"
     ]
   },
-  "gpt-4o-2024-05-13": {
+  "gpt-4o": {
     "provider": "openai",
-    "name": "OpenAI: GPT-4o (2024-05-13)",
+    "name": "OpenAI: GPT-4o (extended)",
     "description": "GPT-4o (\"o\" for \"omni\") is OpenAI's latest AI model, supporting both text and image inputs with text outputs. It maintains the intelligence level of [GPT-4 Turbo](/models/openai/gpt-4-turbo) while being twice as fast and 50% more cost-effective. GPT-4o also offers improved performance in processing non-English languages and enhanced visual capabilities.\n\nFor benchmarking against other models, it was briefly called [\"im-also-a-good-gpt2-chatbot\"](https://twitter.com/LiamFedus/status/1790064963966370209)\n\n#multimodal",
     "supports_image": true,
     "context_length": 128000,
@@ -4405,10 +4405,10 @@
       "text"
     ]
   },
-  "gpt-4": {
+  "gpt-4-0314": {
     "provider": "openai",
-    "name": "OpenAI: GPT-4",
-    "description": "OpenAI's flagship model, GPT-4 is a large-scale multimodal language model capable of solving difficult problems with greater accuracy than previous models due to its broader general knowledge and advanced reasoning capabilities. Training data: up to Sep 2021.",
+    "name": "OpenAI: GPT-4 (older v0314)",
+    "description": "GPT-4-0314 is the first version of GPT-4 released, with a context length of 8,192 tokens, and was supported until June 14. Training data: up to Sep 2021.",
     "supports_image": false,
     "context_length": 8191,
     "inputs": [
@@ -4418,10 +4418,10 @@
       "text"
     ]
   },
-  "gpt-4-0314": {
+  "gpt-4": {
     "provider": "openai",
-    "name": "OpenAI: GPT-4 (older v0314)",
-    "description": "GPT-4-0314 is the first version of GPT-4 released, with a context length of 8,192 tokens, and was supported until June 14. Training data: up to Sep 2021.",
+    "name": "OpenAI: GPT-4",
+    "description": "OpenAI's flagship model, GPT-4 is a large-scale multimodal language model capable of solving difficult problems with greater accuracy than previous models due to its broader general knowledge and advanced reasoning capabilities. Training data: up to Sep 2021.",
     "supports_image": false,
     "context_length": 8191,
     "inputs": [
