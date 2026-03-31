@@ -1,4 +1,47 @@
 {
+  "lyria-3-pro-preview": {
+    "provider": "google",
+    "name": "Google: Lyria 3 Pro Preview",
+    "description": "Full-length songs are priced at $0.08 per song. Lyria 3 is Google's family of music generation models, available through the Gemini API. With Lyria 3, you can generate high-quality, 48kHz stereo audio from text prompts or from images. These models deliver structural coherence, including vocals, timed lyrics, and full instrumental arrangements. Lyria 3 Pro can generate full-length songs with verses, choruses, bridges.",
+    "supports_image": true,
+    "context_length": 1048576,
+    "inputs": [
+      "text",
+      "image"
+    ],
+    "outputs": [
+      "text",
+      "audio"
+    ]
+  },
+  "lyria-3-clip-preview": {
+    "provider": "google",
+    "name": "Google: Lyria 3 Clip Preview",
+    "description": "30 second duration clips are priced at $0.04 per clip. Lyria 3 is Google's family of music generation models, available through the Gemini API. With Lyria 3, you can generate high-quality, 48kHz stereo audio from text prompts or from images. These models deliver structural coherence, including vocals, timed lyrics, and full instrumental arrangements. Lyria 3 Clip can generate short clips, loops, previews.",
+    "supports_image": true,
+    "context_length": 1048576,
+    "inputs": [
+      "text",
+      "image"
+    ],
+    "outputs": [
+      "text",
+      "audio"
+    ]
+  },
+  "qwen3.6-plus-preview": {
+    "provider": "qwen",
+    "name": "Qwen: Qwen3.6 Plus Preview (free)",
+    "description": "Qwen 3.6 Plus Preview is the next-generation evolution of the Qwen Plus series, featuring an advanced hybrid architecture that improves efficiency and scalability. It delivers stronger reasoning and more reliable agentic behavior compared to the 3.5 series. In benchmarks, it performs at or above leading state-of-the-art models. Designed as a flagship preview, it excels in agentic coding, front-end development, and complex problem-solving.\n\nNote: The model collects prompt and completion data that can be used to improve the model. ",
+    "supports_image": false,
+    "context_length": 1000000,
+    "inputs": [
+      "text"
+    ],
+    "outputs": [
+      "text"
+    ]
+  },
   "kat-coder-pro-v2": {
     "provider": "kwaipilot",
     "name": "Kwaipilot: KAT-Coder-Pro V2",
@@ -30,7 +73,7 @@
   "mimo-v2-omni": {
     "provider": "xiaomi",
     "name": "Xiaomi: MiMo-V2-Omni",
-    "description": "MiMo-V2-Omni is a frontier omni-modal model that natively processes image, video, and audio inputs within a unified architecture. It combines strong multimodal perception with agentic capability - visual grounding, multi-step planning, tool use, and code execution - making it well-suited for complex real-world tasks that span modalities. 256K context window.",
+    "description": "MiMo-V2-Omni is a frontier omni-modal model that natively processes image, video, and audio inputs within a unified architecture. It combines strong multimodal perception with agentic capability - visual grounding, multi-step planning, tool use, and code execution - making it well-suited for complex real-world tasks that span modalities, 256K context window.",
     "supports_image": true,
     "context_length": 262144,
     "inputs": [
@@ -1246,19 +1289,6 @@
     "context_length": 400000,
     "inputs": [
       "image",
-      "text"
-    ],
-    "outputs": [
-      "text"
-    ]
-  },
-  "kat-coder-pro": {
-    "provider": "kwaipilot",
-    "name": "Kwaipilot: KAT-Coder-Pro V1",
-    "description": "KAT-Coder-Pro V1 is KwaiKAT's most advanced agentic coding model in the KAT-Coder series. Designed specifically for agentic coding tasks, it excels in real-world software engineering scenarios, achieving 73.4% solve rate on the SWE-Bench Verified benchmark. \n\nThe model has been optimized for tool-use capability, multi-turn interaction, instruction following, generalization, and comprehensive capabilities through a multi-stage training process, including mid-training, supervised fine-tuning (SFT), reinforcement fine-tuning (RFT), and scalable agentic RL.",
-    "supports_image": false,
-    "context_length": 256000,
-    "inputs": [
       "text"
     ],
     "outputs": [
@@ -3141,6 +3171,19 @@
     "description": "GPT-4o Search Previewis a specialized model for web search in Chat Completions. It is trained to understand and execute web search queries.",
     "supports_image": false,
     "context_length": 128000,
+    "inputs": [
+      "text"
+    ],
+    "outputs": [
+      "text"
+    ]
+  },
+  "reka-flash-3": {
+    "provider": "rekaai",
+    "name": "Reka: Flash 3",
+    "description": "Reka Flash 3 is a general-purpose, instruction-tuned large language model with 21 billion parameters, developed by Reka. It excels at general chat, coding tasks, instruction-following, and function calling. Featuring a 32K context length and optimized through reinforcement learning (RLOO), it provides competitive performance comparable to proprietary models within a smaller parameter footprint. Ideal for low-latency, local, or on-device deployments, Reka Flash 3 is compact, supports efficient quantization (down to 11GB at 4-bit precision), and employs explicit reasoning tags (\"<reasoning>\") to indicate its internal thought process.\n\nReka Flash 3 is primarily an English model with limited multilingual understanding capabilities. The model weights are released under the Apache 2.0 license.",
+    "supports_image": false,
+    "context_length": 65536,
     "inputs": [
       "text"
     ],
