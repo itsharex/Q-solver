@@ -1,4 +1,33 @@
 {
+  "grok-4.20-multi-agent": {
+    "provider": "x-ai",
+    "name": "xAI: Grok 4.20 Multi-Agent",
+    "description": "Grok 4.20 Multi-Agent is a variant of xAI’s Grok 4.20 designed for collaborative, agent-based workflows. Multiple agents operate in parallel to conduct deep research, coordinate tool use, and synthesize information across complex tasks.\n\nReasoning effort behavior:\n- low / medium: 4 agents\n- high / xhigh: 16 agents",
+    "supports_image": true,
+    "context_length": 2000000,
+    "inputs": [
+      "text",
+      "image",
+      "file"
+    ],
+    "outputs": [
+      "text"
+    ]
+  },
+  "grok-4.20": {
+    "provider": "x-ai",
+    "name": "xAI: Grok 4.20",
+    "description": "Grok 4.20 is xAI's newest flagship model with industry-leading speed and agentic tool calling capabilities. It combines the lowest hallucination rate on the market with strict prompt adherance, delivering consistently precise and truthful responses.\n\nReasoning can be enabled/disabled using the `reasoning` `enabled` parameter in the API. [Learn more in our docs](https://openrouter.ai/docs/use-cases/reasoning-tokens#controlling-reasoning-tokens)",
+    "supports_image": true,
+    "context_length": 2000000,
+    "inputs": [
+      "text",
+      "image"
+    ],
+    "outputs": [
+      "text"
+    ]
+  },
   "lyria-3-pro-preview": {
     "provider": "google",
     "name": "Google: Lyria 3 Pro Preview",
@@ -164,34 +193,6 @@
     "context_length": 202752,
     "inputs": [
       "text"
-    ],
-    "outputs": [
-      "text"
-    ]
-  },
-  "grok-4.20-multi-agent-beta": {
-    "provider": "x-ai",
-    "name": "xAI: Grok 4.20 Multi-Agent Beta",
-    "description": "Grok 4.20 Multi-Agent Beta is a variant of xAI’s Grok 4.20 designed for collaborative, agent-based workflows. Multiple agents operate in parallel to conduct deep research, coordinate tool use, and synthesize information across complex tasks.\n\nReasoning effort behavior:\n- low / medium: 4 agents\n- high / xhigh: 16 agents",
-    "supports_image": true,
-    "context_length": 2000000,
-    "inputs": [
-      "text",
-      "image"
-    ],
-    "outputs": [
-      "text"
-    ]
-  },
-  "grok-4.20-beta": {
-    "provider": "x-ai",
-    "name": "xAI: Grok 4.20 Beta",
-    "description": "Grok 4.20 Beta is xAI's newest flagship model with industry-leading speed and agentic tool calling capabilities. It combines the lowest hallucination rate on the market with strict prompt adherance, delivering consistently precise and truthful responses.\n\nReasoning can be enabled/disabled using the `reasoning` `enabled` parameter in the API. [Learn more in our docs](https://openrouter.ai/docs/use-cases/reasoning-tokens#controlling-reasoning-tokens)",
-    "supports_image": true,
-    "context_length": 2000000,
-    "inputs": [
-      "text",
-      "image"
     ],
     "outputs": [
       "text"
@@ -1218,7 +1219,8 @@
     "context_length": 2000000,
     "inputs": [
       "text",
-      "image"
+      "image",
+      "file"
     ],
     "outputs": [
       "text"
@@ -1805,7 +1807,8 @@
     "context_length": 2000000,
     "inputs": [
       "text",
-      "image"
+      "image",
+      "file"
     ],
     "outputs": [
       "text"
@@ -2385,7 +2388,8 @@
     "context_length": 256000,
     "inputs": [
       "image",
-      "text"
+      "text",
+      "file"
     ],
     "outputs": [
       "text"
