@@ -1,4 +1,140 @@
 {
+  "claude-haiku-latest": {
+    "provider": "~anthropic",
+    "name": "Anthropic Claude Haiku Latest",
+    "description": "This model always redirects to the latest model in the Anthropic Claude Haiku family.",
+    "supports_image": true,
+    "context_length": 200000,
+    "inputs": [
+      "image",
+      "text"
+    ],
+    "outputs": [
+      "text"
+    ]
+  },
+  "gpt-mini-latest": {
+    "provider": "~openai",
+    "name": "OpenAI GPT Mini Latest",
+    "description": "This model always redirects to the latest model in the OpenAI GPT Mini family.",
+    "supports_image": true,
+    "context_length": 400000,
+    "inputs": [
+      "file",
+      "image",
+      "text"
+    ],
+    "outputs": [
+      "text"
+    ]
+  },
+  "gemini-pro-latest": {
+    "provider": "~google",
+    "name": "Google Gemini Pro Latest",
+    "description": "This model always redirects to the latest model in the Google Gemini Pro family.",
+    "supports_image": true,
+    "context_length": 1048576,
+    "inputs": [
+      "audio",
+      "file",
+      "image",
+      "text",
+      "video"
+    ],
+    "outputs": [
+      "text"
+    ]
+  },
+  "kimi-latest": {
+    "provider": "~moonshotai",
+    "name": "MoonshotAI Kimi Latest",
+    "description": "This model always redirects to the latest model in the MoonshotAI Kimi family.",
+    "supports_image": true,
+    "context_length": 256000,
+    "inputs": [
+      "text",
+      "image"
+    ],
+    "outputs": [
+      "text"
+    ]
+  },
+  "gemini-flash-latest": {
+    "provider": "~google",
+    "name": "Google Gemini Flash Latest",
+    "description": "This model always redirects to the latest model in the Google Gemini Flash family.",
+    "supports_image": true,
+    "context_length": 1048576,
+    "inputs": [
+      "text",
+      "image",
+      "file",
+      "audio",
+      "video"
+    ],
+    "outputs": [
+      "text"
+    ]
+  },
+  "claude-sonnet-latest": {
+    "provider": "~anthropic",
+    "name": "Anthropic Claude Sonnet Latest",
+    "description": "This model always redirects to the latest model in the Anthropic Claude Sonnet family.",
+    "supports_image": true,
+    "context_length": 1000000,
+    "inputs": [
+      "text",
+      "image"
+    ],
+    "outputs": [
+      "text"
+    ]
+  },
+  "gpt-latest": {
+    "provider": "~openai",
+    "name": "OpenAI GPT Latest",
+    "description": "This model always redirects to the latest model in the OpenAI GPT family.",
+    "supports_image": true,
+    "context_length": 1050000,
+    "inputs": [
+      "file",
+      "image",
+      "text"
+    ],
+    "outputs": [
+      "text"
+    ]
+  },
+  "qwen3.5-plus-20260420": {
+    "provider": "qwen",
+    "name": "Qwen: Qwen3.5 Plus 2026-04-20",
+    "description": "Qwen3.5 Plus (April 2026) is a large-scale multimodal language model from Alibaba. It accepts text, image, and video input and produces text output, with a 1M token context window. This...",
+    "supports_image": true,
+    "context_length": 1000000,
+    "inputs": [
+      "text",
+      "image",
+      "video"
+    ],
+    "outputs": [
+      "text"
+    ]
+  },
+  "qwen3.6-flash": {
+    "provider": "qwen",
+    "name": "Qwen: Qwen3.6 Flash",
+    "description": "Qwen3.6 Flash is a fast, efficient language model from Alibaba's Qwen 3.6 series. It supports text, image, and video input with a 1M token context window. Tiered pricing kicks in...",
+    "supports_image": true,
+    "context_length": 1000000,
+    "inputs": [
+      "text",
+      "image",
+      "video"
+    ],
+    "outputs": [
+      "text"
+    ]
+  },
   "qwen3.6-35b-a3b": {
     "provider": "qwen",
     "name": "Qwen: Qwen3.6 35B A3B",
@@ -3549,7 +3685,7 @@
     "name": "Google: Gemini 2.0 Flash",
     "description": "Gemini Flash 2.0 offers a significantly faster time to first token (TTFT) compared to [Gemini Flash 1.5](/google/gemini-flash-1.5), while maintaining quality on par with larger models like [Gemini Pro 1.5](/google/gemini-pro-1.5). It...",
     "supports_image": true,
-    "context_length": 1048576,
+    "context_length": 1000000,
     "inputs": [
       "text",
       "image",
@@ -4228,12 +4364,12 @@
       "text"
     ]
   },
-  "llama-3.1-8b-instruct": {
+  "llama-3.1-70b-instruct": {
     "provider": "meta-llama",
-    "name": "Meta: Llama 3.1 8B Instruct",
-    "description": "Meta's latest class of model (Llama 3.1) launched with a variety of sizes & flavors. This 8B instruct-tuned version is fast and efficient. It has demonstrated strong performance compared to...",
+    "name": "Meta: Llama 3.1 70B Instruct",
+    "description": "Meta's latest class of model (Llama 3.1) launched with a variety of sizes & flavors. This 70B instruct-tuned version is optimized for high quality dialogue usecases. It has demonstrated strong...",
     "supports_image": false,
-    "context_length": 16384,
+    "context_length": 131072,
     "inputs": [
       "text"
     ],
@@ -4241,12 +4377,12 @@
       "text"
     ]
   },
-  "llama-3.1-70b-instruct": {
+  "llama-3.1-8b-instruct": {
     "provider": "meta-llama",
-    "name": "Meta: Llama 3.1 70B Instruct",
-    "description": "Meta's latest class of model (Llama 3.1) launched with a variety of sizes & flavors. This 70B instruct-tuned version is optimized for high quality dialogue usecases. It has demonstrated strong...",
+    "name": "Meta: Llama 3.1 8B Instruct",
+    "description": "Meta's latest class of model (Llama 3.1) launched with a variety of sizes & flavors. This 8B instruct-tuned version is fast and efficient. It has demonstrated strong performance compared to...",
     "supports_image": false,
-    "context_length": 131072,
+    "context_length": 16384,
     "inputs": [
       "text"
     ],
@@ -4542,12 +4678,12 @@
       "text"
     ]
   },
-  "gpt-3.5-turbo-instruct": {
-    "provider": "openai",
-    "name": "OpenAI: GPT-3.5 Turbo Instruct",
-    "description": "This model is a variant of GPT-3.5 Turbo tuned for instructional prompts and omitting chat-related optimizations. Training data: up to Sep 2021.",
+  "mistral-7b-instruct-v0.1": {
+    "provider": "mistralai",
+    "name": "Mistral: Mistral 7B Instruct v0.1",
+    "description": "A 7.3B parameter model that outperforms Llama 2 13B on all benchmarks, with optimizations for speed and context length.",
     "supports_image": false,
-    "context_length": 4095,
+    "context_length": 2824,
     "inputs": [
       "text"
     ],
@@ -4555,12 +4691,12 @@
       "text"
     ]
   },
-  "mistral-7b-instruct-v0.1": {
-    "provider": "mistralai",
-    "name": "Mistral: Mistral 7B Instruct v0.1",
-    "description": "A 7.3B parameter model that outperforms Llama 2 13B on all benchmarks, with optimizations for speed and context length.",
+  "gpt-3.5-turbo-instruct": {
+    "provider": "openai",
+    "name": "OpenAI: GPT-3.5 Turbo Instruct",
+    "description": "This model is a variant of GPT-3.5 Turbo tuned for instructional prompts and omitting chat-related optimizations. Training data: up to Sep 2021.",
     "supports_image": false,
-    "context_length": 2824,
+    "context_length": 4095,
     "inputs": [
       "text"
     ],
@@ -4620,10 +4756,10 @@
       "text"
     ]
   },
-  "gpt-4-0314": {
+  "gpt-4": {
     "provider": "openai",
-    "name": "OpenAI: GPT-4 (older v0314)",
-    "description": "GPT-4-0314 is the first version of GPT-4 released, with a context length of 8,192 tokens, and was supported until June 14. Training data: up to Sep 2021.",
+    "name": "OpenAI: GPT-4",
+    "description": "OpenAI's flagship model, GPT-4 is a large-scale multimodal language model capable of solving difficult problems with greater accuracy than previous models due to its broader general knowledge and advanced reasoning...",
     "supports_image": false,
     "context_length": 8191,
     "inputs": [
@@ -4633,10 +4769,10 @@
       "text"
     ]
   },
-  "gpt-4": {
+  "gpt-4-0314": {
     "provider": "openai",
-    "name": "OpenAI: GPT-4",
-    "description": "OpenAI's flagship model, GPT-4 is a large-scale multimodal language model capable of solving difficult problems with greater accuracy than previous models due to its broader general knowledge and advanced reasoning...",
+    "name": "OpenAI: GPT-4 (older v0314)",
+    "description": "GPT-4-0314 is the first version of GPT-4 released, with a context length of 8,192 tokens, and was supported until June 14. Training data: up to Sep 2021.",
     "supports_image": false,
     "context_length": 8191,
     "inputs": [
