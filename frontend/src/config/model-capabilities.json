@@ -192,7 +192,7 @@
   },
   "deepseek-v4.1-flash-1017": {
     "provider": "deepseek",
-    "name": "DeepSeek: DeepSeek V4.1 Flash 1017",
+    "name": "DeepSeek: DeepSeek V4.1 Flash 1017 (batch)",
     "description": "DeepSeek V4.1 Flash 1017 is the October 17, 2026 snapshot of DeepSeek V4.1 Flash, served by DeepSeek under the `deepseek-flash` API model name. V4.1 Flash is a sparse mixture-of-experts model...",
     "supports_image": true,
     "context_length": 1048576,
@@ -238,19 +238,6 @@
     "description": "Beam 1.0 is Reflection's open-weight reasoning model for coding and long-horizon agentic workflows. It uses a sparse mixture-of-experts architecture with 501B total and 23B active parameters per token, and a...",
     "supports_image": false,
     "context_length": 1048576,
-    "inputs": [
-      "text"
-    ],
-    "outputs": [
-      "text"
-    ]
-  },
-  "mercury-3": {
-    "provider": "inception",
-    "name": "Inception: Mercury 3",
-    "description": "Mercury 3 is a diffusion-based language model from Inception, and the lab's most capable model to date. It is suited for agentic workflows and real-time applications where latency compounds, such...",
-    "supports_image": false,
-    "context_length": 1000000,
     "inputs": [
       "text"
     ],
@@ -1029,19 +1016,6 @@
     "inputs": [
       "text",
       "image"
-    ],
-    "outputs": [
-      "text"
-    ]
-  },
-  "mercury-2.5": {
-    "provider": "inception",
-    "name": "Inception: Mercury 2.5",
-    "description": "Mercury 2.5 is the fastest reasoning LLM, and the latest diffusion LLM (dLLM) from Inception. Instead of generating tokens sequentially, Mercury 2.5 produces and refines multiple tokens in parallel, achieving...",
-    "supports_image": false,
-    "context_length": 260000,
-    "inputs": [
-      "text"
     ],
     "outputs": [
       "text"
@@ -1989,7 +1963,7 @@
   },
   "glm-5.2": {
     "provider": "z-ai",
-    "name": "Z.ai: GLM 5.2",
+    "name": "Z.ai: GLM 5.2 (batch)",
     "description": "GLM 5.2 is a large-scale reasoning model from Z.ai. It supports text input and output with a 1M-token context window, and is suited for long-horizon agent workflows, project-level software engineering,...",
     "supports_image": false,
     "context_length": 1048576,
@@ -2866,19 +2840,6 @@
       "text",
       "image",
       "file"
-    ],
-    "outputs": [
-      "text"
-    ]
-  },
-  "mercury-2": {
-    "provider": "inception",
-    "name": "Inception: Mercury 2",
-    "description": "Mercury 2 is an extremely fast reasoning LLM, and the first reasoning diffusion LLM (dLLM). Instead of generating tokens sequentially, Mercury 2 produces and refines multiple tokens in parallel, achieving...",
-    "supports_image": false,
-    "context_length": 128000,
-    "inputs": [
-      "text"
     ],
     "outputs": [
       "text"
@@ -4221,7 +4182,7 @@
   },
   "morph-v3-large": {
     "provider": "morph",
-    "name": "Morph: Morph V3 Large",
+    "name": "Morph: Morph V3 Large (batch)",
     "description": "Morph's high-accuracy apply model for complex code edits. ~4,500 tokens/sec with 98% accuracy for precise code transformations. The model requires the prompt to be in the following format: <instruction>{instruction}</instruction> <code>{initial_code}</code>...",
     "supports_image": false,
     "context_length": 262144,
@@ -4234,10 +4195,10 @@
   },
   "morph-v3-fast": {
     "provider": "morph",
-    "name": "Morph: Morph V3 Fast",
+    "name": "Morph: Morph V3 Fast (batch)",
     "description": "Morph's fastest apply model for code edits. ~10,500 tokens/sec with 96% accuracy for rapid code transformations. The model requires the prompt to be in the following format: <instruction>{instruction}</instruction> <code>{initial_code}</code> <update>{edit_snippet}</update>...",
     "supports_image": false,
-    "context_length": 262144,
+    "context_length": 81920,
     "inputs": [
       "text"
     ],
